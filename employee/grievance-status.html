@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grievance Status | e-Karamchari</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Employee Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Leave Management</div>
+                    <a href="apply-leave.html" class="nav-item"><span class="nav-item-icon">📝</span><span>Apply Leave</span></a>
+                    <a href="leave-status.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Status</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Grievances</div>
+                    <a href="submit-grievance.html" class="nav-item"><span class="nav-item-icon">📢</span><span>Submit Grievance</span></a>
+                    <a href="grievance-status.html" class="nav-item active" id="nav-grievance"><span class="nav-item-icon">📊</span><span>Grievance Status</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>My Attendance</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Profile</div>
+                    <a href="profile.html" class="nav-item" id="nav-profile"><span class="nav-item-icon">👤</span><span>My Profile</span><span class="nav-badge" id="badge-profile" style="display: none;">0</span></a>
+                    <a href="salary-slip.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Slip</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                    <a href="service-record.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Record</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Grievance Status</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Employee</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item"><span>👤</span> My Profile</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <div class="page-header">
+                    <h2>My Grievances</h2>
+                    <div class="page-actions">
+                        <a href="submit-grievance.html" class="btn btn-primary">+ Submit Grievance</a>
+                    </div>
+                </div>
+                
+                <!-- Filters -->
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select id="status-filter" onchange="loadGrievances()">
+                            <option value="">All Status</option>
+                            <option value="Open">Open</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Resolved">Resolved</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Grievances Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Grievance #</th>
+                                        <th>Category</th>
+                                        <th>Subject</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Submitted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="grievances-tbody">
+                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="pagination-container"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- View Grievance Modal -->
+    <div class="modal-overlay" id="view-modal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Grievance Details</h3>
+                <button class="modal-close" onclick="closeModal('view-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="grievance-details">Loading...</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('view-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        let currentPage = 1;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('employee');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            loadGrievances();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadGrievances(page = 1) {
+            currentPage = page;
+            const tbody = document.getElementById('grievances-tbody');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
+            
+            try {
+                const params = {
+                    page: page,
+                    status: document.getElementById('status-filter').value
+                };
+                
+                const response = await API.grievances.myGrievances(params);
+                
+                if (response.success) {
+                    const { grievances, pagination } = response.data;
+                    
+                    if (grievances.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No grievances found</td></tr>';
+                        document.getElementById('pagination-container').innerHTML = '';
+                        return;
+                    }
+                    
+                    let html = '';
+                    grievances.forEach(g => {
+                        html += `<tr>
+                            <td>${Utils.escapeHtml(g.grievance_number)}</td>
+                            <td>${Utils.escapeHtml(g.category_name)}</td>
+                            <td>${Utils.truncate(Utils.escapeHtml(g.subject), 40)}</td>
+                            <td>${Utils.getPriorityBadge(g.priority)}</td>
+                            <td>${Utils.getStatusBadge(g.status)}</td>
+                            <td>${Utils.formatDate(g.created_at)}</td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" onclick="viewGrievance(${g.id})">View</button>
+                            </td>
+                        </tr>`;
+                    });
+                    
+                    tbody.innerHTML = html;
+                    renderPagination(pagination);
+                }
+            } catch (error) {
+                console.error('Error loading grievances:', error);
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading grievances</td></tr>';
+            }
+        }
+        
+        function renderPagination(pagination) {
+            const container = document.getElementById('pagination-container');
+            if (pagination.total_pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div class="pagination">';
+            html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="loadGrievances(${currentPage - 1})">‹ Prev</button>`;
+            
+            for (let i = 1; i <= pagination.total_pages; i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="loadGrievances(${i})">${i}</button>`;
+            }
+            
+            html += `<button class="pagination-btn" ${currentPage === pagination.total_pages ? 'disabled' : ''} onclick="loadGrievances(${currentPage + 1})">Next ›</button>`;
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        async function viewGrievance(id) {
+            try {
+                const response = await API.grievances.get(id);
+                
+                if (response.success) {
+                    const { grievance, comments } = response.data;
+                    
+                    let commentsHtml = '';
+                    if (comments && comments.length > 0) {
+                        commentsHtml = '<h4 class="mt-4 mb-2">Comments</h4><div class="recent-list">';
+                        comments.forEach(c => {
+                            commentsHtml += `<div class="recent-item">
+                                <div class="recent-item-info">
+                                    <div class="recent-item-avatar">${Utils.getInitials(c.user_name)}</div>
+                                    <div class="recent-item-details">
+                                        <h4>${Utils.escapeHtml(c.user_name)} <small class="text-muted">(${c.role_name})</small></h4>
+                                        <p>${Utils.escapeHtml(c.comment)}</p>
+                                        <small class="text-muted">${Utils.getRelativeTime(c.created_at)}</small>
+                                    </div>
+                                </div>
+                            </div>`;
+                        });
+                        commentsHtml += '</div>';
+                    }
+                    
+                    document.getElementById('grievance-details').innerHTML = `
+                        <div class="d-flex justify-between align-center mb-4">
+                            <div>
+                                <h4 class="mb-0">${Utils.escapeHtml(grievance.grievance_number)}</h4>
+                                <small class="text-muted">Submitted on ${Utils.formatDate(grievance.created_at, 'long')}</small>
+                            </div>
+                            <div>
+                                ${Utils.getStatusBadge(grievance.status)}
+                                ${Utils.getPriorityBadge(grievance.priority)}
+                            </div>
+                        </div>
+                        
+                        <div class="table-container mb-4">
+                            <table class="table">
+                                <tr><td width="150"><strong>Category</strong></td><td>${Utils.escapeHtml(grievance.category_name)}</td></tr>
+                                <tr><td><strong>Subject</strong></td><td>${Utils.escapeHtml(grievance.subject)}</td></tr>
+                                <tr><td><strong>Assigned To</strong></td><td>${grievance.assigned_to_name || 'Not assigned'}</td></tr>
+                            </table>
+                        </div>
+                        
+                        <h4>Description</h4>
+                        <p style="white-space: pre-wrap; background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md);">${Utils.escapeHtml(grievance.description)}</p>
+                        
+                        ${grievance.resolution ? `
+                            <h4 class="mt-4">Resolution</h4>
+                            <p style="white-space: pre-wrap; background: rgba(56, 161, 105, 0.1); padding: 1rem; border-radius: var(--radius-md);">${Utils.escapeHtml(grievance.resolution)}</p>
+                            <small class="text-muted">Resolved by ${grievance.resolved_by_name} on ${Utils.formatDate(grievance.resolved_at)}</small>
+                        ` : ''}
+                        
+                        ${commentsHtml}
+                    `;
+                    
+                    document.getElementById('view-modal').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error loading grievance:', error);
+                Utils.showToast('Error loading grievance details', 'error');
+            }
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+    </script>
+</body>
+</html>

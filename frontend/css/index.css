@@ -1,0 +1,93 @@
+/* Landing Page Styles */
+
+/* Feature Cards */
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Step Cards */
+.step-card {
+    transition: transform 0.3s ease;
+}
+
+.step-card:hover {
+    transform: scale(1.05);
+}
+
+/* Stat Cards */
+.stat-card {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: scale(1.1);
+}
+
+/* Testimonial Cards */
+.testimonial-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* FAQ Styles */
+.faq-item .faq-icon {
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .faq-icon {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 200px;
+}
+
+/* Button Styles */
+.btn-primary {
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary {
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Mobile Menu Animation */
+#mobile-menu {
+    transition: max-height 0.3s ease;
+    max-height: 0;
+    overflow: hidden;
+}
+
+#mobile-menu.show {
+    max-height: 300px;
+}

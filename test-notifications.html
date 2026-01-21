@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Notifications - e-Karamchari</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #output {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Notification System Debugger</h1>
+    
+    <div class="section">
+        <h2>1. Check Session</h2>
+        <button onclick="checkSession()">Check Current Session</button>
+    </div>
+    
+    <div class="section">
+        <h2>2. Create Test Notification</h2>
+        <button onclick="createTestNotification()">Create Test Notification</button>
+    </div>
+    
+    <div class="section">
+        <h2>3. Load Notifications</h2>
+        <button onclick="loadNotifications()">Load All Notifications</button>
+    </div>
+    
+    <div class="section">
+        <h2>4. Check Database</h2>
+        <button onclick="checkNotificationCount()">Get Notification Count</button>
+    </div>
+    
+    <div id="output">Output will appear here...</div>
+
+    <script src="frontend/js/api.js"></script>
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type;
+            output.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function checkSession() {
+            log('Checking session...', 'info');
+            try {
+                const response = await API.auth.checkSession();
+                log('Session Response: ' + JSON.stringify(response, null, 2), 'success');
+                
+                if (response && response.success) {
+                    const user = await API.auth.getCurrentUser();
+                    log('Current User: ' + JSON.stringify(user, null, 2), 'success');
+                }
+            } catch (error) {
+                log('Session Error: ' + error.message, 'error');
+            }
+        }
+
+        async function createTestNotification() {
+            log('Creating test notification...', 'info');
+            try {
+                const response = await API.dashboard.createTestNotification();
+                log('Create Response: ' + JSON.stringify(response, null, 2), 'success');
+            } catch (error) {
+                log('Create Error: ' + error.message, 'error');
+            }
+        }
+
+        async function loadNotifications() {
+            log('Loading notifications...', 'info');
+            try {
+                const response = await API.dashboard.getNotifications({ limit: 50 });
+                log('Notifications Response: ' + JSON.stringify(response, null, 2), 'success');
+                
+                if (response && response.success) {
+                    log(`Found ${response.data.notifications.length} notifications`, 'info');
+                    log(`Unread count: ${response.data.unread_count}`, 'info');
+                }
+            } catch (error) {
+                log('Load Error: ' + error.message, 'error');
+            }
+        }
+
+        async function checkNotificationCount() {
+            log('Checking notification count via API...', 'info');
+            try {
+                const response = await API.dashboard.getNotifications({ limit: 1 });
+                if (response && response.success) {
+                    log(`Total unread notifications: ${response.data.unread_count}`, 'success');
+                    log('Page counts: ' + JSON.stringify(response.data.page_counts, null, 2), 'info');
+                }
+            } catch (error) {
+                log('Count Error: ' + error.message, 'error');
+            }
+        }
+
+        // Auto-check session on load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded. Ready for testing.', 'info');
+            checkSession();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Approvals | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item"><span class="nav-item-icon">👥</span><span>All Employees</span></a>
+                    <a href="add-employee.html" class="nav-item"><span class="nav-item-icon">➕</span><span>Add Employee</span></a>
+                    <a href="employee-services.html" class="nav-item"><span class="nav-item-icon">⚡</span><span>Employee Services</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item active" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Requests</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📢</span><span>Grievances</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>Attendance Reports</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Management</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Records</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item" id="nav-reports"><span class="nav-item-icon">📊</span><span>Reports & Analytics</span><span class="nav-badge" id="badge-reports" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings"><span class="nav-item-icon">⚙️</span><span>Settings</span><span class="nav-badge" id="badge-settings" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Leave Approvals</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <!-- Filters -->
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select id="status-filter" onchange="loadLeaves()">
+                            <option value="">All Status</option>
+                            <option value="Pending" selected>Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Department</label>
+                        <select id="department-filter" onchange="loadLeaves()">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Leave Requests Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Request #</th>
+                                        <th>Employee</th>
+                                        <th>Leave Type</th>
+                                        <th>Duration</th>
+                                        <th>Days</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaves-tbody">
+                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="pagination-container"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- View Leave Modal -->
+    <div class="modal-overlay" id="view-modal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Leave Request Details</h3>
+                <button class="modal-close" onclick="closeModal('view-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="leave-details">Loading...</div>
+            <div class="modal-footer" id="leave-actions"></div>
+        </div>
+    </div>
+    
+    <!-- Reject Modal -->
+    <div class="modal-overlay" id="reject-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Reject Leave Request</h3>
+                <button class="modal-close" onclick="closeModal('reject-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label required">Rejection Reason</label>
+                    <textarea class="form-control" id="rejection-reason" rows="3" placeholder="Please provide a reason for rejection"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('reject-modal')">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmReject()">Reject</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentLeaveId = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('admin');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            loadDepartments();
+            loadLeaves();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadDepartments() {
+            try {
+                const response = await API.employees.getDepartments();
+                if (response.success) {
+                    const select = document.getElementById('department-filter');
+                    response.data.forEach(dept => {
+                        const option = document.createElement('option');
+                        option.value = dept.id;
+                        option.textContent = dept.dept_name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+        
+        async function loadLeaves(page = 1) {
+            currentPage = page;
+            const tbody = document.getElementById('leaves-tbody');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
+            
+            try {
+                const params = {
+                    page: page,
+                    status: document.getElementById('status-filter').value,
+                    department: document.getElementById('department-filter').value
+                };
+                
+                const response = await API.leaves.list(params);
+                
+                if (response.success) {
+                    const { leaves, pagination } = response.data;
+                    
+                    if (leaves.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No leave requests found</td></tr>';
+                        document.getElementById('pagination-container').innerHTML = '';
+                        return;
+                    }
+                    
+                    let html = '';
+                    leaves.forEach(leave => {
+                        html += `<tr>
+                            <td>${Utils.escapeHtml(leave.request_number)}</td>
+                            <td>
+                                <strong>${Utils.escapeHtml(leave.employee_name)}</strong><br>
+                                <small class="text-muted">${Utils.escapeHtml(leave.emp_code)}</small>
+                            </td>
+                            <td>${Utils.escapeHtml(leave.leave_name)}</td>
+                            <td>${Utils.formatDate(leave.start_date)} - ${Utils.formatDate(leave.end_date)}</td>
+                            <td>${leave.total_days}</td>
+                            <td>${Utils.getStatusBadge(leave.status)}</td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" onclick="viewLeave(${leave.id})">View</button>
+                                ${leave.status === 'Pending' ? `
+                                    <button class="btn btn-sm btn-success" onclick="approveLeave(${leave.id})">Approve</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectLeave(${leave.id})">Reject</button>
+                                ` : ''}
+                            </td>
+                        </tr>`;
+                    });
+                    
+                    tbody.innerHTML = html;
+                    renderPagination(pagination);
+                }
+            } catch (error) {
+                console.error('Error loading leaves:', error);
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading leave requests</td></tr>';
+            }
+        }
+        
+        function renderPagination(pagination) {
+            const container = document.getElementById('pagination-container');
+            if (pagination.total_pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div class="pagination">';
+            html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="loadLeaves(${currentPage - 1})">‹ Prev</button>`;
+            
+            for (let i = 1; i <= pagination.total_pages; i++) {
+                if (i === 1 || i === pagination.total_pages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="loadLeaves(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += '<span>...</span>';
+                }
+            }
+            
+            html += `<button class="pagination-btn" ${currentPage === pagination.total_pages ? 'disabled' : ''} onclick="loadLeaves(${currentPage + 1})">Next ›</button>`;
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        async function viewLeave(id) {
+            try {
+                // Fetch leave details from the list (we already have them)
+                const tbody = document.getElementById('leaves-tbody');
+                document.getElementById('leave-details').innerHTML = '<p>Loading...</p>';
+                document.getElementById('view-modal').classList.add('active');
+                
+                // Get full details via API
+                const response = await fetch(`../backend/api/leaves.php?action=get&id=${id}`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const leave = data.data;
+                    currentLeaveId = id;
+                    
+                    document.getElementById('leave-details').innerHTML = `
+                        <div class="table-container">
+                            <table class="table">
+                                <tr><td><strong>Request #</strong></td><td>${Utils.escapeHtml(leave.request_number)}</td></tr>
+                                <tr><td><strong>Employee</strong></td><td>${Utils.escapeHtml(leave.employee_name)} (${Utils.escapeHtml(leave.emp_code)})</td></tr>
+                                <tr><td><strong>Department</strong></td><td>${Utils.escapeHtml(leave.dept_name || '-')}</td></tr>
+                                <tr><td><strong>Leave Type</strong></td><td>${Utils.escapeHtml(leave.leave_name)}</td></tr>
+                                <tr><td><strong>Duration</strong></td><td>${Utils.formatDate(leave.start_date)} to ${Utils.formatDate(leave.end_date)}</td></tr>
+                                <tr><td><strong>Total Days</strong></td><td>${leave.total_days} days</td></tr>
+                                <tr><td><strong>Status</strong></td><td>${Utils.getStatusBadge(leave.status)}</td></tr>
+                                <tr><td><strong>Reason</strong></td><td>${Utils.escapeHtml(leave.reason)}</td></tr>
+                                ${leave.rejection_reason ? `<tr><td><strong>Rejection Reason</strong></td><td style="color: #e53e3e;">${Utils.escapeHtml(leave.rejection_reason)}</td></tr>` : ''}
+                                ${leave.approved_by_name ? `<tr><td><strong>Processed By</strong></td><td>${Utils.escapeHtml(leave.approved_by_name)}</td></tr>` : ''}
+                                ${leave.approved_at ? `<tr><td><strong>Processed At</strong></td><td>${Utils.formatDate(leave.approved_at, 'time')}</td></tr>` : ''}
+                            </table>
+                        </div>
+                    `;
+                    
+                    let actionsHtml = '<button class="btn btn-secondary" onclick="closeModal(\'view-modal\')">Close</button>';
+                    if (leave.status === 'Pending') {
+                        actionsHtml = `
+                            <button class="btn btn-secondary" onclick="closeModal('view-modal')">Close</button>
+                            <button class="btn btn-success" onclick="closeModal('view-modal'); approveLeave(${id})">Approve</button>
+                            <button class="btn btn-danger" onclick="closeModal('view-modal'); rejectLeave(${id})">Reject</button>
+                        `;
+                    }
+                    document.getElementById('leave-actions').innerHTML = actionsHtml;
+                } else {
+                    document.getElementById('leave-details').innerHTML = '<p class="text-danger">Failed to load details</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('leave-details').innerHTML = '<p class="text-danger">Error loading details</p>';
+            }
+        }
+        
+        async function approveLeave(id) {
+            Utils.showConfirm('Approve Leave', 'Are you sure you want to approve this leave request?', async () => {
+                try {
+                    Utils.showLoading();
+                    const response = await API.leaves.approve(id);
+                    Utils.hideLoading();
+                    
+                    if (response.success) {
+                        Utils.showToast('Leave approved successfully!', 'success');
+                        loadLeaves(currentPage);
+                    } else {
+                        Utils.showToast(response.message || 'Failed to approve', 'error');
+                    }
+                } catch (error) {
+                    Utils.hideLoading();
+                    Utils.showToast('An error occurred', 'error');
+                }
+            });
+        }
+        
+        function rejectLeave(id) {
+            currentLeaveId = id;
+            document.getElementById('rejection-reason').value = '';
+            document.getElementById('reject-modal').classList.add('active');
+        }
+        
+        async function confirmReject() {
+            const reason = document.getElementById('rejection-reason').value.trim();
+            
+            if (!reason) {
+                Utils.showToast('Please provide a rejection reason', 'error');
+                return;
+            }
+            
+            try {
+                Utils.showLoading();
+                const response = await API.leaves.reject(currentLeaveId, reason);
+                Utils.hideLoading();
+                
+                if (response.success) {
+                    Utils.showToast('Leave rejected', 'success');
+                    closeModal('reject-modal');
+                    loadLeaves(currentPage);
+                } else {
+                    Utils.showToast(response.message || 'Failed to reject', 'error');
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                Utils.showToast('An error occurred', 'error');
+            }
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+/* Employee Services Page Styles */
+
+.service-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.service-card {
+    background: var(--white);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.service-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.service-card.warning {
+    border-color: var(--warning-color);
+    background: rgba(214, 158, 46, 0.05);
+}
+
+.service-card.warning:hover {
+    border-color: var(--warning-color);
+    background: rgba(214, 158, 46, 0.1);
+}
+
+.service-card.danger {
+    border-color: var(--danger-color);
+    background: rgba(229, 62, 62, 0.05);
+}
+
+.service-card.danger:hover {
+    border-color: var(--danger-color);
+    background: rgba(229, 62, 62, 0.1);
+}
+
+.service-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.service-card h4 {
+    margin-bottom: 0.5rem;
+    color: var(--gray-800);
+    font-size: 1.1rem;
+}
+
+.service-card p {
+    color: var(--gray-500);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* Horizontal Rule */
+.my-4 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: none;
+    border-top: 1px solid var(--gray-200);
+}

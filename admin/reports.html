@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Report | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item"><span class="nav-item-icon">👥</span><span>All Employees</span></a>
+                    <a href="add-employee.html" class="nav-item"><span class="nav-item-icon">➕</span><span>Add Employee</span></a>
+                    <a href="employee-services.html" class="nav-item"><span class="nav-item-icon">⚡</span><span>Employee Services</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Requests</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📢</span><span>Grievances</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>Attendance Reports</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Management</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Records</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item active" id="nav-reports"><span class="nav-item-icon">📊</span><span>Reports & Analytics</span><span class="nav-badge" id="badge-reports" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings"><span class="nav-item-icon">⚙️</span><span>Settings</span><span class="nav-badge" id="badge-settings" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Monthly Report</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <!-- Month Selector -->
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Select Month</label>
+                        <input type="month" id="month-filter" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" onclick="loadMonthlyReport()">Generate Report</button>
+                </div>
+                
+                <!-- Monthly Summary Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">👥</div>
+                        <div class="stat-content">
+                            <h3 id="total-employees">0</h3>
+                            <p>Total Employees</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">📅</div>
+                        <div class="stat-content">
+                            <h3 id="working-days">0</h3>
+                            <p>Working Days</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">📋</div>
+                        <div class="stat-content">
+                            <h3 id="total-leaves">0</h3>
+                            <p>Total Leaves</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon info">✓</div>
+                        <div class="stat-content">
+                            <h3 id="avg-attendance">0%</h3>
+                            <p>Avg Attendance</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Monthly Attendance Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 id="report-title">Monthly Attendance Report</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee ID</th>
+                                        <th>Name</th>
+                                        <th>Department</th>
+                                        <th>Present</th>
+                                        <th>Absent</th>
+                                        <th>Leaves</th>
+                                        <th>Attendance %</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-tbody">
+                                    <tr><td colspan="7" class="text-center">Select a month and click Generate Report</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Leave Summary -->
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-header">
+                        <h3>Leave Summary</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Leave Type</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Days</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leave-tbody">
+                                    <tr><td colspan="6" class="text-center">-</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('admin');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            
+            // Set default month to current month
+            const now = new Date();
+            const currentMonth = now.toISOString().slice(0, 7);
+            document.getElementById('month-filter').value = currentMonth;
+            
+            loadMonthlyReport();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadMonthlyReport() {
+            const monthInput = document.getElementById('month-filter').value;
+            if (!monthInput) {
+                Utils.showToast('Please select a month', 'error');
+                return;
+            }
+            
+            const [year, month] = monthInput.split('-');
+            const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+            
+            document.getElementById('report-title').textContent = `Monthly Attendance Report - ${monthName}`;
+            document.getElementById('report-tbody').innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
+            document.getElementById('leave-tbody').innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+            
+            try {
+                // Load monthly report
+                const response = await fetch(`../backend/api/reports.php?action=monthly&year=${year}&month=${month}`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const report = data.data;
+                    
+                    // Update stats
+                    document.getElementById('total-employees').textContent = report.total_employees || 0;
+                    document.getElementById('working-days').textContent = report.working_days || 0;
+                    document.getElementById('total-leaves').textContent = report.total_leaves || 0;
+                    document.getElementById('avg-attendance').textContent = (report.avg_attendance || 0) + '%';
+                    
+                    // Render attendance table
+                    if (report.employee_attendance && report.employee_attendance.length > 0) {
+                        let html = '';
+                        report.employee_attendance.forEach(emp => {
+                            const attendancePercent = report.working_days > 0 
+                                ? Math.round((emp.present / report.working_days) * 100) 
+                                : 0;
+                            
+                            html += `<tr>
+                                <td>${Utils.escapeHtml(emp.employee_id)}</td>
+                                <td>${Utils.escapeHtml(emp.name)}</td>
+                                <td>${Utils.escapeHtml(emp.department || '-')}</td>
+                                <td><span class="badge badge-success">${emp.present || 0}</span></td>
+                                <td><span class="badge badge-danger">${emp.absent || 0}</span></td>
+                                <td><span class="badge badge-warning">${emp.leaves || 0}</span></td>
+                                <td><strong>${attendancePercent}%</strong></td>
+                            </tr>`;
+                        });
+                        document.getElementById('report-tbody').innerHTML = html;
+                    } else {
+                        document.getElementById('report-tbody').innerHTML = '<tr><td colspan="7" class="text-center">No attendance data for this month</td></tr>';
+                    }
+                    
+                    // Render leave table
+                    if (report.leaves && report.leaves.length > 0) {
+                        let leaveHtml = '';
+                        report.leaves.forEach(leave => {
+                            leaveHtml += `<tr>
+                                <td>${Utils.escapeHtml(leave.employee_name)}</td>
+                                <td>${Utils.escapeHtml(leave.leave_name)}</td>
+                                <td>${Utils.formatDate(leave.start_date)}</td>
+                                <td>${Utils.formatDate(leave.end_date)}</td>
+                                <td>${leave.total_days}</td>
+                                <td>${Utils.getStatusBadge(leave.status)}</td>
+                            </tr>`;
+                        });
+                        document.getElementById('leave-tbody').innerHTML = leaveHtml;
+                    } else {
+                        document.getElementById('leave-tbody').innerHTML = '<tr><td colspan="6" class="text-center">No leaves in this month</td></tr>';
+                    }
+                } else {
+                    document.getElementById('report-tbody').innerHTML = `<tr><td colspan="7" class="text-center text-danger">${data.message || 'Error loading report'}</td></tr>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('report-tbody').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading report</td></tr>';
+            }
+        }
+    </script>
+</body>
+</html>

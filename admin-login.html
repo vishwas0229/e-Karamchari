@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admin Login - e-Karamchari Portal">
+    <title>Admin Login | e-Karamchari</title>
+    <link rel="stylesheet" href="frontend/css/common.css">
+    <link rel="stylesheet" href="frontend/css/auth.css">
+    <script src="frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="login-page">
+        <!-- Left Side - Branding -->
+        <div class="login-left" style="background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);">
+            <div class="login-branding">
+                <h1>e-Karamchari</h1>
+                <p>Administrative Portal</p>
+                <p style="font-size: 0.9rem; opacity: 0.8;">Municipal Corporation of Delhi</p>
+            </div>
+            
+            <div class="login-features">
+                <div class="login-feature">
+                    <div class="login-feature-icon">👥</div>
+                    <span>Manage employees</span>
+                </div>
+                <div class="login-feature">
+                    <div class="login-feature-icon">✅</div>
+                    <span>Approve leave requests</span>
+                </div>
+                <div class="login-feature">
+                    <div class="login-feature-icon">📊</div>
+                    <span>View reports & analytics</span>
+                </div>
+                <div class="login-feature">
+                    <div class="login-feature-icon">🔐</div>
+                    <span>2FA Protected Access</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Login Form -->
+        <div class="login-right">
+            <div class="login-form-container">
+                <!-- Login Form -->
+                <div id="login-section">
+                    <div class="login-form-header">
+                        <h2>Admin / Officer Login</h2>
+                        <p>Enter your credentials to access the admin panel</p>
+                    </div>
+                    
+                    <form class="login-form" id="admin-login-form">
+                        <div id="login-error" class="alert alert-danger" style="display: none;"></div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required" for="identifier">Admin ID / Email</label>
+                            <input type="text" class="form-control" id="identifier" name="identifier" 
+                                   placeholder="Enter Admin ID or Email" required autocomplete="username">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required" for="password">Password</label>
+                            <div style="position: relative;">
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       placeholder="Enter your password" required autocomplete="current-password"
+                                       style="padding-right: 50px;">
+                                <span id="toggle-password" 
+                                      style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.85rem; user-select: none; color: #666;">
+                                    Show
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem;">
+                                <input type="checkbox" id="terms-checkbox" required style="width: 18px; height: 18px; cursor: pointer;">
+                                <span>I agree to the <a href="terms.html" style="color: #3182ce;">Terms & Conditions</a></span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg" id="login-btn">Login</button>
+                    </form>
+                </div>
+                
+                <!-- 2FA Verification Section -->
+                <div id="twofa-section" style="display: none;">
+                    <div class="login-form-header">
+                        <h2>🔐 Two-Factor Authentication</h2>
+                        <p>Enter the 6-digit code from your Google Authenticator app</p>
+                    </div>
+                    
+                    <form class="login-form" id="twofa-form">
+                        <div id="twofa-error" class="alert alert-danger" style="display: none;"></div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">Verification Code</label>
+                            <input type="text" class="form-control" id="twofa-code" name="code" 
+                                   placeholder="Enter 6-digit code" maxlength="8" 
+                                   style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem;"
+                                   autocomplete="one-time-code" required>
+                            <small style="color: #666; display: block; margin-top: 0.5rem;">
+                                Or enter an 8-character backup code
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg" id="verify-btn">Verify</button>
+                        
+                        <button type="button" class="btn btn-secondary" onclick="backToLogin()" style="margin-top: 1rem;">
+                            ← Back to Login
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="login-links">
+                    <a href="employee-login.html">Employee Login →</a>
+                </div>
+                
+                <a href="index.html" class="back-to-home">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="frontend/js/api.js"></script>
+    <script src="frontend/js/utils.js"></script>
+    <script src="frontend/js/auth.js"></script>
+    <script>
+        let pendingUserId = null;
+        let pendingTempToken = null;
+        
+        function togglePassword() {
+            const pwd = document.getElementById('password');
+            const icon = document.getElementById('toggle-password');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                icon.textContent = 'Hide';
+            } else {
+                pwd.type = 'password';
+                icon.textContent = 'Show';
+            }
+        }
+        
+        // Add click listener for password toggle
+        document.getElementById('toggle-password').addEventListener('click', togglePassword);
+        
+        function backToLogin() {
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('twofa-section').style.display = 'none';
+            document.getElementById('twofa-code').value = '';
+            pendingUserId = null;
+            pendingTempToken = null;
+        }
+        
+        // Login form handler
+        document.getElementById('admin-login-form').onsubmit = async function(e) {
+            e.preventDefault();
+            
+            const identifier = document.getElementById('identifier').value.trim();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('login-error');
+            const submitBtn = document.getElementById('login-btn');
+            
+            if (!identifier || !password) {
+                errorDiv.textContent = 'Please enter Admin ID/Email and Password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Logging in...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const response = await API.auth.adminLogin(identifier, password);
+                
+                if (response.success) {
+                    if (response.data.requires_2fa) {
+                        // Show 2FA form
+                        pendingUserId = response.data.user_id;
+                        pendingTempToken = response.data.temp_token;
+                        
+                        document.getElementById('login-section').style.display = 'none';
+                        document.getElementById('twofa-section').style.display = 'block';
+                        document.getElementById('twofa-code').focus();
+                    } else {
+                        // No 2FA - direct login
+                        sessionStorage.setItem('user', JSON.stringify(response.data));
+                        sessionStorage.setItem('isLoggedIn', 'true');
+                        sessionStorage.setItem('userRole', 'admin');
+                        window.location.href = 'admin/dashboard.html';
+                    }
+                } else {
+                    errorDiv.textContent = response.message || 'Invalid credentials';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Server error: ' + error.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Login';
+            }
+        };
+        
+        // 2FA verification handler
+        document.getElementById('twofa-form').onsubmit = async function(e) {
+            e.preventDefault();
+            
+            const code = document.getElementById('twofa-code').value.trim();
+            const errorDiv = document.getElementById('twofa-error');
+            const submitBtn = document.getElementById('verify-btn');
+            
+            if (!code) {
+                errorDiv.textContent = 'Please enter the verification code';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Verifying...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('backend/api/two-factor.php?action=verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        user_id: pendingUserId,
+                        code: code,
+                        temp_token: pendingTempToken
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    sessionStorage.setItem('user', JSON.stringify(data.data.user));
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userRole', 'admin');
+                    window.location.href = 'admin/dashboard.html';
+                } else {
+                    errorDiv.textContent = data.message || 'Invalid code';
+                    errorDiv.style.display = 'block';
+                    document.getElementById('twofa-code').value = '';
+                    document.getElementById('twofa-code').focus();
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Server error: ' + error.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Verify';
+            }
+        };
+    </script>
+</body>
+</html>

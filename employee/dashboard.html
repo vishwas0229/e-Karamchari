@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | e-Karamchari Employee Portal</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Employee Portal</div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item active">
+                        <span class="nav-item-icon">🏠</span>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Leave Management</div>
+                    <a href="apply-leave.html" class="nav-item">
+                        <span class="nav-item-icon">📝</span>
+                        <span>Apply Leave</span>
+                    </a>
+                    <a href="leave-status.html" class="nav-item" id="nav-leave">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Leave Status</span>
+                        <span class="nav-badge" id="badge-leave" style="display: none;">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Grievances</div>
+                    <a href="submit-grievance.html" class="nav-item">
+                        <span class="nav-item-icon">📢</span>
+                        <span>Submit Grievance</span>
+                    </a>
+                    <a href="grievance-status.html" class="nav-item" id="nav-grievance">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Grievance Status</span>
+                        <span class="nav-badge" id="badge-grievance" style="display: none;">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance">
+                        <span class="nav-item-icon">⏰</span>
+                        <span>My Attendance</span>
+                        <span class="nav-badge" id="badge-attendance" style="display: none;">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Profile</div>
+                    <a href="profile.html" class="nav-item" id="nav-profile">
+                        <span class="nav-item-icon">👤</span>
+                        <span>My Profile</span>
+                        <span class="nav-badge" id="badge-profile" style="display: none;">0</span>
+                    </a>
+                    <a href="salary-slip.html" class="nav-item" id="nav-salary">
+                        <span class="nav-item-icon">💰</span>
+                        <span>Salary Slip</span>
+                        <span class="nav-badge" id="badge-salary" style="display: none;">0</span>
+                    </a>
+                    <a href="service-record.html" class="nav-item" id="nav-service">
+                        <span class="nav-item-icon">📁</span>
+                        <span>Service Record</span>
+                        <span class="nav-badge" id="badge-service" style="display: none;">0</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+                
+                <div class="header-right">
+                    <button class="header-icon-btn" id="notification-btn">
+                        🔔
+                        <span class="notification-badge" id="notification-count" style="display: none;">0</span>
+                    </button>
+                    
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role" id="user-role">Employee</div>
+                            </div>
+                        </button>
+                        
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item">
+                                <span>👤</span> My Profile
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()">
+                                <span>🚪</span> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Attendance Widget -->
+                <div class="card mb-6">
+                    <div class="card-body">
+                        <div class="attendance-widget">
+                            <div class="attendance-status">
+                                <div class="attendance-time" id="current-time">--:--:--</div>
+                                <div class="attendance-date" id="current-date">Loading...</div>
+                            </div>
+                            <div class="attendance-actions" id="attendance-actions">
+                                <button class="btn attendance-btn check-in-btn" id="check-in-btn" onclick="handleCheckIn()">
+                                    ▶ Check In
+                                </button>
+                                <button class="btn attendance-btn check-out-btn" id="check-out-btn" onclick="handleCheckOut()" style="display: none;">
+                                    ⏹ Check Out
+                                </button>
+                            </div>
+                            <div id="attendance-status-text" class="mt-4 text-muted"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="card mb-6">
+                    <div class="card-header">
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="quick-actions">
+                            <a href="apply-leave.html" class="quick-action-btn">
+                                <div class="quick-action-icon">📝</div>
+                                <span>Apply Leave</span>
+                            </a>
+                            <a href="submit-grievance.html" class="quick-action-btn">
+                                <div class="quick-action-icon">📢</div>
+                                <span>Submit Grievance</span>
+                            </a>
+                            <a href="attendance.html" class="quick-action-btn">
+                                <div class="quick-action-icon">📅</div>
+                                <span>View Attendance</span>
+                            </a>
+                            <a href="profile.html" class="quick-action-btn">
+                                <div class="quick-action-icon">👤</div>
+                                <span>My Profile</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Leave Balance -->
+                    <div class="grid-col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Leave Balance</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="leave-balance-container">
+                                    <div class="empty-state">
+                                        <p>Loading leave balance...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Leave Requests -->
+                    <div class="grid-col-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-between align-center">
+                                <h3>Recent Leave Requests</h3>
+                                <a href="leave-status.html" class="btn btn-sm btn-secondary">View All</a>
+                            </div>
+                            <div class="card-body">
+                                <div id="recent-leaves-container">
+                                    <div class="empty-state">
+                                        <p>Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Grievances -->
+                    <div class="grid-col-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-between align-center">
+                                <h3>Recent Grievances</h3>
+                                <a href="grievance-status.html" class="btn btn-sm btn-secondary">View All</a>
+                            </div>
+                            <div class="card-body">
+                                <div id="recent-grievances-container">
+                                    <div class="empty-state">
+                                        <p>Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Upcoming Holidays -->
+                    <div class="grid-col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Upcoming Holidays</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="holidays-container">
+                                    <div class="empty-state">
+                                        <p>Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Notifications Panel -->
+        <div class="notifications-panel" id="notifications-panel">
+            <div class="notifications-header">
+                <h3>Notifications</h3>
+                <button class="notifications-close" onclick="toggleNotifications()">×</button>
+            </div>
+            <div class="notifications-list" id="notifications-list">
+                <div class="empty-state">
+                    <p>No notifications</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            const isAuth = await Auth.checkAuth('employee');
+            if (!isAuth) return;
+            
+            // Load user info
+            const user = await Auth.getCurrentUser();
+            if (user) {
+                Auth.updateUserDisplay(user);
+            }
+            
+            // Setup UI
+            setupUI();
+            
+            // Load dashboard data
+            loadDashboardData();
+            
+            // Start clock
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Load today's attendance
+            loadTodayAttendance();
+        });
+        
+        function setupUI() {
+            // Menu toggle
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            // User dropdown
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => {
+                userMenu.classList.toggle('active');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) {
+                    userMenu.classList.remove('active');
+                }
+            });
+            
+            // Notifications
+            document.getElementById('notification-btn').addEventListener('click', toggleNotifications);
+        }
+        
+        function toggleNotifications() {
+            const panel = document.getElementById('notifications-panel');
+            panel.classList.toggle('active');
+            
+            // Load notifications when opening
+            if (panel.classList.contains('active')) {
+                loadNotifications();
+            }
+        }
+        
+        async function loadNotifications() {
+            console.log('[Dashboard] Loading notifications...');
+            try {
+                const response = await API.dashboard.getNotifications({ limit: 10 });
+                console.log('[Dashboard] Notifications response:', response);
+                
+                if (response && response.success) {
+                    const { notifications, unread_count, page_counts } = response.data;
+                    console.log('[Dashboard] Notifications data:', { 
+                        count: notifications ? notifications.length : 0, 
+                        unread_count, 
+                        notifications 
+                    });
+                    
+                    const container = document.getElementById('notifications-list');
+                    if (!container) {
+                        console.error('[Dashboard] Notifications container not found!');
+                        return;
+                    }
+                    
+                    // Update header badge
+                    const badge = document.getElementById('notification-count');
+                    if (badge) {
+                        if (unread_count > 0) {
+                            badge.textContent = unread_count;
+                            badge.style.display = 'flex';
+                            console.log('[Dashboard] Badge updated:', unread_count);
+                        } else {
+                            badge.style.display = 'none';
+                            console.log('[Dashboard] No unread notifications');
+                        }
+                    }
+                    
+                    // Update sidebar badges
+                    updateSidebarBadges(page_counts);
+                    
+                    if (!notifications || notifications.length === 0) {
+                        console.log('[Dashboard] No notifications to display');
+                        container.innerHTML = '<div class="empty-state"><p>No notifications</p></div>';
+                        return;
+                    }
+                    
+                    console.log('[Dashboard] Rendering', notifications.length, 'notifications');
+                    let html = '';
+                    notifications.forEach((n, index) => {
+                        console.log(`[Dashboard] Rendering notification ${index + 1}:`, n);
+                        const typeIcons = {
+                            'Success': '✓',
+                            'Warning': '⚠',
+                            'Error': '✕',
+                            'Info': 'ℹ'
+                        };
+                        const linkAttr = n.link ? `'${n.link}'` : 'null';
+                        html += `<div class="notification-item ${n.is_read ? '' : 'unread'}" onclick="markNotificationRead(${n.id}, ${linkAttr})" style="cursor: pointer;">
+                            <div class="notification-icon ${n.type.toLowerCase()}">${typeIcons[n.type] || 'ℹ'}</div>
+                            <div class="notification-content">
+                                <div class="notification-title">${Utils.escapeHtml(n.title)}</div>
+                                <div class="notification-message">${Utils.escapeHtml(n.message)}</div>
+                                <div class="notification-time">${Utils.getRelativeTime(n.created_at)}</div>
+                            </div>
+                        </div>`;
+                    });
+                    
+                    html += '<div class="notification-actions"><button class="btn btn-sm btn-secondary" onclick="markAllRead()">Mark all as read</button></div>';
+                    console.log('[Dashboard] Setting HTML, length:', html.length);
+                    container.innerHTML = html;
+                    console.log('[Dashboard] Notifications rendered successfully');
+                } else {
+                    console.error('[Dashboard] Failed to load notifications:', response);
+                    const container = document.getElementById('notifications-list');
+                    if (container) {
+                        container.innerHTML = '<div class="empty-state"><p style="color: red;">Failed to load notifications</p></div>';
+                    }
+                    if (typeof Utils !== 'undefined' && Utils.showToast) {
+                        Utils.showToast('Failed to load notifications', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('[Dashboard] Error loading notifications:', error);
+                const container = document.getElementById('notifications-list');
+                if (container) {
+                    container.innerHTML = '<div class="empty-state"><p style="color: red;">Error: ' + error.message + '</p></div>';
+                }
+                if (typeof Utils !== 'undefined' && Utils.showToast) {
+                    Utils.showToast('Error loading notifications', 'error');
+                }
+            }
+        }
+        
+        // Update sidebar badges based on page-wise notification counts
+        function updateSidebarBadges(pageCounts) {
+            if (!pageCounts) return;
+            
+            const badges = {
+                'badge-leave': pageCounts.leave || 0,
+                'badge-grievance': pageCounts.grievance || 0,
+                'badge-attendance': pageCounts.attendance || 0,
+                'badge-salary': pageCounts.salary || 0,
+                'badge-profile': pageCounts.profile || 0,
+                'badge-service': pageCounts.service || 0
+            };
+            
+            for (const [id, count] of Object.entries(badges)) {
+                const badge = document.getElementById(id);
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            }
+        }
+        
+        async function markNotificationRead(id, link) {
+            try {
+                const response = await API.dashboard.markNotificationRead(id, false);
+                
+                if (response && response.success) {
+                    // Redirect to the notification link if available
+                    if (link && link !== 'null' && link !== '') {
+                        window.location.href = link;
+                    } else {
+                        loadNotifications();
+                    }
+                } else {
+                    console.error('Failed to mark notification as read');
+                    Utils.showToast('Failed to mark notification as read', 'error');
+                }
+            } catch (error) {
+                console.error('Error marking notification:', error);
+                Utils.showToast('Error marking notification', 'error');
+            }
+        }
+        
+        async function markAllRead() {
+            try {
+                const response = await API.dashboard.markNotificationRead(null, true);
+                
+                if (response && response.success) {
+                    loadNotifications();
+                    Utils.showToast('All notifications marked as read', 'success');
+                } else {
+                    console.error('Failed to mark all notifications as read');
+                    Utils.showToast('Failed to mark all notifications', 'error');
+                }
+            } catch (error) {
+                console.error('Error marking all notifications:', error);
+                Utils.showToast('Error marking all notifications', 'error');
+            }
+        }
+        
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-IN');
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-IN', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+        
+        async function loadDashboardData() {
+            try {
+                const response = await API.dashboard.getEmployeeStats();
+                
+                if (response.success) {
+                    const data = response.data;
+                    
+                    // Render leave balance
+                    renderLeaveBalance(data.leave_balance);
+                    
+                    // Render recent leaves
+                    renderRecentLeaves(data.pending_leaves);
+                    
+                    // Render recent grievances
+                    renderRecentGrievances(data.recent_grievances);
+                    
+                    // Render holidays
+                    renderHolidays(data.upcoming_holidays);
+                    
+                    // Update notification count
+                    if (data.unread_notifications > 0) {
+                        document.getElementById('notification-count').textContent = data.unread_notifications;
+                        document.getElementById('notification-count').style.display = 'flex';
+                    }
+                    
+                    // Load notifications for sidebar badges
+                    loadNotifications();
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        function renderLeaveBalance(balance) {
+            const container = document.getElementById('leave-balance-container');
+            
+            if (!balance || balance.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No leave balance data available</p></div>';
+                return;
+            }
+            
+            let html = '<div class="table-container"><table class="table"><thead><tr><th>Leave Type</th><th>Available</th></tr></thead><tbody>';
+            
+            balance.forEach(item => {
+                html += `<tr>
+                    <td>${Utils.escapeHtml(item.leave_name)}</td>
+                    <td><strong>${item.available || 0}</strong> days</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+        
+        function renderRecentLeaves(leaves) {
+            const container = document.getElementById('recent-leaves-container');
+            
+            if (!leaves || leaves.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No pending leave requests</p></div>';
+                return;
+            }
+            
+            let html = '<ul class="recent-list">';
+            
+            leaves.forEach(leave => {
+                html += `<li class="recent-item">
+                    <div class="recent-item-info">
+                        <div class="recent-item-details">
+                            <h4>${Utils.escapeHtml(leave.leave_name)}</h4>
+                            <p>${Utils.formatDate(leave.start_date)} - ${Utils.formatDate(leave.end_date)}</p>
+                        </div>
+                    </div>
+                    ${Utils.getStatusBadge(leave.status)}
+                </li>`;
+            });
+            
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+        
+        function renderRecentGrievances(grievances) {
+            const container = document.getElementById('recent-grievances-container');
+            
+            if (!grievances || grievances.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No grievances submitted</p></div>';
+                return;
+            }
+            
+            let html = '<ul class="recent-list">';
+            
+            grievances.forEach(g => {
+                html += `<li class="recent-item">
+                    <div class="recent-item-info">
+                        <div class="recent-item-details">
+                            <h4>${Utils.truncate(Utils.escapeHtml(g.subject), 40)}</h4>
+                            <p>${Utils.escapeHtml(g.category_name)}</p>
+                        </div>
+                    </div>
+                    ${Utils.getStatusBadge(g.status)}
+                </li>`;
+            });
+            
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+        
+        function renderHolidays(holidays) {
+            const container = document.getElementById('holidays-container');
+            
+            if (!holidays || holidays.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No upcoming holidays</p></div>';
+                return;
+            }
+            
+            let html = '<ul class="recent-list">';
+            
+            holidays.forEach(h => {
+                html += `<li class="recent-item">
+                    <div class="recent-item-info">
+                        <div class="recent-item-details">
+                            <h4>${Utils.escapeHtml(h.holiday_name)}</h4>
+                            <p>${Utils.formatDate(h.holiday_date, 'long')}</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-primary">${h.holiday_type}</span>
+                </li>`;
+            });
+            
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+        
+        async function loadTodayAttendance() {
+            try {
+                const response = await API.attendance.getToday();
+                
+                if (response.success) {
+                    const data = response.data;
+                    const checkInBtn = document.getElementById('check-in-btn');
+                    const checkOutBtn = document.getElementById('check-out-btn');
+                    const statusText = document.getElementById('attendance-status-text');
+                    
+                    // Check if Sunday (weekly off)
+                    const today = new Date();
+                    const isSunday = today.getDay() === 0;
+                    
+                    if (isSunday) {
+                        checkInBtn.style.display = 'none';
+                        checkOutBtn.style.display = 'none';
+                        statusText.innerHTML = `<span class="badge badge-secondary">Sunday - Weekly Off</span>`;
+                        return;
+                    }
+                    
+                    if (data.is_holiday) {
+                        checkInBtn.style.display = 'none';
+                        checkOutBtn.style.display = 'none';
+                        statusText.innerHTML = `<span class="badge badge-info">Holiday: ${data.holiday.holiday_name}</span>`;
+                        return;
+                    }
+                    
+                    // Check if within allowed time (8 AM - 5 PM)
+                    const currentHour = today.getHours();
+                    const isWithinTime = currentHour >= 8 && currentHour < 17;
+                    
+                    if (!isWithinTime && !data.attendance?.check_in_time) {
+                        checkInBtn.style.display = 'none';
+                        checkOutBtn.style.display = 'none';
+                        if (currentHour < 8) {
+                            statusText.innerHTML = `<span class="badge badge-warning">Check-in starts at 8:00 AM</span>`;
+                        } else {
+                            statusText.innerHTML = `<span class="badge badge-danger">Check-in time ended (5:00 PM)</span>`;
+                        }
+                        return;
+                    }
+                    
+                    if (data.attendance) {
+                        if (data.attendance.check_in_time && !data.attendance.check_out_time) {
+                            checkInBtn.style.display = 'none';
+                            checkOutBtn.style.display = 'inline-flex';
+                            statusText.textContent = `Checked in at ${Utils.formatTime(data.attendance.check_in_time)}`;
+                        } else if (data.attendance.check_out_time) {
+                            checkInBtn.style.display = 'none';
+                            checkOutBtn.style.display = 'none';
+                            statusText.innerHTML = `<span class="badge badge-success">Attendance marked for today</span><br>
+                                Check-in: ${Utils.formatTime(data.attendance.check_in_time)} | 
+                                Check-out: ${Utils.formatTime(data.attendance.check_out_time)}`;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading attendance:', error);
+            }
+        }
+        
+        async function handleCheckIn() {
+            try {
+                Utils.showLoading();
+                const response = await API.attendance.checkIn();
+                Utils.hideLoading();
+                
+                if (response.success) {
+                    Utils.showToast('Checked in successfully!', 'success');
+                    loadTodayAttendance();
+                } else {
+                    Utils.showToast(response.message || 'Failed to check in', 'error');
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                Utils.showToast('An error occurred', 'error');
+            }
+        }
+        
+        async function handleCheckOut() {
+            try {
+                Utils.showLoading();
+                const response = await API.attendance.checkOut();
+                Utils.hideLoading();
+                
+                if (response.success) {
+                    Utils.showToast('Checked out successfully!', 'success');
+                    loadTodayAttendance();
+                } else {
+                    Utils.showToast(response.message || 'Failed to check out', 'error');
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                Utils.showToast('An error occurred', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

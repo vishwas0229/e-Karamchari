@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms & Conditions | e-Karamchari</title>
+    <link rel="stylesheet" href="frontend/css/common.css">
+    <script src="frontend/js/loader.js"></script>
+    <style>
+        .terms-page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .terms-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        .terms-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        .terms-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+        .terms-content h2 {
+            color: var(--gray-800);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+        .terms-content p, .terms-content li {
+            color: var(--gray-600);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        .terms-content ul {
+            padding-left: 1.5rem;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="terms-page">
+        <div class="terms-header">
+            <h1>e-Karamchari</h1>
+            <p>Terms and Conditions</p>
+        </div>
+        
+        <div class="terms-content">
+            <h2>1. Acceptance of Terms</h2>
+            <p>By accessing and using the e-Karamchari Employee Self-Service Portal, you agree to be bound by these Terms and Conditions. This portal is exclusively for employees of the Municipal Corporation of Delhi (MCD).</p>
+            
+            <h2>2. User Responsibilities</h2>
+            <ul>
+                <li>You are responsible for maintaining the confidentiality of your login credentials.</li>
+                <li>You must not share your Employee ID and password with anyone.</li>
+                <li>You are responsible for all activities that occur under your account.</li>
+                <li>You must immediately notify the administrator if you suspect unauthorized access to your account.</li>
+            </ul>
+            
+            <h2>3. Acceptable Use</h2>
+            <p>The portal should be used only for official purposes including:</p>
+            <ul>
+                <li>Applying for leaves</li>
+                <li>Marking attendance</li>
+                <li>Submitting grievances</li>
+                <li>Viewing service records</li>
+                <li>Updating personal information</li>
+            </ul>
+            
+            <h2>4. Leave Policy</h2>
+            <ul>
+                <li>Casual Leave (CL): 45 days per year</li>
+                <li>Maximum 30 days leave can be applied at a time</li>
+                <li>Leave applications must be submitted in advance except for emergencies</li>
+                <li>Approval is subject to departmental requirements and availability</li>
+            </ul>
+            
+            <h2>5. Attendance Policy</h2>
+            <ul>
+                <li>Attendance is automatically marked upon login</li>
+                <li>Check-in after 9:30 AM will be marked as Half Day</li>
+                <li>Minimum 8 hours of work required for full day attendance</li>
+                <li>Sunday is a weekly off</li>
+            </ul>
+            
+            <h2>6. Grievance Policy</h2>
+            <ul>
+                <li>Grievances should be submitted with accurate and complete information</li>
+                <li>False or misleading grievances may result in disciplinary action</li>
+                <li>Resolution time depends on the category and priority of the grievance</li>
+            </ul>
+            
+            <h2>7. Data Privacy</h2>
+            <p>Your personal information is protected and will only be used for official purposes. We do not share your data with third parties without your consent, except as required by law.</p>
+            
+            <h2>8. Security</h2>
+            <ul>
+                <li>Sessions expire after 8 hours of inactivity</li>
+                <li>Account will be locked after 5 failed login attempts</li>
+                <li>Password must be at least 8 characters long</li>
+            </ul>
+            
+            <h2>9. Modifications</h2>
+            <p>The administration reserves the right to modify these terms at any time. Users will be notified of significant changes.</p>
+            
+            <h2>10. Contact</h2>
+            <p>For any queries regarding these terms, please contact the IT Department or your HR representative.</p>
+            
+            <p style="margin-top: 2rem; font-style: italic; color: var(--gray-500);">
+                Last Updated: January 2026
+            </p>
+        </div>
+        
+        <a href="javascript:history.back()" class="back-link" id="back-btn">← Back to Login</a>
+    </div>
+    <script>
+        // Go back to previous page or home
+        document.getElementById('back-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (history.length > 1) {
+                history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

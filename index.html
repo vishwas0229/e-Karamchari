@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-Karamchari - Employee Self-Service Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="frontend/css/index.css">
+    <link rel="stylesheet" href="frontend/chatbot/chatbot.css">
+    <style>
+        /* Skip link for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #1a365d;
+            color: white;
+            padding: 8px 16px;
+            z-index: 10000;
+            transition: top 0.3s;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+        .home-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .home-loader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .home-loader-logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .home-loader-subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        .home-loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+
+<body class="h-full">
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Page Loader -->
+    <div class="home-loader" id="home-loader">
+        <div class="home-loader-spinner"></div>
+        <div class="home-loader-logo">e-Karamchari</div>
+        <div class="home-loader-subtitle">Employee Self-Service Portal</div>
+    </div>
+    
+    <div id="app-wrapper" class="w-full h-full overflow-auto bg-gray-50">
+        <!-- Navigation Bar -->
+        <nav class="bg-white shadow-md sticky top-0 z-50" role="navigation" aria-label="Main navigation">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 text-blue-600 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
+                        </svg>
+                        <span class="text-xl font-bold text-blue-600">e-Karamchari</span>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="#home" class="text-gray-700 hover:text-blue-600 font-medium transition">Home</a>
+                        <a href="#features" class="text-gray-700 hover:text-blue-600 font-medium transition">Features</a>
+                        <a href="#how-it-works" class="text-gray-700 hover:text-blue-600 font-medium transition">How It Works</a>
+                        <a href="employee-login.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium inline-block">Login</a>
+                    </div>
+                    <button class="md:hidden text-gray-700" id="mobile-menu-btn" aria-label="Toggle mobile menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+                <div class="px-4 py-3 space-y-3">
+                    <a href="#home" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Home</a>
+                    <a href="#features" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Features</a>
+                    <a href="#how-it-works" class="block text-gray-700 hover:text-blue-600 font-medium py-2">How It Works</a>
+                    <a href="employee-login.html" class="w-full inline-block text-center bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium">Login</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <main id="main-content">
+        <section id="home" class="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-20 px-4">
+            <div class="max-w-6xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">e-Karamchari</h1>
+                <h2 class="text-xl md:text-2xl lg:text-3xl mb-4 font-light">Employee Self-Service Portal for MCD</h2>
+                <p class="text-lg md:text-xl mb-8 text-blue-100">"Digital solutions for efficient workforce management"</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="employee-login.html">
+                        <button class="btn-primary bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl">Employee Login</button>
+                    </a>
+                    <a href="admin-login.html">
+                        <button class="btn-secondary bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold text-lg">Admin Login</button>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="py-16 px-4 bg-white">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">About e-Karamchari</h2>
+                <p class="text-lg text-gray-600 leading-relaxed">e-Karamchari simplifies internal employee services for the Municipal Corporation of Delhi by providing a unified digital platform. It significantly reduces paperwork, streamlines administrative processes, and empowers employees with self-service capabilities for leave management, salary information, and grievance redressal—making government operations more efficient and transparent.</p>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-16 px-4 bg-gray-50">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12">Key Features</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="feature-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="bg-blue-100 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Online Leave Management</h3>
+                        <p class="text-gray-600">Apply for leave, track status, and manage your leave balance with ease.</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="feature-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="bg-blue-100 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Salary Slip &amp; Service Record Access</h3>
+                        <p class="text-gray-600">Download salary slips and access complete service records anytime.</p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="feature-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="bg-blue-100 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Attendance Tracking</h3>
+                        <p class="text-gray-600">View your attendance records and monitor your work hours efficiently.</p>
+                    </div>
+                    <!-- Feature 4 -->
+                    <div class="feature-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="bg-blue-100 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Grievance Redressal System</h3>
+                        <p class="text-gray-600">Submit and track grievances with a transparent resolution process.</p>
+                    </div>
+                    <!-- Feature 5 -->
+                    <div class="feature-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="bg-blue-100 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Role-Based Access Control</h3>
+                        <p class="text-gray-600">Secure access with role-specific permissions and data protection.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="py-16 px-4 bg-white">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12">How It Works</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Step 1 -->
+                    <div class="step-card text-center">
+                        <div class="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Secure Login</h3>
+                        <p class="text-gray-600">Access the portal using your employee credentials securely.</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="step-card text-center">
+                        <div class="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">2</div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Submit Request</h3>
+                        <p class="text-gray-600">Submit leave applications, grievances, or access records.</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="step-card text-center">
+                        <div class="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Authority Approval</h3>
+                        <p class="text-gray-600">Your request is reviewed and approved by the concerned authority.</p>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="step-card text-center">
+                        <div class="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">4</div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Track Status Online</h3>
+                        <p class="text-gray-600">Monitor the progress and status of your requests in real-time.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="py-16 px-4 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">Platform Impact</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                    <div class="stat-card">
+                        <div class="text-4xl md:text-5xl font-bold mb-2">50K+</div>
+                        <div class="text-lg text-blue-100">Active Employees</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-4xl md:text-5xl font-bold mb-2">85%</div>
+                        <div class="text-lg text-blue-100">Time Saved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-4xl md:text-5xl font-bold mb-2">24/7</div>
+                        <div class="text-lg text-blue-100">Availability</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-4xl md:text-5xl font-bold mb-2">100%</div>
+                        <div class="text-lg text-blue-100">Paperless</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="py-16 px-4 bg-blue-50">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12">Benefits</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Benefit 1 -->
+                    <div class="flex items-start">
+                        <div class="bg-blue-600 text-white rounded-full p-3 mr-4 flex-shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Paperless &amp; Time-Saving</h3>
+                            <p class="text-gray-600">Eliminate physical paperwork and reduce processing time significantly.</p>
+                        </div>
+                    </div>
+                    <!-- Benefit 2 -->
+                    <div class="flex items-start">
+                        <div class="bg-blue-600 text-white rounded-full p-3 mr-4 flex-shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Transparent and Accountable System</h3>
+                            <p class="text-gray-600">Complete visibility into processes with audit trails and accountability.</p>
+                        </div>
+                    </div>
+                    <!-- Benefit 3 -->
+                    <div class="flex items-start">
+                        <div class="bg-blue-600 text-white rounded-full p-3 mr-4 flex-shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Faster Approvals</h3>
+                            <p class="text-gray-600">Streamlined workflows ensure quick processing and approval of requests.</p>
+                        </div>
+                    </div>
+                    <!-- Benefit 4 -->
+                    <div class="flex items-start">
+                        <div class="bg-blue-600 text-white rounded-full p-3 mr-4 flex-shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Secure Employee Data</h3>
+                            <p class="text-gray-600">Bank-level security ensures your personal and professional data is protected.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="py-16 px-4 bg-gray-50">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-12">Frequently Asked Questions</h2>
+                <div class="space-y-4">
+                    <!-- FAQ 1 -->
+                    <div class="faq-item bg-white rounded-lg shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left px-6 py-4 font-semibold text-gray-800 hover:bg-gray-50 transition flex justify-between items-center">
+                            <span>How do I access my account?</span>
+                            <svg class="w-5 h-5 transform transition-transform faq-icon" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-4 text-gray-600">
+                            You can access your account by clicking the "Employee Login" button and entering your employee ID and password provided by your department.
+                        </div>
+                    </div>
+                    <!-- FAQ 2 -->
+                    <div class="faq-item bg-white rounded-lg shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left px-6 py-4 font-semibold text-gray-800 hover:bg-gray-50 transition flex justify-between items-center">
+                            <span>Can I access e-Karamchari from my mobile?</span>
+                            <svg class="w-5 h-5 transform transition-transform faq-icon" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-4 text-gray-600">
+                            Yes, e-Karamchari is fully responsive and can be accessed from any device including smartphones and tablets.
+                        </div>
+                    </div>
+                    <!-- FAQ 3 -->
+                    <div class="faq-item bg-white rounded-lg shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left px-6 py-4 font-semibold text-gray-800 hover:bg-gray-50 transition flex justify-between items-center">
+                            <span>How long does it take for leave approval?</span>
+                            <svg class="w-5 h-5 transform transition-transform faq-icon" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-4 text-gray-600">
+                            Leave approvals typically take 24-48 hours. You can track the status in real-time through your dashboard.
+                        </div>
+                    </div>
+                    <!-- FAQ 4 -->
+                    <div class="faq-item bg-white rounded-lg shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left px-6 py-4 font-semibold text-gray-800 hover:bg-gray-50 transition flex justify-between items-center">
+                            <span>Is my data secure on this platform?</span>
+                            <svg class="w-5 h-5 transform transition-transform faq-icon" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-4 text-gray-600">
+                            Yes, e-Karamchari uses bank-level encryption and follows government security standards to protect all employee data.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-8 px-4">
+            <div class="max-w-6xl mx-auto text-center">
+                <p class="text-lg mb-2">Powered by Digital Governance Initiative</p>
+                <p class="text-gray-400">Municipal Corporation of Delhi</p>
+                <div class="mt-4 text-sm text-gray-400">
+                    © 2026 e-Karamchari. All rights reserved.
+                </div>
+                <div class="mt-3">
+                    <a href="terms.html" class="text-blue-400 hover:text-blue-300 text-sm">Terms & Conditions</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="frontend/js/index.js" defer></script>
+    <script src="frontend/chatbot/chatbot.js" defer></script>
+    <script>
+        // Hide loader when page loads
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('home-loader');
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => loader.remove(), 500);
+            }
+        });
+        // Fallback: hide after 3 seconds
+        setTimeout(function() {
+            const loader = document.getElementById('home-loader');
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => loader.remove(), 500);
+            }
+        }, 3000);
+    </script>
+</body>
+
+</html>

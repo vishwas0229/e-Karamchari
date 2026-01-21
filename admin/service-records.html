@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Records | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+    <style>
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .filters-bar { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 8px; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        .filter-group label { font-size: 0.875rem; font-weight: 500; color: #6b7280; }
+        .filter-group .form-control { min-width: 180px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 12px; max-width: 600px; width: 95%; max-height: 90vh; overflow: auto; }
+        .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border-radius: 12px 12px 0 0; }
+        .modal-header h3 { margin: 0; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: white; }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 0.75rem; }
+        .type-icons { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+        .type-option { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .type-option:hover { border-color: #3b82f6; }
+        .type-option.selected { border-color: #3b82f6; background: #eff6ff; }
+        .type-option input { display: none; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item"><span class="nav-item-icon">👥</span><span>All Employees</span></a>
+                    <a href="add-employee.html" class="nav-item"><span class="nav-item-icon">➕</span><span>Add Employee</span></a>
+                    <a href="employee-services.html" class="nav-item"><span class="nav-item-icon">⚡</span><span>Employee Services</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Requests</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📢</span><span>Grievances</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>Attendance Reports</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Management</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item active" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Records</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item" id="nav-reports"><span class="nav-item-icon">📊</span><span>Reports & Analytics</span><span class="nav-badge" id="badge-reports" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings"><span class="nav-item-icon">⚙️</span><span>Settings</span><span class="nav-badge" id="badge-settings" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Service Records</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <div class="page-header">
+                    <h2>All Service Records</h2>
+                    <button class="btn btn-primary" onclick="showAddModal()">+ Add Record</button>
+                </div>
+                
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Employee</label>
+                        <select id="employee-filter" class="form-control">
+                            <option value="">All Employees</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Type</label>
+                        <select id="type-filter" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="Promotion">Promotion</option>
+                            <option value="Transfer">Transfer</option>
+                            <option value="Training">Training</option>
+                            <option value="Award">Award</option>
+                            <option value="Increment">Increment</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" onclick="loadRecords()">Search</button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Type</th>
+                                        <th>Title</th>
+                                        <th>Effective Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="records-tbody">
+                                    <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Add Record Modal -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📁 Add Service Record</h3>
+                <button class="modal-close" onclick="closeModal('add-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-form">
+                    <div class="form-group">
+                        <label class="form-label required">Employee</label>
+                        <select class="form-control" name="employee_id" required id="modal-employee">
+                            <option value="">Select Employee</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Record Type</label>
+                        <div class="type-icons" id="type-selector">
+                            <label class="type-option" data-type="Promotion">
+                                <input type="radio" name="record_type" value="Promotion" required>
+                                <span>📈 Promotion</span>
+                            </label>
+                            <label class="type-option" data-type="Transfer">
+                                <input type="radio" name="record_type" value="Transfer">
+                                <span>🔄 Transfer</span>
+                            </label>
+                            <label class="type-option" data-type="Training">
+                                <input type="radio" name="record_type" value="Training">
+                                <span>📚 Training</span>
+                            </label>
+                            <label class="type-option" data-type="Award">
+                                <input type="radio" name="record_type" value="Award">
+                                <span>🏆 Award</span>
+                            </label>
+                            <label class="type-option" data-type="Increment">
+                                <input type="radio" name="record_type" value="Increment">
+                                <span>💰 Increment</span>
+                            </label>
+                            <label class="type-option" data-type="Other">
+                                <input type="radio" name="record_type" value="Other">
+                                <span>📋 Other</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Title</label>
+                        <input type="text" class="form-control" name="title" required placeholder="e.g., Promoted to Senior Manager">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3" placeholder="Additional details about this record..."></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label required">Effective Date</label>
+                            <input type="date" class="form-control" name="effective_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Date (if applicable)</label>
+                            <input type="date" class="form-control" name="end_date">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Order/Reference Number</label>
+                        <input type="text" class="form-control" name="order_number" placeholder="e.g., HR/2024/001">
+                    </div>
+                    <div id="designation-fields" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Previous Designation</label>
+                                <input type="text" class="form-control" name="prev_designation" placeholder="Previous role">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">New Designation</label>
+                                <input type="text" class="form-control" name="new_designation" placeholder="New role">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="department-fields" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Previous Department</label>
+                                <input type="text" class="form-control" name="prev_department" placeholder="Previous department">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">New Department</label>
+                                <input type="text" class="form-control" name="new_department" placeholder="New department">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('add-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveRecord()">💾 Save Record</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('admin');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            loadEmployees();
+            loadRecords();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadEmployees() {
+            try {
+                const response = await fetch('../backend/api/employees.php?action=list', { credentials: 'include' });
+                const data = await response.json();
+                if (data.success) {
+                    const filter = document.getElementById('employee-filter');
+                    const modal = document.getElementById('modal-employee');
+                    data.data.employees.forEach(emp => {
+                        const opt1 = new Option(`${emp.first_name} ${emp.last_name}`, emp.id);
+                        const opt2 = new Option(`${emp.first_name} ${emp.last_name}`, emp.id);
+                        filter.add(opt1);
+                        modal.add(opt2);
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        async function loadRecords() {
+            const tbody = document.getElementById('records-tbody');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading...</td></tr>';
+            
+            try {
+                const empId = document.getElementById('employee-filter').value;
+                const type = document.getElementById('type-filter').value;
+                
+                let url = '../backend/api/service-records.php?action=list';
+                if (empId) url += `&employee_id=${empId}`;
+                if (type) url += `&type=${type}`;
+                
+                const response = await fetch(url, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success && data.data.records && data.data.records.length > 0) {
+                    let html = '';
+                    data.data.records.forEach(rec => {
+                        html += `<tr>
+                            <td>${Utils.escapeHtml(rec.employee_name || '-')}</td>
+                            <td><span class="badge badge-info">${rec.record_type}</span></td>
+                            <td>${Utils.escapeHtml(rec.title)}</td>
+                            <td>${Utils.formatDate(rec.effective_date)}</td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" onclick="viewRecord(${rec.id})">View</button>
+                            </td>
+                        </tr>`;
+                    });
+                    tbody.innerHTML = html;
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No records found</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading records</td></tr>';
+            }
+        }
+        
+        function showAddModal() {
+            document.getElementById('add-form').reset();
+            document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById('designation-fields').style.display = 'none';
+            document.getElementById('department-fields').style.display = 'none';
+            document.getElementById('add-modal').classList.add('active');
+        }
+        
+        // Type selection handler
+        document.querySelectorAll('.type-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.type-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                opt.querySelector('input').checked = true;
+                
+                const type = opt.dataset.type;
+                document.getElementById('designation-fields').style.display = 
+                    (type === 'Promotion' || type === 'Increment') ? 'block' : 'none';
+                document.getElementById('department-fields').style.display = 
+                    type === 'Transfer' ? 'block' : 'none';
+            });
+        });
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        // Close modal on outside click
+        document.getElementById('add-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'add-modal') closeModal('add-modal');
+        });
+        
+        async function saveRecord() {
+            const form = document.getElementById('add-form');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('../backend/api/service-records.php?action=create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    Utils.showToast('Record added successfully', 'success');
+                    closeModal('add-modal');
+                    loadRecords();
+                } else {
+                    Utils.showToast(result.message || 'Error', 'error');
+                }
+            } catch (error) {
+                Utils.showToast('Error saving record', 'error');
+            }
+        }
+        
+        function viewRecord(id) {
+            Utils.showAlert('Service Record', 'View details feature coming soon', 'info');
+        }
+    </script>
+</body>
+</html>

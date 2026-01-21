@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply Leave | e-Karamchari</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Employee Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item">
+                        <span class="nav-item-icon">🏠</span>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Leave Management</div>
+                    <a href="apply-leave.html" class="nav-item active">
+                        <span class="nav-item-icon">📝</span>
+                        <span>Apply Leave</span>
+                    </a>
+                    <a href="leave-status.html" class="nav-item" id="nav-leave">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Leave Status</span>
+                        <span class="nav-badge" id="badge-leave" style="display: none;">0</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Grievances</div>
+                    <a href="submit-grievance.html" class="nav-item">
+                        <span class="nav-item-icon">📢</span>
+                        <span>Submit Grievance</span>
+                    </a>
+                    <a href="grievance-status.html" class="nav-item" id="nav-grievance">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Grievance Status</span>
+                        <span class="nav-badge" id="badge-grievance" style="display: none;">0</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance">
+                        <span class="nav-item-icon">⏰</span>
+                        <span>My Attendance</span>
+                        <span class="nav-badge" id="badge-attendance" style="display: none;">0</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Profile</div>
+                    <a href="profile.html" class="nav-item" id="nav-profile">
+                        <span class="nav-item-icon">👤</span>
+                        <span>My Profile</span>
+                        <span class="nav-badge" id="badge-profile" style="display: none;">0</span>
+                    </a>
+                    <a href="salary-slip.html" class="nav-item" id="nav-salary">
+                        <span class="nav-item-icon">💰</span>
+                        <span>Salary Slip</span>
+                        <span class="nav-badge" id="badge-salary" style="display: none;">0</span>
+                    </a>
+                    <a href="service-record.html" class="nav-item" id="nav-service">
+                        <span class="nav-item-icon">📁</span>
+                        <span>Service Record</span>
+                        <span class="nav-badge" id="badge-service" style="display: none;">0</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Apply Leave</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Employee</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item"><span>👤</span> My Profile</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <div class="dashboard-grid">
+                    <!-- Leave Application Form -->
+                    <div class="grid-col-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Leave Application Form</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="leave-form" onsubmit="submitLeave(event)">
+                                    <div class="form-group">
+                                        <label class="form-label required">Leave Type</label>
+                                        <select class="form-control" name="leave_type_id" id="leave_type_id" required>
+                                            <option value="">Select Leave Type</option>
+                                        </select>
+                                        <span class="form-hint" id="leave-type-hint"></span>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-4">
+                                        <div class="form-group" style="flex: 1;">
+                                            <label class="form-label required">Start Date</label>
+                                            <input type="date" class="form-control" name="start_date" id="start_date" required>
+                                        </div>
+                                        <div class="form-group" style="flex: 1;">
+                                            <label class="form-label required">End Date</label>
+                                            <input type="date" class="form-control" name="end_date" id="end_date" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Total Days: <strong id="total-days">0</strong></label>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label required">Reason for Leave</label>
+                                        <textarea class="form-control" name="reason" id="reason" rows="4" 
+                                                  placeholder="Please provide a detailed reason for your leave request" required></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary">Submit Application</button>
+                                        <a href="leave-status.html" class="btn btn-secondary">Cancel</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Leave Balance -->
+                    <div class="grid-col-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Leave Balance</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="leave-balance">
+                                    <p class="text-muted">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        let leaveTypes = [];
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('employee');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            loadLeaveTypes();
+            loadLeaveBalance();
+            setupDateCalculation();
+            
+            // Set minimum date to today
+            const today = Utils.getCurrentDate();
+            document.getElementById('start_date').min = today;
+            document.getElementById('end_date').min = today;
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadLeaveTypes() {
+            try {
+                const response = await API.leaves.getTypes();
+                if (response.success) {
+                    leaveTypes = response.data;
+                    const select = document.getElementById('leave_type_id');
+                    
+                    leaveTypes.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type.id;
+                        option.textContent = `${type.leave_name} (${type.leave_code})`;
+                        option.dataset.maxDays = type.max_days_per_year;
+                        option.dataset.requiresDoc = type.requires_document;
+                        select.appendChild(option);
+                    });
+                    
+                    select.addEventListener('change', updateLeaveTypeHint);
+                }
+            } catch (error) {
+                console.error('Error loading leave types:', error);
+            }
+        }
+        
+        function updateLeaveTypeHint() {
+            const select = document.getElementById('leave_type_id');
+            const hint = document.getElementById('leave-type-hint');
+            const selected = select.options[select.selectedIndex];
+            
+            if (selected.value) {
+                const type = leaveTypes.find(t => t.id == selected.value);
+                if (type) {
+                    let hintText = `Max ${type.max_days_per_year} days/year`;
+                    if (type.requires_document) {
+                        hintText += ' | Document required';
+                    }
+                    hint.textContent = hintText;
+                }
+            } else {
+                hint.textContent = '';
+            }
+        }
+        
+        async function loadLeaveBalance() {
+            try {
+                const response = await API.leaves.getBalance();
+                if (response.success) {
+                    const container = document.getElementById('leave-balance');
+                    
+                    if (response.data.length === 0) {
+                        container.innerHTML = '<p class="text-muted">No leave balance data</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    response.data.forEach(item => {
+                        html += `<div class="d-flex justify-between mb-2">
+                            <span>${item.leave_code}</span>
+                            <strong>${item.available || 0} days</strong>
+                        </div>`;
+                    });
+                    
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading balance:', error);
+            }
+        }
+        
+        function setupDateCalculation() {
+            const startDate = document.getElementById('start_date');
+            const endDate = document.getElementById('end_date');
+            const totalDaysEl = document.getElementById('total-days');
+            
+            function calculateDays() {
+                if (startDate.value && endDate.value) {
+                    // Validate date range
+                    if (!Utils.validateDateRange(startDate.value, endDate.value)) {
+                        totalDaysEl.innerHTML = '<span style="color: red;">End date must be after start date</span>';
+                        return;
+                    }
+                    
+                    const days = Utils.daysBetween(startDate.value, endDate.value);
+                    totalDaysEl.textContent = days > 0 ? days : 0;
+                    
+                    // Show warning if more than 30 days
+                    if (days > 30) {
+                        totalDaysEl.innerHTML = days + ' <span style="color: red;">(Max 30 days allowed)</span>';
+                    }
+                }
+            }
+            
+            startDate.addEventListener('change', () => {
+                if (startDate.value) {
+                    endDate.min = startDate.value;
+                    if (endDate.value && endDate.value < startDate.value) {
+                        endDate.value = startDate.value;
+                    }
+                }
+                calculateDays();
+            });
+            
+            endDate.addEventListener('change', calculateDays);
+        }
+        
+        async function submitLeave(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = {
+                leave_type_id: form.leave_type_id.value,
+                start_date: form.start_date.value,
+                end_date: form.end_date.value,
+                reason: form.reason.value
+            };
+            
+            if (!formData.leave_type_id || !formData.start_date || !formData.end_date || !formData.reason) {
+                Utils.showToast('Please fill all required fields', 'error');
+                return;
+            }
+            
+            // Validate date range
+            if (!Utils.validateDateRange(formData.start_date, formData.end_date)) {
+                Utils.showToast('End date must be after or equal to start date', 'error');
+                return;
+            }
+            
+            // Check leave days limit
+            const days = Utils.daysBetween(formData.start_date, formData.end_date);
+            if (days > 30) {
+                Utils.showToast('Maximum 30 days leave allowed at once', 'error');
+                return;
+            }
+            
+            try {
+                Utils.showLoading();
+                const response = await API.leaves.apply(formData);
+                Utils.hideLoading();
+                
+                if (response.success) {
+                    Utils.showToast('Leave application submitted successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'leave-status.html';
+                    }, 1500);
+                } else {
+                    Utils.showToast(response.message || 'Failed to submit application', 'error');
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                Utils.showToast(Utils.handleApiError(error, 'Failed to submit leave'), 'error');
+            }
+        }
+    </script>
+</body>
+</html>

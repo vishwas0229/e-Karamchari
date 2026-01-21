@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Services | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/css/employee-services.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar sidebar-admin" id="sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item"><span class="nav-item-icon">👥</span><span>All Employees</span></a>
+                    <a href="add-employee.html" class="nav-item"><span class="nav-item-icon">➕</span><span>Add Employee</span></a>
+                    <a href="employee-services.html" class="nav-item active"><span class="nav-item-icon">⚡</span><span>Employee Services</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Requests</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📢</span><span>Grievances</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>Attendance</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                    <a href="service-records.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Records</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item" id="nav-reports"><span class="nav-item-icon">📊</span><span>Reports</span><span class="nav-badge" id="badge-reports" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings"><span class="nav-item-icon">⚙️</span><span>Settings</span><span class="nav-badge" id="badge-settings" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Employee Services</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item"><span>👤</span> My Profile</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <!-- Employee Selection -->
+                <div class="card mb-6">
+                    <div class="card-header">
+                        <h3>Select Employee</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Search by Employee ID</label>
+                            <input type="text" id="employee-search" class="form-control" placeholder="Type Employee ID (e.g., EMP001)" style="max-width: 400px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Or Select from List</label>
+                            <select id="employee-select" class="form-control" style="max-width: 400px;" onchange="onEmployeeSelect()">
+                                <option value="">-- Select Employee --</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Selected Employee Info (hidden by default until employee is selected) -->
+                        <div id="employee-info" class="hidden">
+                            <hr class="my-4">
+                            <div class="d-flex gap-4 align-center flex-wrap">
+                                <div class="user-avatar avatar-lg" id="emp-avatar">--</div>
+                                <div class="flex-1">
+                                    <h3 id="emp-name" class="mb-0">-</h3>
+                                    <p class="text-muted mb-0" id="emp-designation">-</p>
+                                    <p class="text-muted" id="emp-department">-</p>
+                                </div>
+                                <div>
+                                    <p class="mb-0"><strong>Employee ID:</strong> <span id="emp-id">-</span></p>
+                                    <p class="mb-0"><strong>Email:</strong> <span id="emp-email">-</span></p>
+                                    <p class="mb-0"><strong>Joining Date:</strong> <span id="emp-joining">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Service Actions (hidden by default until employee is selected) -->
+                <div id="service-actions" class="hidden">
+                    <h3 class="mb-4">Select Service Action</h3>
+                    <div class="service-cards">
+                        <div class="service-card" onclick="openServiceModal('Promotion')">
+                            <div class="service-icon">📈</div>
+                            <h4>Promotion</h4>
+                            <p>Promote employee to higher designation</p>
+                        </div>
+                        <div class="service-card" onclick="openServiceModal('Transfer')">
+                            <div class="service-icon">🔄</div>
+                            <h4>Transfer</h4>
+                            <p>Transfer to different department</p>
+                        </div>
+                        <div class="service-card" onclick="openServiceModal('Increment')">
+                            <div class="service-icon">💰</div>
+                            <h4>Increment</h4>
+                            <p>Record salary increment</p>
+                        </div>
+                        <div class="service-card" onclick="openServiceModal('Training')">
+                            <div class="service-icon">📚</div>
+                            <h4>Training</h4>
+                            <p>Record training completion</p>
+                        </div>
+                        <div class="service-card" onclick="openServiceModal('Award')">
+                            <div class="service-icon">🏆</div>
+                            <h4>Award</h4>
+                            <p>Record award or recognition</p>
+                        </div>
+                        <div class="service-card warning" onclick="openServiceModal('Disciplinary')">
+                            <div class="service-icon">⚠️</div>
+                            <h4>Disciplinary</h4>
+                            <p>Record disciplinary action</p>
+                        </div>
+                        <div class="service-card danger" onclick="openServiceModal('Demotion')">
+                            <div class="service-icon">📉</div>
+                            <h4>Demotion</h4>
+                            <p>Demote to lower designation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Service Modal -->
+    <div class="modal-overlay" id="service-modal">
+        <div class="modal modal-md">
+            <div class="modal-header">
+                <h3 id="modal-title">Service Action</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="service-form">
+                    <input type="hidden" id="service-type" name="record_type">
+                    
+                    <div class="form-group">
+                        <label class="form-label required">Title</label>
+                        <input type="text" class="form-control" id="service-title" name="title" required placeholder="Enter title">
+                    </div>
+                    
+                    <!-- Designation fields (for Promotion/Demotion) -->
+                    <div id="designation-fields" class="hidden">
+                        <div class="form-group">
+                            <label class="form-label">New Designation</label>
+                            <select class="form-control" id="new-designation" name="new_designation_id">
+                                <option value="">Select New Designation</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Department fields (for Transfer) -->
+                    <div id="department-fields" class="hidden">
+                        <div class="form-group">
+                            <label class="form-label">New Department</label>
+                            <select class="form-control" id="new-department" name="new_department_id">
+                                <option value="">Select New Department</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="service-description" name="description" rows="3" placeholder="Enter details..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label required">Effective Date</label>
+                        <input type="date" class="form-control" id="effective-date" name="effective_date" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveService()">Save Record</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script src="../frontend/js/admin-employee-services.js"></script>
+</body>
+</html>

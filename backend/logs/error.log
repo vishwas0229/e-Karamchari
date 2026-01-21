@@ -1,0 +1,345 @@
+[02-Jan-2026 02:35:21 Asia/Kolkata] Query Error: SQLSTATE[HY093]: Invalid parameter number | SQL: SELECT u.*, r.role_code, r.role_name, r.permissions,
+                       d.dept_name, des.designation_name
+                FROM users u
+                JOIN roles r ON u.role_id = r.id
+                LEFT JOIN departments d ON u.department_id = d.id
+                LEFT JOIN designations des ON u.designation_id = des.id
+                WHERE (u.email = :identifier OR u.employee_id = :identifier)
+                AND u.is_active = 1
+[02-Jan-2026 02:35:21 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT u.*, r.r...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(50): Database->fetch('SELECT u.*, r.r...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(88): Auth::login('852006rahul@gma...', 'Rahul@123', true)
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(24): handleAdminLogin()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 02:35:54 Asia/Kolkata] Query Error: SQLSTATE[HY093]: Invalid parameter number | SQL: SELECT u.*, r.role_code, r.role_name, r.permissions,
+                       d.dept_name, des.designation_name
+                FROM users u
+                JOIN roles r ON u.role_id = r.id
+                LEFT JOIN departments d ON u.department_id = d.id
+                LEFT JOIN designations des ON u.designation_id = des.id
+                WHERE (u.email = :identifier OR u.employee_id = :identifier)
+                AND u.is_active = 1
+[02-Jan-2026 02:35:54 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT u.*, r.r...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(50): Database->fetch('SELECT u.*, r.r...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(88): Auth::login('852006rahul@gma...', 'Rahul@123', true)
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(24): handleAdminLogin()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 02:37:48 Asia/Kolkata] Query Error: SQLSTATE[HY093]: Invalid parameter number | SQL: SELECT u.*, r.role_code, r.role_name, d.dept_name, des.designation_name
+            FROM users u
+            JOIN roles r ON u.role_id = r.id
+            LEFT JOIN departments d ON u.department_id = d.id
+            LEFT JOIN designations des ON u.designation_id = des.id
+            WHERE (u.email = :identifier OR u.employee_id = :identifier)
+            AND u.is_active = 1
+[02-Jan-2026 02:39:36 Asia/Kolkata] Query Error: SQLSTATE[HY093]: Invalid parameter number | SQL: SELECT u.*, r.role_code, r.role_name, d.dept_name, des.designation_name
+            FROM users u
+            JOIN roles r ON u.role_id = r.id
+            LEFT JOIN departments d ON u.department_id = d.id
+            LEFT JOIN designations des ON u.designation_id = des.id
+            WHERE (u.email = :identifier OR u.employee_id = :identifier)
+            AND u.is_active = 1
+[02-Jan-2026 02:39:36 Asia/Kolkata] Query Error: SQLSTATE[HY093]: Invalid parameter number | SQL: SELECT u.*, r.role_code, r.role_name, d.dept_name, des.designation_name
+            FROM users u
+            JOIN roles r ON u.role_id = r.id
+            LEFT JOIN departments d ON u.department_id = d.id
+            LEFT JOIN designations des ON u.designation_id = des.id
+            WHERE (u.email = :identifier OR u.employee_id = :identifier)
+            AND u.is_active = 1
+[02-Jan-2026 02:39:37 Asia/Kolkata] Query Error: SQLSTATE[HY093]: Invalid parameter number | SQL: SELECT u.*, r.role_code, r.role_name, d.dept_name, des.designation_name
+            FROM users u
+            JOIN roles r ON u.role_id = r.id
+            LEFT JOIN departments d ON u.department_id = d.id
+            LEFT JOIN designations des ON u.designation_id = des.id
+            WHERE (u.email = :identifier OR u.employee_id = :identifier)
+            AND u.is_active = 1
+[02-Jan-2026 02:40:21 Asia/Kolkata] Query Error: SQLSTATE[HY093]: Invalid parameter number | SQL: SELECT u.*, r.role_code, r.role_name, d.dept_name, des.designation_name
+            FROM users u
+            JOIN roles r ON u.role_id = r.id
+            LEFT JOIN departments d ON u.department_id = d.id
+            LEFT JOIN designations des ON u.designation_id = des.id
+            WHERE (u.email = :identifier OR u.employee_id = :identifier)
+            AND u.is_active = 1
+[02-Jan-2026 03:17:59 Asia/Kolkata] Query Error: SQLSTATE[HY093]: Invalid parameter number | SQL: SELECT id FROM leave_requests 
+         WHERE employee_id = :user_id 
+         AND status IN ('Pending', 'Approved')
+         AND ((start_date BETWEEN :start AND :end) OR (end_date BETWEEN :start AND :end)
+              OR (start_date <= :start AND end_date >= :end))
+[02-Jan-2026 03:17:59 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT id FROM ...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\leaves.php(228): Database->fetch('SELECT id FROM ...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\leaves.php(26): applyLeave()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 03:20:37 Asia/Kolkata] Query Error: SQLSTATE[HY093]: Invalid parameter number | SQL: SELECT id FROM leave_requests 
+         WHERE employee_id = :user_id 
+         AND status IN ('Pending', 'Approved')
+         AND ((start_date BETWEEN :start AND :end) OR (end_date BETWEEN :start AND :end)
+              OR (start_date <= :start AND end_date >= :end))
+[02-Jan-2026 03:20:37 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT id FROM ...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\leaves.php(228): Database->fetch('SELECT id FROM ...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\leaves.php(26): applyLeave()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 03:56:50 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Call to undefined function getLeaveTypes() in C:\xampp\htdocs\e-Karamchari\backend\api\settings.php:40
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\api\settings.php on line 40
+[02-Jan-2026 21:53:12 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:12 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:21 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:21 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:21 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:21 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:21 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:21 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:22 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:22 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:23 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:23 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:23 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:23 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:24 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:24 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:24 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:24 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:24 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id
+[02-Jan-2026 21:53:24 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(59): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\two-factor.php(21): get2FAStatus()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[02-Jan-2026 21:53:55 Asia/Kolkata] Query Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'ekaramchari.two_factor_auth' doesn't exist | SQL: SELECT is_enabled FROM two_factor_auth WHERE user_id = :user_id AND is_enabled = 1
+[02-Jan-2026 21:53:55 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(63): Database->query('SELECT is_enabl...', Array)
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(136): Database->fetch('SELECT is_enabl...', Array)
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(24): handleAdminLogin()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 58
+[03-Jan-2026 13:02:44 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:02:44 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(254): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(267): Auth::requireAuth()
+#4 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(151): Auth::requireAdmin()
+#5 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(26): createEmployee()
+#6 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:02:54 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:02:54 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(254): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(267): Auth::requireAuth()
+#4 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(151): Auth::requireAdmin()
+#5 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(26): createEmployee()
+#6 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:03:10 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:03:10 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(254): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(267): Auth::requireAuth()
+#4 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(151): Auth::requireAdmin()
+#5 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(26): createEmployee()
+#6 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:03:32 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:03:32 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(254): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(267): Auth::requireAuth()
+#4 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(151): Auth::requireAdmin()
+#5 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(26): createEmployee()
+#6 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:03:59 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:03:59 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(254): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(267): Auth::requireAuth()
+#4 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(151): Auth::requireAdmin()
+#5 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(26): createEmployee()
+#6 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:05:11 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:05:11 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(159): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(33): checkSession()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:06:46 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:06:46 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(159): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(33): checkSession()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:06:50 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:06:50 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(159): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(33): checkSession()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:06:54 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:06:54 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(159): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(33): checkSession()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:06:59 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:06:59 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(159): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(33): checkSession()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:07:03 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:07:03 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(159): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(33): checkSession()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:07:07 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:07:07 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(43): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(62): Auth::login('vishawas.in@gma...', 'Admin@123', false)
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(21): handleLogin()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:09:15 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:09:15 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(429): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\employees.php(44): getDepartments()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:09:36 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:09:36 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\middleware\auth.php(43): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(62): Auth::login('vishawas.in@gma...', 'Admin@123', false)
+#3 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(21): handleLogin()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[03-Jan-2026 13:13:48 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[03-Jan-2026 13:13:48 Asia/Kolkata] Login Error: Database connection failed. Please try again later.
+[04-Jan-2026 01:16:55 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [1049] Unknown database 'ekaramchari'
+[04-Jan-2026 01:16:55 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari-main\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari-main\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari-main\backend\middleware\auth.php(189): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari-main\backend\api\auth.php(164): Auth::check()
+#3 C:\xampp\htdocs\e-Karamchari-main\backend\api\auth.php(33): checkSession()
+#4 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari-main\backend\config\database.php on line 36
+[04-Jan-2026 02:54:11 Asia/Kolkata] Query Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'New Year-0000' for key 'unique_holiday_year' | SQL: INSERT INTO holidays (holiday_date, holiday_name, holiday_type, is_active) VALUES (:holiday_date, :holiday_name, :holiday_type, :is_active)
+[04-Jan-2026 02:54:11 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database query failed. in C:\xampp\htdocs\e-Karamchari-main\backend\config\database.php:58
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari-main\backend\config\database.php(74): Database->query('INSERT INTO hol...', Array)
+#1 C:\xampp\htdocs\e-Karamchari-main\backend\api\holidays.php(240): Database->insert('holidays', Array)
+#2 C:\xampp\htdocs\e-Karamchari-main\backend\api\holidays.php(34): generateYearHolidays()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari-main\backend\config\database.php on line 58
+[07-Jan-2026 15:18:19 Asia/Kolkata] Database Connection Error: SQLSTATE[HY000] [2006] MySQL server has gone away
+[07-Jan-2026 15:18:19 Asia/Kolkata] PHP Fatal error:  Uncaught Exception: Database connection failed. Please try again later. in C:\xampp\htdocs\e-Karamchari\backend\config\database.php:36
+Stack trace:
+#0 C:\xampp\htdocs\e-Karamchari\backend\config\database.php(42): Database->__construct()
+#1 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(91): Database::getInstance()
+#2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(24): handleAdminLogin()
+#3 {main}
+  thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item active"><span class="nav-item-icon">👥</span><span>All Employees</span></a>
+                    <a href="add-employee.html" class="nav-item"><span class="nav-item-icon">➕</span><span>Add Employee</span></a>
+                    <a href="employee-services.html" class="nav-item"><span class="nav-item-icon">⚡</span><span>Employee Services</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Requests</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📢</span><span>Grievances</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>Attendance Reports</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Management</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Records</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item" id="nav-reports"><span class="nav-item-icon">📊</span><span>Reports & Analytics</span><span class="nav-badge" id="badge-reports" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings"><span class="nav-item-icon">⚙️</span><span>Settings</span><span class="nav-badge" id="badge-settings" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Employee Management</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <div class="page-header">
+                    <h2>All Employees</h2>
+                    <div class="page-actions">
+                        <a href="add-employee.html" class="btn btn-primary">+ Add Employee</a>
+                    </div>
+                </div>
+                
+                <!-- Filters -->
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Search</label>
+                        <input type="text" id="search-input" placeholder="Search by name, ID, email...">
+                    </div>
+                    <div class="filter-group">
+                        <label>Department</label>
+                        <select id="department-filter">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select id="status-filter">
+                            <option value="">All Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" onclick="loadEmployees()">Search</button>
+                </div>
+                
+                <!-- Employees Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table" id="employees-table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Department</th>
+                                        <th>Designation</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employees-tbody">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="pagination-container"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- View Employee Modal -->
+    <div class="modal-overlay" id="view-modal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Employee Details</h3>
+                <button class="modal-close" onclick="closeModal('view-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="employee-details">
+                Loading...
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('view-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        let currentPage = 1;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('admin');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            loadDepartments();
+            loadEmployees();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+            
+            // Search on enter
+            document.getElementById('search-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') loadEmployees();
+            });
+        }
+        
+        async function loadDepartments() {
+            try {
+                const response = await API.employees.getDepartments();
+                if (response.success) {
+                    const select = document.getElementById('department-filter');
+                    response.data.forEach(dept => {
+                        const option = document.createElement('option');
+                        option.value = dept.id;
+                        option.textContent = dept.dept_name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+        
+        async function loadEmployees(page = 1) {
+            currentPage = page;
+            const tbody = document.getElementById('employees-tbody');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
+            
+            try {
+                const search = document.getElementById('search-input').value;
+                const department = document.getElementById('department-filter').value;
+                const status = document.getElementById('status-filter').value;
+                
+                // Build URL manually to avoid any issues
+                let url = '../backend/api/employees.php?action=list&page=' + page;
+                if (search) url += '&search=' + encodeURIComponent(search);
+                if (department) url += '&department=' + encodeURIComponent(department);
+                if (status !== '') url += '&status=' + encodeURIComponent(status);
+                
+                console.log('Fetching:', url);
+                
+                const res = await fetch(url, { credentials: 'include' });
+                const response = await res.json();
+                
+                console.log('API Response:', response);
+                
+                if (response && response.success) {
+                    const { employees, pagination } = response.data;
+                    
+                    if (!employees || employees.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No employees found</td></tr>';
+                        document.getElementById('pagination-container').innerHTML = '';
+                        return;
+                    }
+                    
+                    let html = '';
+                    employees.forEach(emp => {
+                        html += `<tr>
+                            <td>${Utils.escapeHtml(emp.employee_id)}</td>
+                            <td>${Utils.escapeHtml(emp.first_name + ' ' + emp.last_name)}</td>
+                            <td>${Utils.escapeHtml(emp.email)}</td>
+                            <td>${Utils.escapeHtml(emp.dept_name || '-')}</td>
+                            <td>${Utils.escapeHtml(emp.designation_name || '-')}</td>
+                            <td>${emp.is_active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" onclick="viewEmployee(${emp.id})">View</button>
+                                <button class="btn btn-sm btn-primary" onclick="editEmployee(${emp.id})">Edit</button>
+                            </td>
+                        </tr>`;
+                    });
+                    
+                    tbody.innerHTML = html;
+                    renderPagination(pagination);
+                } else {
+                    console.error('API returned error:', response);
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${response?.message || 'Unknown error'}</td></tr>`;
+                }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading employees: ${error.message}</td></tr>`;
+            }
+        }
+        
+        function renderPagination(pagination) {
+            const container = document.getElementById('pagination-container');
+            
+            if (pagination.total_pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div class="pagination">';
+            
+            html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="loadEmployees(${currentPage - 1})">‹ Prev</button>`;
+            
+            for (let i = 1; i <= pagination.total_pages; i++) {
+                if (i === 1 || i === pagination.total_pages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="loadEmployees(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += '<span>...</span>';
+                }
+            }
+            
+            html += `<button class="pagination-btn" ${currentPage === pagination.total_pages ? 'disabled' : ''} onclick="loadEmployees(${currentPage + 1})">Next ›</button>`;
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        async function viewEmployee(id) {
+            try {
+                const response = await API.employees.get(id);
+                
+                if (response.success) {
+                    const emp = response.data;
+                    
+                    document.getElementById('employee-details').innerHTML = `
+                        <div class="d-flex gap-4 mb-4">
+                            <div class="user-avatar" style="width: 80px; height: 80px; font-size: 2rem;">
+                                ${Utils.getInitials(emp.first_name + ' ' + emp.last_name)}
+                            </div>
+                            <div>
+                                <h3 class="mb-0">${Utils.escapeHtml(emp.first_name + ' ' + emp.last_name)}</h3>
+                                <p class="text-muted mb-0">${Utils.escapeHtml(emp.employee_id)}</p>
+                                <p class="text-muted">${Utils.escapeHtml(emp.designation_name || '-')}</p>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <tr><td><strong>Email</strong></td><td>${Utils.escapeHtml(emp.email)}</td></tr>
+                                <tr><td><strong>Phone</strong></td><td>${Utils.escapeHtml(emp.phone || '-')}</td></tr>
+                                <tr><td><strong>Department</strong></td><td>${Utils.escapeHtml(emp.dept_name || '-')}</td></tr>
+                                <tr><td><strong>Date of Joining</strong></td><td>${Utils.formatDate(emp.date_of_joining)}</td></tr>
+                                <tr><td><strong>Gender</strong></td><td>${Utils.escapeHtml(emp.gender || '-')}</td></tr>
+                                <tr><td><strong>Blood Group</strong></td><td>${Utils.escapeHtml(emp.blood_group || '-')}</td></tr>
+                                <tr><td><strong>Status</strong></td><td>${emp.is_active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>'}</td></tr>
+                                <tr><td><strong>Last Login</strong></td><td>${emp.last_login ? Utils.formatDate(emp.last_login, 'time') : 'Never'}</td></tr>
+                            </table>
+                        </div>
+                    `;
+                    
+                    document.getElementById('view-modal').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error loading employee:', error);
+                Utils.showToast('Error loading employee details', 'error');
+            }
+        }
+        
+        function editEmployee(id) {
+            window.location.href = `edit-employee.html?id=${id}`;
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+    </script>
+</body>
+</html>

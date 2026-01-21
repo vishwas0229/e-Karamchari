@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Management | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <style>
+        .salary-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .salary-summary {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+        }
+
+        .summary-total {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #059669;
+            border-top: 2px solid #059669;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .filter-row .form-group {
+            margin: 0;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 95%;
+            max-height: 90vh;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span
+                            class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item"><span class="nav-item-icon">👥</span><span>All
+                            Employees</span></a>
+                    <a href="add-employee.html" class="nav-item"><span class="nav-item-icon">➕</span><span>Add
+                            Employee</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item"><span class="nav-item-icon">📋</span><span>Leave
+                            Requests</span></a>
+                    <a href="grievances.html" class="nav-item"><span
+                            class="nav-item-icon">📢</span><span>Grievances</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item active"><span class="nav-item-icon">💰</span><span>Salary
+                            Management</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item"><span class="nav-item-icon">📁</span><span>Service
+                            Records</span></a>
+                    <a href="attendance.html" class="nav-item"><span
+                            class="nav-item-icon">⏰</span><span>Attendance</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item"><span
+                            class="nav-item-icon">⚙️</span><span>Settings</span></a>
+                </div>
+            </nav>
+        </aside>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Salary Management</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="page-content">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('list')">Salary Slips</div>
+                    <div class="tab" onclick="switchTab('generate')">Generate New</div>
+                </div>
+                <div class="tab-content active" id="tab-list">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-total">0</div>
+                            <div class="stat-label">Total Slips</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color:#059669;" id="stat-paid">0</div>
+                            <div class="stat-label">Paid</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color:#f59e0b;" id="stat-pending">0</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Salary Slips</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="filter-row">
+                                <div class="form-group">
+                                    <label class="form-label">Month</label>
+                                    <select id="filter-month" class="form-control" onchange="loadSlips()">
+                                        <option value="1">January</option>
+                                        <option value="2">February</option>
+                                        <option value="3">March</option>
+                                        <option value="4">April</option>
+                                        <option value="5">May</option>
+                                        <option value="6">June</option>
+                                        <option value="7">July</option>
+                                        <option value="8">August</option>
+                                        <option value="9">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Year</label>
+                                    <select id="filter-year" class="form-control" onchange="loadSlips()"></select>
+                                </div>
+                            </div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Gross</th>
+                                        <th>Deductions</th>
+                                        <th>Net</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="slips-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-generate">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Generate Salary Slip</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="salary-form">
+                                <div class="salary-form">
+                                    <div class="form-group">
+                                        <label class="form-label">Employee</label>
+                                        <select class="form-control" id="employee_id" required>
+                                            <option value="">Select</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Month</label>
+                                        <select class="form-control" id="gen-month">
+                                            <option value="1">January</option>
+                                            <option value="2">February</option>
+                                            <option value="3">March</option>
+                                            <option value="4">April</option>
+                                            <option value="5">May</option>
+                                            <option value="6">June</option>
+                                            <option value="7">July</option>
+                                            <option value="8">August</option>
+                                            <option value="9">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Year</label>
+                                        <select class="form-control" id="gen-year"></select>
+                                    </div>
+                                </div>
+                                <h4 style="margin-top:1.5rem;">Earnings</h4>
+                                <div class="salary-form">
+                                    <div class="form-group"><label class="form-label">Basic Pay</label><input
+                                            type="number" class="form-control" id="basic_pay" value="0"
+                                            onchange="calcTotal()"></div>
+                                    <div class="form-group"><label class="form-label">Grade Pay</label><input
+                                            type="number" class="form-control" id="grade_pay" value="0"
+                                            onchange="calcTotal()"></div>
+                                    <div class="form-group"><label class="form-label">DA</label><input type="number"
+                                            class="form-control" id="da" value="0" onchange="calcTotal()"></div>
+                                    <div class="form-group"><label class="form-label">HRA</label><input type="number"
+                                            class="form-control" id="hra" value="0" onchange="calcTotal()"></div>
+                                    <div class="form-group"><label class="form-label">TA</label><input type="number"
+                                            class="form-control" id="ta" value="0" onchange="calcTotal()"></div>
+                                    <div class="form-group"><label class="form-label">Other</label><input type="number"
+                                            class="form-control" id="other_allowances" value="0" onchange="calcTotal()">
+                                    </div>
+                                </div>
+                                <h4 style="margin-top:1.5rem;">Deductions</h4>
+                                <div class="salary-form">
+                                    <div class="form-group"><label class="form-label">PF</label><input type="number"
+                                            class="form-control" id="pf_deduction" value="0" onchange="calcTotal()">
+                                    </div>
+                                    <div class="form-group"><label class="form-label">Tax</label><input type="number"
+                                            class="form-control" id="tax_deduction" value="0" onchange="calcTotal()">
+                                    </div>
+                                    <div class="form-group"><label class="form-label">Other</label><input type="number"
+                                            class="form-control" id="other_deductions" value="0" onchange="calcTotal()">
+                                    </div>
+                                </div>
+                                <div class="salary-summary">
+                                    <div class="summary-row"><span>Gross:</span><span id="disp-gross">₹0</span></div>
+                                    <div class="summary-row"><span>Deductions:</span><span id="disp-ded"
+                                            style="color:#dc2626;">₹0</span></div>
+                                    <div class="summary-row summary-total"><span>Net:</span><span
+                                            id="disp-net">₹0</span></div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Generate</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- View Modal -->
+    <div class="modal-overlay" id="view-modal">
+        <div class="modal-box">
+            <div
+                style="padding:1rem 1.5rem;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;">
+                <h3 style="margin:0;">Salary Slip</h3>
+                <button onclick="document.getElementById('view-modal').classList.remove('active')"
+                    style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+            </div>
+            <div id="view-content" style="padding:1.5rem;"></div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-box" style="max-width:450px;">
+            <div
+                style="padding:1rem 1.5rem;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;background:#3b82f6;color:white;border-radius:12px 12px 0 0;">
+                <h3 style="margin:0;">Edit Status</h3>
+                <button onclick="document.getElementById('edit-modal').classList.remove('active')"
+                    style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:white;">&times;</button>
+            </div>
+            <div id="edit-content" style="padding:1.5rem;"></div>
+        </div>
+    </div>
+
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script>
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!await Auth.checkAuth('admin')) return;
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+
+            // Setup UI
+            document.getElementById('menu-toggle').onclick = () => document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebar-overlay').onclick = () => document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('user-dropdown-toggle').onclick = () => document.getElementById('user-dropdown-menu').classList.toggle('active');
+
+            // Init year selects
+            const year = new Date().getFullYear();
+            const month = new Date().getMonth() + 1;
+            ['filter-year', 'gen-year'].forEach(id => {
+                const sel = document.getElementById(id);
+                for (let y = year; y >= year - 3; y--) sel.innerHTML += `<option value="${y}">${y}</option>`;
+            });
+            document.getElementById('filter-month').value = month;
+            document.getElementById('gen-month').value = month;
+
+            loadEmployees();
+            loadSlips();
+
+            // Form submit
+            document.getElementById('salary-form').onsubmit = generateSlip;
+        });
+
+        function switchTab(t) {
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+            document.querySelector(`.tab:nth-child(${t === 'list' ? 1 : 2})`).classList.add('active');
+            document.getElementById(`tab-${t}`).classList.add('active');
+        }
+
+        async function loadEmployees() {
+            const res = await fetch('../backend/api/employees.php?action=list&limit=500', { credentials: 'include' });
+            const data = await res.json();
+            if (data.success) {
+                const sel = document.getElementById('employee_id');
+                data.data.employees.forEach(e => sel.innerHTML += `<option value="${e.id}">${e.first_name} ${e.last_name}</option>`);
+            }
+        }
+
+        function fmt(n) { return '₹' + parseFloat(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }); }
+
+        function calcTotal() {
+            const g = ['basic_pay', 'grade_pay', 'da', 'hra', 'ta', 'other_allowances'].reduce((s, id) => s + (parseFloat(document.getElementById(id).value) || 0), 0);
+            const d = ['pf_deduction', 'tax_deduction', 'other_deductions'].reduce((s, id) => s + (parseFloat(document.getElementById(id).value) || 0), 0);
+            document.getElementById('disp-gross').textContent = fmt(g);
+            document.getElementById('disp-ded').textContent = fmt(d);
+            document.getElementById('disp-net').textContent = fmt(g - d);
+        }
+
+        async function loadSlips() {
+            const m = document.getElementById('filter-month').value;
+            const y = document.getElementById('filter-year').value;
+            const tbody = document.getElementById('slips-table');
+            tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+
+            const res = await fetch(`../backend/api/salary.php?action=list&month=${m}&year=${y}`, { credentials: 'include' });
+            const data = await res.json();
+
+            if (data.success) {
+                const slips = data.data.slips || [];
+                const sum = data.data.summary || {};
+                document.getElementById('stat-total').textContent = sum.total_slips || 0;
+                document.getElementById('stat-paid').textContent = sum.paid_count || 0;
+                document.getElementById('stat-pending').textContent = sum.pending_count || 0;
+
+                if (slips.length) {
+                    tbody.innerHTML = slips.map(s => `<tr>
+                        <td><strong>${s.first_name} ${s.last_name}</strong><br><small>${s.emp_code}</small></td>
+                        <td>${fmt(s.gross_salary)}</td>
+                        <td style="color:#dc2626;">${fmt(s.total_deductions)}</td>
+                        <td style="color:#059669;font-weight:600;">${fmt(s.net_salary)}</td>
+                        <td><span class="badge ${s.payment_status === 'Paid' ? 'badge-success' : 'badge-warning'}">${s.payment_status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="viewSlip(${s.id})">View</button>
+                            <button class="btn btn-sm btn-primary" onclick="editSlip(${s.id})">Edit</button>
+                        </td>
+                    </tr>`).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center">No slips for ${months[m - 1]} ${y}</td></tr>`;
+                }
+            }
+        }
+
+        async function viewSlip(id) {
+            const res = await fetch(`../backend/api/salary.php?action=view&id=${id}`, { credentials: 'include' });
+            const data = await res.json();
+            if (data.success) {
+                const s = data.data;
+                document.getElementById('view-content').innerHTML = `
+                    <div style="background:linear-gradient(135deg,#1e40af,#3b82f6);color:white;padding:1.5rem;border-radius:8px;margin-bottom:1.5rem;">
+                        <h2 style="margin:0 0 0.5rem;">e-Karamchari</h2>
+                        <p style="margin:0;opacity:0.9;">Salary Slip - ${months[s.month - 1]} ${s.year}</p>
+                    </div>
+                    <div style="background:#f1f5f9;padding:1rem;border-radius:8px;margin-bottom:1rem;">
+                        <p><strong>Name:</strong> ${s.first_name} ${s.last_name}</p>
+                        <p><strong>ID:</strong> ${s.emp_code}</p>
+                        <p><strong>Department:</strong> ${s.dept_name}</p>
+                        <p><strong>Designation:</strong> ${s.designation_name}</p>
+                    </div>
+                    <h4 style="color:#059669;border-bottom:2px solid #059669;padding-bottom:0.5rem;">Earnings</h4>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;"><span>Basic Pay</span><span>${fmt(s.basic_pay)}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;"><span>Grade Pay</span><span>${fmt(s.grade_pay)}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;"><span>DA</span><span>${fmt(s.da)}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;"><span>HRA</span><span>${fmt(s.hra)}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;"><span>TA</span><span>${fmt(s.ta)}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;"><span>Other</span><span>${fmt(s.other_allowances)}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.75rem;background:#f0fdf4;font-weight:600;"><span>Gross</span><span style="color:#059669;">${fmt(s.gross_salary)}</span></div>
+                    
+                    <h4 style="color:#dc2626;border-bottom:2px solid #dc2626;padding-bottom:0.5rem;margin-top:1rem;">Deductions</h4>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;"><span>PF</span><span>${fmt(s.pf_deduction)}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;"><span>Tax</span><span>${fmt(s.tax_deduction)}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee;"><span>Other</span><span>${fmt(s.other_deductions)}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.75rem;background:#fef2f2;font-weight:600;"><span>Total Deductions</span><span style="color:#dc2626;">${fmt(s.total_deductions)}</span></div>
+                    
+                    <div style="background:linear-gradient(135deg,#1e40af,#3b82f6);color:white;padding:1rem;border-radius:8px;margin-top:1rem;display:flex;justify-content:space-between;">
+                        <strong>Net Salary</strong>
+                        <span style="font-size:1.25rem;font-weight:700;">${fmt(s.net_salary)}</span>
+                    </div>`;
+                document.getElementById('view-modal').classList.add('active');
+            } else {
+                Utils.showToast('Error loading slip', 'error');
+            }
+        }
+
+        async function editSlip(id) {
+            const res = await fetch(`../backend/api/salary.php?action=view&id=${id}`, { credentials: 'include' });
+            const data = await res.json();
+            if (data.success) {
+                const s = data.data;
+                document.getElementById('edit-content').innerHTML = `
+                    <p><strong>${s.first_name} ${s.last_name}</strong> - ${months[s.month - 1]} ${s.year}</p>
+                    <p style="font-size:1.25rem;color:#059669;font-weight:700;">Net: ${fmt(s.net_salary)}</p>
+                    <div class="form-group" style="margin-top:1rem;">
+                        <label class="form-label">Status</label>
+                        <select id="edit-status" class="form-control">
+                            <option value="Pending" ${s.payment_status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Paid" ${s.payment_status === 'Paid' ? 'selected' : ''}>Paid</option>
+                            <option value="Hold" ${s.payment_status === 'Hold' ? 'selected' : ''}>Hold</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top:1rem;">
+                        <label class="form-label">Payment Date</label>
+                        <input type="date" id="edit-date" class="form-control" value="${s.payment_date || ''}">
+                    </div>
+                    <button class="btn btn-primary" style="margin-top:1rem;width:100%;" onclick="saveEdit(${s.id})">Save</button>`;
+                document.getElementById('edit-modal').classList.add('active');
+            }
+        }
+
+        async function saveEdit(id) {
+            const res = await fetch('../backend/api/salary.php?action=update', {
+                method: 'POST', credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: id,
+                    payment_status: document.getElementById('edit-status').value,
+                    payment_date: document.getElementById('edit-date').value || null
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('edit-modal').classList.remove('active');
+                loadSlips();
+                Utils.showToast('Status updated', 'success');
+            } else {
+                Utils.showToast(data.message || 'Error updating', 'error');
+            }
+        }
+
+        async function generateSlip(e) {
+            e.preventDefault();
+            const body = {
+                employee_id: document.getElementById('employee_id').value,
+                month: document.getElementById('gen-month').value,
+                year: document.getElementById('gen-year').value,
+                basic_pay: parseFloat(document.getElementById('basic_pay').value) || 0,
+                grade_pay: parseFloat(document.getElementById('grade_pay').value) || 0,
+                da: parseFloat(document.getElementById('da').value) || 0,
+                hra: parseFloat(document.getElementById('hra').value) || 0,
+                ta: parseFloat(document.getElementById('ta').value) || 0,
+                other_allowances: parseFloat(document.getElementById('other_allowances').value) || 0,
+                pf_deduction: parseFloat(document.getElementById('pf_deduction').value) || 0,
+                tax_deduction: parseFloat(document.getElementById('tax_deduction').value) || 0,
+                other_deductions: parseFloat(document.getElementById('other_deductions').value) || 0,
+                payment_status: 'Pending'
+            };
+            const res = await fetch('../backend/api/salary.php?action=generate', {
+                method: 'POST', credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (data.success) {
+                Utils.showToast('Salary slip generated!', 'success');
+                switchTab('list');
+                loadSlips();
+            } else {
+                Utils.showToast(data.message || 'Error generating slip', 'error');
+            }
+        }
+
+        // Close modals on outside click
+        document.getElementById('view-modal').onclick = function (e) { if (e.target === this) this.classList.remove('active'); };
+        document.getElementById('edit-modal').onclick = function (e) { if (e.target === this) this.classList.remove('active'); };
+    </script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+</body>
+
+</html>

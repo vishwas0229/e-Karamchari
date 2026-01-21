@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Reports | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item"><span class="nav-item-icon">👥</span><span>All Employees</span></a>
+                    <a href="add-employee.html" class="nav-item"><span class="nav-item-icon">➕</span><span>Add Employee</span></a>
+                    <a href="employee-services.html" class="nav-item"><span class="nav-item-icon">⚡</span><span>Employee Services</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Requests</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📢</span><span>Grievances</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item active" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>Attendance Reports</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Management</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Records</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item" id="nav-reports"><span class="nav-item-icon">📊</span><span>Reports & Analytics</span><span class="nav-badge" id="badge-reports" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings"><span class="nav-item-icon">⚙️</span><span>Settings</span><span class="nav-badge" id="badge-settings" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Attendance Reports</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <!-- Filters -->
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Date</label>
+                        <input type="date" id="date-filter" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <label>Department</label>
+                        <select id="department-filter" class="form-control">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select id="status-filter" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                            <option value="Half Day">Half Day</option>
+                            <option value="On Leave">On Leave</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadAttendance()">Search</button>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid" style="margin-bottom: 1.5rem; display: flex; flex-wrap: nowrap; gap: 1rem;">
+                    <div class="stat-card" style="flex: 1; min-width: 0;">
+                        <div class="stat-icon" style="background: #e2e8f0; color: #64748b;">⏳</div>
+                        <div class="stat-content">
+                            <h3 id="pending-count">0</h3>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="flex: 1; min-width: 0;">
+                        <div class="stat-icon success">✓</div>
+                        <div class="stat-content">
+                            <h3 id="present-count">0</h3>
+                            <p>Present</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="flex: 1; min-width: 0;">
+                        <div class="stat-icon danger">✕</div>
+                        <div class="stat-content">
+                            <h3 id="absent-count">0</h3>
+                            <p>Absent</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="flex: 1; min-width: 0;">
+                        <div class="stat-icon warning">½</div>
+                        <div class="stat-content">
+                            <h3 id="halfday-count">0</h3>
+                            <p>Half Day</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="flex: 1; min-width: 0;">
+                        <div class="stat-icon info">📋</div>
+                        <div class="stat-content">
+                            <h3 id="leave-count">0</h3>
+                            <p>On Leave</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Attendance Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Attendance Records</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee ID</th>
+                                        <th>Name</th>
+                                        <th>Department</th>
+                                        <th>Date</th>
+                                        <th>Check In</th>
+                                        <th>Check Out</th>
+                                        <th>Status</th>
+                                        <th>Work Hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-tbody">
+                                    <tr>
+                                        <td colspan="8" class="text-center">Select a date to view attendance</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('admin');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            loadDepartments();
+            
+            // Set default date to today (local timezone)
+            const now = new Date();
+            const today = now.getFullYear() + '-' + 
+                          String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                          String(now.getDate()).padStart(2, '0');
+            document.getElementById('date-filter').value = today;
+            
+            loadAttendance();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadDepartments() {
+            try {
+                const response = await API.employees.getDepartments();
+                if (response.success) {
+                    const select = document.getElementById('department-filter');
+                    response.data.forEach(dept => {
+                        const option = document.createElement('option');
+                        option.value = dept.id;
+                        option.textContent = dept.dept_name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+        
+        async function loadAttendance() {
+            const tbody = document.getElementById('attendance-tbody');
+            const dateInput = document.getElementById('date-filter');
+            const department = document.getElementById('department-filter').value;
+            const status = document.getElementById('status-filter').value;
+            
+            // Get date value - ensure it's in YYYY-MM-DD format
+            let date = dateInput.value;
+            if (!date) {
+                date = new Date().toISOString().split('T')[0];
+                dateInput.value = date;
+            }
+            
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">Loading...</td></tr>';
+            
+            try {
+                let url = `../backend/api/attendance.php?action=list&date=${date}&show_all=true`;
+                if (department) url += `&department=${department}`;
+                if (status) url += `&status=${encodeURIComponent(status)}`;
+                
+                const response = await fetch(url, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const records = data.data.attendance || [];
+                    const isWeekend = data.data.is_weekend;
+                    const isHoliday = data.data.is_holiday;
+                    const holidayName = data.data.holiday_name;
+                    
+                    // Show weekend/holiday notification
+                    if (isWeekend || isHoliday) {
+                        const msg = isHoliday ? `${holidayName} (Holiday)` : 'Sunday (Weekly Off)';
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center" style="padding: 2rem; color: #666;">
+                            <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">${msg}</div>
+                            <div>Attendance not applicable for this date</div>
+                        </td></tr>`;
+                        
+                        // Reset stats
+                        document.getElementById('present-count').textContent = '-';
+                        document.getElementById('absent-count').textContent = '-';
+                        document.getElementById('halfday-count').textContent = '-';
+                        document.getElementById('leave-count').textContent = '-';
+                        return;
+                    }
+                    
+                    // Update stats
+                    let present = 0, absent = 0, halfday = 0, onleave = 0, pending = 0;
+                    records.forEach(r => {
+                        if (r.status === 'Present') present++;
+                        else if (r.status === 'Absent') absent++;
+                        else if (r.status === 'Half Day') halfday++;
+                        else if (r.status === 'On Leave') onleave++;
+                        else if (r.status === 'Pending' || r.status === 'Not Marked') pending++;
+                    });
+                    
+                    document.getElementById('present-count').textContent = present;
+                    document.getElementById('absent-count').textContent = absent;
+                    document.getElementById('halfday-count').textContent = halfday;
+                    document.getElementById('leave-count').textContent = onleave;
+                    document.getElementById('pending-count').textContent = pending;
+                    
+                    if (records.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center">No employees found</td></tr>`;
+                        return;
+                    }
+                    
+                    let html = '';
+                    records.forEach(record => {
+                        const statusBadge = getAttendanceStatusBadge(record.status);
+                        
+                        // Check In display
+                        const checkInDisplay = record.check_in_time ? Utils.formatTime(record.check_in_time) : '-';
+                        
+                        // Check Out display
+                        const checkOutDisplay = record.check_out_time ? Utils.formatTime(record.check_out_time) : '-';
+                        
+                        html += `<tr>
+                            <td>${Utils.escapeHtml(record.emp_code || '-')}</td>
+                            <td>${Utils.escapeHtml(record.employee_name || '-')}</td>
+                            <td>${Utils.escapeHtml(record.dept_name || '-')}</td>
+                            <td>${date}</td>
+                            <td>${checkInDisplay}</td>
+                            <td>${checkOutDisplay}</td>
+                            <td>${statusBadge}</td>
+                            <td>${record.work_hours ? record.work_hours + ' hrs' : '-'}</td>
+                        </tr>`;
+                    });
+                    
+                    tbody.innerHTML = html;
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">${data.message || 'Error loading attendance'}</td></tr>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading attendance</td></tr>';
+            }
+        }
+        
+        function getAttendanceStatusBadge(status) {
+            const badges = {
+                'Present': '<span class="badge badge-success">Present</span>',
+                'Absent': '<span class="badge badge-danger">Absent</span>',
+                'Half Day': '<span class="badge badge-warning">Half Day</span>',
+                'On Leave': '<span class="badge badge-info">On Leave</span>',
+                'Pending': '<span class="badge badge-secondary">Pending</span>',
+                'Not Marked': '<span class="badge badge-secondary">Pending</span>',
+                'Holiday': '<span class="badge badge-primary">Holiday</span>',
+                'Weekend': '<span class="badge badge-secondary">Weekend</span>'
+            };
+            return badges[status] || `<span class="badge badge-secondary">${status || '-'}</span>`;
+        }
+    </script>
+</body>
+</html>

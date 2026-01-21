@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Employee | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item active"><span class="nav-item-icon">👥</span><span>All Employees</span></a>
+                    <a href="add-employee.html" class="nav-item"><span class="nav-item-icon">➕</span><span>Add Employee</span></a>
+                    <a href="employee-services.html" class="nav-item"><span class="nav-item-icon">⚡</span><span>Employee Services</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Requests</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📢</span><span>Grievances</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>Attendance Reports</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Management</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Records</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item" id="nav-reports"><span class="nav-item-icon">📊</span><span>Reports & Analytics</span><span class="nav-badge" id="badge-reports" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings"><span class="nav-item-icon">⚙️</span><span>Settings</span><span class="nav-badge" id="badge-settings" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Edit Employee</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Edit Employee Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="loading-msg">Loading employee data...</div>
+                        <form id="employee-form" onsubmit="updateEmployee(event)" style="display: none;">
+                            <input type="hidden" name="id" id="emp_id">
+                            
+                            <h4 class="mb-4">Basic Information</h4>
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Employee ID</label>
+                                    <input type="text" class="form-control" name="employee_id" id="employee_id" readonly style="background: #f0f0f0;">
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label required">Email</label>
+                                    <input type="email" class="form-control" name="email" id="email" required>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-control" name="password" placeholder="Leave blank to keep current">
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label required">First Name</label>
+                                    <input type="text" class="form-control" name="first_name" id="first_name" required>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label required">Last Name</label>
+                                    <input type="text" class="form-control" name="last_name" id="last_name" required>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" name="phone" id="phone">
+                                </div>
+                            </div>
+                            
+                            <h4 class="mb-4 mt-6">Employment Details</h4>
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Department</label>
+                                    <select class="form-control" name="department_id" id="department_id">
+                                        <option value="">Select Department</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Designation</label>
+                                    <select class="form-control" name="designation_id" id="designation_id">
+                                        <option value="">Select Designation</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Date of Joining</label>
+                                    <input type="date" class="form-control" name="date_of_joining" id="date_of_joining">
+                                </div>
+                            </div>
+                            
+                            <h4 class="mb-4 mt-6">Personal Details</h4>
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" name="date_of_birth" id="date_of_birth">
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Gender</label>
+                                    <select class="form-control" name="gender" id="gender">
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Blood Group</label>
+                                    <select class="form-control" name="blood_group" id="blood_group">
+                                        <option value="">Select Blood Group</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Emergency Contact</label>
+                                    <input type="tel" class="form-control" name="emergency_contact" id="emergency_contact">
+                                </div>
+                                <div class="form-group" style="flex: 2; min-width: 300px;">
+                                    <label class="form-label">Address</label>
+                                    <textarea class="form-control" name="address" id="address" rows="2"></textarea>
+                                </div>
+                            </div>
+                            
+                            <h4 class="mb-4 mt-6">Account Status</h4>
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-control" name="is_active" id="is_active">
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mt-6">
+                                <button type="submit" class="btn btn-primary">Update Employee</button>
+                                <a href="employees.html" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        let employeeId = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('admin');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            // Get employee ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            employeeId = urlParams.get('id');
+            
+            if (!employeeId) {
+                Utils.showToast('Employee ID not provided', 'error');
+                window.location.href = 'employees.html';
+                return;
+            }
+            
+            setupUI();
+            await loadDepartments();
+            await loadDesignations();
+            await loadEmployee();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadDepartments() {
+            try {
+                const response = await API.employees.getDepartments();
+                if (response.success) {
+                    const select = document.getElementById('department_id');
+                    response.data.forEach(dept => {
+                        const option = document.createElement('option');
+                        option.value = dept.id;
+                        option.textContent = dept.dept_name;
+                        select.appendChild(option);
+                    });
+                    // Add "Other" option
+                    const otherOption = document.createElement('option');
+                    otherOption.value = 'other';
+                    otherOption.textContent = 'Other';
+                    select.appendChild(otherOption);
+                    
+                    // Setup change listener
+                    select.addEventListener('change', handleDepartmentChange);
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+        
+        function handleDepartmentChange() {
+            const select = document.getElementById('department_id');
+            const existingGroup = document.getElementById('other-department-group');
+            
+            if (select.value === 'other') {
+                if (!existingGroup) {
+                    const inputGroup = document.createElement('div');
+                    inputGroup.className = 'form-group';
+                    inputGroup.id = 'other-department-group';
+                    inputGroup.style = 'flex: 1; min-width: 200px;';
+                    inputGroup.innerHTML = `
+                        <label class="form-label required">Enter Department Name</label>
+                        <input type="text" class="form-control" id="other-department-input" name="other_department" required placeholder="Enter department name">
+                    `;
+                    select.parentElement.after(inputGroup);
+                }
+            } else {
+                if (existingGroup) existingGroup.remove();
+            }
+        }
+        
+        async function loadDesignations() {
+            try {
+                const response = await API.employees.getDesignations();
+                if (response.success) {
+                    const select = document.getElementById('designation_id');
+                    response.data.forEach(des => {
+                        const option = document.createElement('option');
+                        option.value = des.id;
+                        option.textContent = des.designation_name;
+                        select.appendChild(option);
+                    });
+                    // Add "Other" option
+                    const otherOption = document.createElement('option');
+                    otherOption.value = 'other';
+                    otherOption.textContent = 'Other';
+                    select.appendChild(otherOption);
+                    
+                    // Setup change listener
+                    select.addEventListener('change', handleDesignationChange);
+                }
+            } catch (error) {
+                console.error('Error loading designations:', error);
+            }
+        }
+        
+        function handleDesignationChange() {
+            const select = document.getElementById('designation_id');
+            const existingGroup = document.getElementById('other-designation-group');
+            
+            if (select.value === 'other') {
+                if (!existingGroup) {
+                    const inputGroup = document.createElement('div');
+                    inputGroup.className = 'form-group';
+                    inputGroup.id = 'other-designation-group';
+                    inputGroup.style = 'flex: 1; min-width: 200px;';
+                    inputGroup.innerHTML = `
+                        <label class="form-label required">Enter Designation Name</label>
+                        <input type="text" class="form-control" id="other-designation-input" name="other_designation" required placeholder="Enter designation name">
+                    `;
+                    select.parentElement.after(inputGroup);
+                }
+            } else {
+                if (existingGroup) existingGroup.remove();
+            }
+        }
+        
+        async function loadEmployee() {
+            try {
+                const response = await fetch(`../backend/api/employees.php?action=get&id=${employeeId}`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const emp = data.data;
+                    
+                    document.getElementById('emp_id').value = emp.id;
+                    document.getElementById('employee_id').value = emp.employee_id || '';
+                    document.getElementById('email').value = emp.email || '';
+                    document.getElementById('first_name').value = emp.first_name || '';
+                    document.getElementById('last_name').value = emp.last_name || '';
+                    document.getElementById('phone').value = emp.phone || '';
+                    document.getElementById('department_id').value = emp.department_id || '';
+                    document.getElementById('designation_id').value = emp.designation_id || '';
+                    document.getElementById('date_of_joining').value = emp.date_of_joining || '';
+                    document.getElementById('date_of_birth').value = emp.date_of_birth || '';
+                    document.getElementById('gender').value = emp.gender || '';
+                    document.getElementById('blood_group').value = emp.blood_group || '';
+                    document.getElementById('emergency_contact').value = emp.emergency_contact || '';
+                    document.getElementById('address').value = emp.address || '';
+                    document.getElementById('is_active').value = emp.is_active ? '1' : '0';
+                    
+                    document.getElementById('loading-msg').style.display = 'none';
+                    document.getElementById('employee-form').style.display = 'block';
+                } else {
+                    document.getElementById('loading-msg').textContent = 'Employee not found';
+                }
+            } catch (error) {
+                console.error('Error loading employee:', error);
+                document.getElementById('loading-msg').textContent = 'Error loading employee data';
+            }
+        }
+        
+        async function updateEmployee(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Handle "Other" department
+            if (data.department_id === 'other') {
+                const otherDept = document.getElementById('other-department-input')?.value?.trim();
+                if (!otherDept) {
+                    Utils.showToast('Please enter the department name', 'error');
+                    return;
+                }
+                data.other_department = otherDept;
+                data.department_id = null;
+            }
+            
+            // Handle "Other" designation
+            if (data.designation_id === 'other') {
+                const otherDesig = document.getElementById('other-designation-input')?.value?.trim();
+                if (!otherDesig) {
+                    Utils.showToast('Please enter the designation name', 'error');
+                    return;
+                }
+                data.other_designation = otherDesig;
+                data.designation_id = null;
+            }
+            
+            // Remove password if empty
+            if (!data.password) {
+                delete data.password;
+            }
+            
+            // Convert empty strings to null
+            Object.keys(data).forEach(key => {
+                if (data[key] === '') data[key] = null;
+            });
+            
+            try {
+                Utils.showLoading();
+                const response = await fetch('../backend/api/employees.php?action=update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                Utils.hideLoading();
+                
+                if (result.success) {
+                    Utils.showToast('Employee updated successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'employees.html';
+                    }, 1500);
+                } else {
+                    Utils.showToast(result.message || 'Failed to update employee', 'error');
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                Utils.showToast('An error occurred', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

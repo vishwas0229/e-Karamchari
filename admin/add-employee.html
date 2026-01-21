@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Employee | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item"><span class="nav-item-icon">👥</span><span>All Employees</span></a>
+                    <a href="add-employee.html" class="nav-item active"><span class="nav-item-icon">➕</span><span>Add Employee</span></a>
+                    <a href="employee-services.html" class="nav-item"><span class="nav-item-icon">⚡</span><span>Employee Services</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Requests</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📢</span><span>Grievances</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>Attendance Reports</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Management</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Records</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item" id="nav-reports"><span class="nav-item-icon">📊</span><span>Reports & Analytics</span><span class="nav-badge" id="badge-reports" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings"><span class="nav-item-icon">⚙️</span><span>Settings</span><span class="nav-badge" id="badge-settings" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Add New Employee</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Employee Registration Form</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="employee-form" onsubmit="createEmployee(event)">
+                            <div id="form-error" class="alert alert-danger" style="display: none; margin-bottom: 1rem;"></div>
+                            
+                            <h4 class="mb-4">Basic Information</h4>
+                            <p class="text-muted mb-4">Employee ID will be auto-generated (e.g., EMP001, EMP002...)</p>
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label required">Email</label>
+                                    <input type="email" class="form-control" name="email" required placeholder="employee@mcd.gov.in">
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label required">Password</label>
+                                    <input type="password" class="form-control" name="password" required minlength="8" placeholder="Min 8 characters">
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label required">First Name</label>
+                                    <input type="text" class="form-control" name="first_name" required>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label required">Last Name</label>
+                                    <input type="text" class="form-control" name="last_name" required>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" name="phone" placeholder="+91 XXXXXXXXXX">
+                                </div>
+                            </div>
+                            
+                            <h4 class="mb-4 mt-6">Employment Details</h4>
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Department</label>
+                                    <select class="form-control" name="department_id" id="department_id">
+                                        <option value="">Select Department</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Designation</label>
+                                    <select class="form-control" name="designation_id" id="designation_id">
+                                        <option value="">Select Designation</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Date of Joining</label>
+                                    <input type="date" class="form-control" name="date_of_joining">
+                                </div>
+                            </div>
+                            
+                            <h4 class="mb-4 mt-6">Personal Details</h4>
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" name="date_of_birth">
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Gender</label>
+                                    <select class="form-control" name="gender">
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Blood Group</label>
+                                    <select class="form-control" name="blood_group">
+                                        <option value="">Select Blood Group</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-4 flex-wrap">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label class="form-label">Emergency Contact</label>
+                                    <input type="tel" class="form-control" name="emergency_contact">
+                                </div>
+                                <div class="form-group" style="flex: 2; min-width: 300px;">
+                                    <label class="form-label">Address</label>
+                                    <textarea class="form-control" name="address" rows="2"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mt-4">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem;">
+                                    <input type="checkbox" id="terms-checkbox" required style="width: 18px; height: 18px; cursor: pointer;">
+                                    <span>I confirm that the employee has agreed to the <a href="../terms.html" style="color: #3182ce;">Terms & Conditions</a></span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group mt-6">
+                                <button type="submit" class="btn btn-primary">Create Employee</button>
+                                <a href="employees.html" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('admin');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            loadDepartments();
+            loadDesignations();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadDepartments() {
+            try {
+                const response = await API.employees.getDepartments();
+                if (response.success) {
+                    const select = document.getElementById('department_id');
+                    response.data.forEach(dept => {
+                        const option = document.createElement('option');
+                        option.value = dept.id;
+                        option.textContent = dept.dept_name;
+                        select.appendChild(option);
+                    });
+                    // Add "Other" option
+                    const otherOption = document.createElement('option');
+                    otherOption.value = 'other';
+                    otherOption.textContent = 'Other';
+                    select.appendChild(otherOption);
+                    
+                    // Setup change listener
+                    select.addEventListener('change', handleDepartmentChange);
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+        
+        function handleDepartmentChange() {
+            const select = document.getElementById('department_id');
+            const existingGroup = document.getElementById('other-department-group');
+            
+            if (select.value === 'other') {
+                if (!existingGroup) {
+                    const inputGroup = document.createElement('div');
+                    inputGroup.className = 'form-group';
+                    inputGroup.id = 'other-department-group';
+                    inputGroup.style = 'flex: 1; min-width: 200px;';
+                    inputGroup.innerHTML = `
+                        <label class="form-label required">Enter Department Name</label>
+                        <input type="text" class="form-control" id="other-department-input" name="other_department" required placeholder="Enter department name">
+                    `;
+                    select.parentElement.after(inputGroup);
+                }
+            } else {
+                if (existingGroup) existingGroup.remove();
+            }
+        }
+        
+        async function loadDesignations() {
+            try {
+                const response = await API.employees.getDesignations();
+                if (response.success) {
+                    const select = document.getElementById('designation_id');
+                    response.data.forEach(des => {
+                        const option = document.createElement('option');
+                        option.value = des.id;
+                        option.textContent = des.designation_name;
+                        select.appendChild(option);
+                    });
+                    // Add "Other" option
+                    const otherOption = document.createElement('option');
+                    otherOption.value = 'other';
+                    otherOption.textContent = 'Other';
+                    select.appendChild(otherOption);
+                    
+                    // Setup change listener
+                    select.addEventListener('change', handleDesignationChange);
+                }
+            } catch (error) {
+                console.error('Error loading designations:', error);
+            }
+        }
+        
+        function handleDesignationChange() {
+            const select = document.getElementById('designation_id');
+            const existingGroup = document.getElementById('other-designation-group');
+            
+            if (select.value === 'other') {
+                if (!existingGroup) {
+                    const inputGroup = document.createElement('div');
+                    inputGroup.className = 'form-group';
+                    inputGroup.id = 'other-designation-group';
+                    inputGroup.style = 'flex: 1; min-width: 200px;';
+                    inputGroup.innerHTML = `
+                        <label class="form-label required">Enter Designation Name</label>
+                        <input type="text" class="form-control" id="other-designation-input" name="other_designation" required placeholder="Enter designation name">
+                    `;
+                    select.parentElement.after(inputGroup);
+                }
+            } else {
+                if (existingGroup) existingGroup.remove();
+            }
+        }
+        
+        async function createEmployee(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            const errorDiv = document.getElementById('form-error');
+            
+            // Hide previous error
+            errorDiv.style.display = 'none';
+            
+            // Validate required fields
+            if (!data.email || !data.password || !data.first_name || !data.last_name) {
+                errorDiv.textContent = 'Please fill all required fields (Email, Password, First Name, Last Name)';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Validate email format
+            if (!Utils.validateEmail(data.email)) {
+                errorDiv.textContent = 'Please enter a valid email address';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Validate password strength
+            const passwordCheck = Utils.validatePassword(data.password);
+            if (!passwordCheck.isValid) {
+                errorDiv.textContent = passwordCheck.message;
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Validate phone number if provided
+            if (data.phone && !Utils.validatePhone(data.phone)) {
+                errorDiv.textContent = 'Please enter a valid 10-digit phone number';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Handle "Other" department
+            if (data.department_id === 'other') {
+                const otherDept = document.getElementById('other-department-input')?.value?.trim();
+                if (!otherDept) {
+                    errorDiv.textContent = 'Please enter the department name';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                data.other_department = otherDept;
+                data.department_id = null;
+            }
+            
+            // Handle "Other" designation
+            if (data.designation_id === 'other') {
+                const otherDesig = document.getElementById('other-designation-input')?.value?.trim();
+                if (!otherDesig) {
+                    errorDiv.textContent = 'Please enter the designation name';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                data.other_designation = otherDesig;
+                data.designation_id = null;
+            }
+            
+            // Convert empty strings to null for optional fields, but keep required fields
+            Object.keys(data).forEach(key => {
+                if (data[key] === '' && !['email', 'password', 'first_name', 'last_name'].includes(key)) {
+                    data[key] = null;
+                }
+            });
+            
+            // Convert department_id and designation_id to integers if they have values
+            if (data.department_id && data.department_id !== 'other') data.department_id = parseInt(data.department_id);
+            if (data.designation_id && data.designation_id !== 'other') data.designation_id = parseInt(data.designation_id);
+            
+            try {
+                Utils.showLoading();
+                const response = await API.employees.create(data);
+                Utils.hideLoading();
+                
+                if (response.success) {
+                    Utils.showToast(`Employee created! ID: ${response.data.employee_id}`, 'success');
+                    setTimeout(() => {
+                        window.location.href = 'employees.html';
+                    }, 2000);
+                } else {
+                    errorDiv.textContent = response.message || 'Failed to create employee';
+                    errorDiv.style.display = 'block';
+                    Utils.showToast(response.message || 'Failed to create employee', 'error');
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                console.error('Create employee error:', error);
+                errorDiv.textContent = Utils.handleApiError(error, 'Failed to create employee');
+                errorDiv.style.display = 'block';
+                Utils.showToast(Utils.handleApiError(error), 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | e-Karamchari Admin</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item"><span class="nav-item-icon">👥</span><span>All Employees</span></a>
+                    <a href="add-employee.html" class="nav-item"><span class="nav-item-icon">➕</span><span>Add Employee</span></a>
+                    <a href="employee-services.html" class="nav-item"><span class="nav-item-icon">⚡</span><span>Employee Services</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Requests</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📢</span><span>Grievances</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>Attendance Reports</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Management</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Records</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item" id="nav-reports"><span class="nav-item-icon">📊</span><span>Reports & Analytics</span><span class="nav-badge" id="badge-reports" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings"><span class="nav-item-icon">⚙️</span><span>Settings</span><span class="nav-badge" id="badge-settings" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">My Profile</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Admin</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <div class="dashboard-grid">
+                    <!-- Profile Info -->
+                    <div class="grid-col-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <div class="user-avatar" id="profile-avatar" style="width: 100px; height: 100px; font-size: 2.5rem; margin: 0 auto 1rem;">--</div>
+                                <h2 id="profile-name">Loading...</h2>
+                                <p class="text-muted" id="profile-role">-</p>
+                                <p id="profile-email">-</p>
+                                <p id="profile-phone">-</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Details -->
+                    <div class="grid-col-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Profile Details</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-container">
+                                    <table class="table">
+                                        <tr><td><strong>Employee ID</strong></td><td id="detail-empid">-</td></tr>
+                                        <tr><td><strong>Email</strong></td><td id="detail-email">-</td></tr>
+                                        <tr><td><strong>Phone</strong></td><td id="detail-phone">-</td></tr>
+                                        <tr><td><strong>Department</strong></td><td id="detail-dept">-</td></tr>
+                                        <tr><td><strong>Designation</strong></td><td id="detail-designation">-</td></tr>
+                                        <tr><td><strong>Date of Joining</strong></td><td id="detail-doj">-</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Change Password -->
+                        <div class="card" style="margin-top: 1.5rem;">
+                            <div class="card-header">
+                                <h3>Change Password</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="password-form" onsubmit="changePassword(event)">
+                                    <div class="form-group">
+                                        <label class="form-label">Current Password</label>
+                                        <input type="password" class="form-control" name="current_password" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">New Password</label>
+                                        <input type="password" class="form-control" name="new_password" required minlength="8">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Confirm New Password</label>
+                                        <input type="password" class="form-control" name="confirm_password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Update Password</button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Two-Factor Authentication -->
+                        <div class="card" style="margin-top: 1.5rem;">
+                            <div class="card-header">
+                                <h3>Two-Factor Authentication (2FA)</h3>
+                            </div>
+                            <div class="card-body">
+                                <!-- 2FA Status -->
+                                <div id="twofa-status">
+                                    <p>Loading 2FA status...</p>
+                                </div>
+                                
+                                <!-- 2FA Disabled State -->
+                                <div id="twofa-disabled" style="display: none;">
+                                    <p style="color: #718096; margin-bottom: 1rem;">
+                                        Add an extra layer of security to your account using Google Authenticator or any TOTP app.
+                                    </p>
+                                    <button type="button" class="btn btn-primary" onclick="setup2FA()">Enable 2FA</button>
+                                </div>
+                                
+                                <!-- 2FA Setup State -->
+                                <div id="twofa-setup" style="display: none;">
+                                    <div style="background: #f7fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                        <p style="margin-bottom: 1rem;"><strong>Step 1:</strong> Scan this QR code with Google Authenticator app</p>
+                                        <div style="text-align: center; margin-bottom: 1rem;">
+                                            <div id="twofa-qr" style="display: inline-block;"></div>
+                                        </div>
+                                        <p style="font-size: 0.85rem; color: #666;">Or enter this secret manually: <code id="twofa-secret" style="background: #edf2f7; padding: 0.25rem 0.5rem; border-radius: 4px;"></code></p>
+                                    </div>
+                                    
+                                    <div style="background: #fffbeb; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #f59e0b;">
+                                        <p style="margin-bottom: 0.5rem;"><strong>Backup Codes (Save these securely!):</strong></p>
+                                        <div id="twofa-backup-codes" style="font-family: monospace; font-size: 0.9rem;"></div>
+                                    </div>
+                                    
+                                    <div style="margin-top: 1rem;">
+                                        <p style="margin-bottom: 0.5rem;"><strong>Step 2:</strong> Enter the 6-digit code from your app to verify</p>
+                                        <div style="display: flex; gap: 1rem; align-items: center;">
+                                            <input type="text" class="form-control" id="twofa-verify-code" placeholder="Enter 6-digit code" maxlength="6" style="max-width: 200px; text-align: center; font-size: 1.2rem; letter-spacing: 0.3rem;">
+                                            <button type="button" class="btn btn-primary" onclick="verify2FASetup()">Verify & Enable</button>
+                                            <button type="button" class="btn btn-secondary" onclick="cancel2FASetup()">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 2FA Enabled State -->
+                                <div id="twofa-enabled" style="display: none;">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; color: #38a169; margin-bottom: 1rem;">
+                                        <span style="font-size: 1.5rem;">&#10003;</span>
+                                        <span><strong>2FA is enabled</strong></span>
+                                    </div>
+                                    <p style="color: #718096; margin-bottom: 1rem;">
+                                        Your account is protected with two-factor authentication.
+                                        <br><span id="backup-codes-remaining"></span>
+                                    </p>
+                                    <div style="display: flex; gap: 1rem;">
+                                        <button type="button" class="btn btn-secondary" onclick="showRegenerateBackup()">Regenerate Backup Codes</button>
+                                        <button type="button" class="btn btn-danger" onclick="showDisable2FA()">Disable 2FA</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Disable 2FA Form -->
+                                <div id="twofa-disable-form" style="display: none; margin-top: 1rem; padding: 1rem; background: #fff5f5; border-radius: 8px; border: 1px solid #fc8181;">
+                                    <p style="color: #c53030; margin-bottom: 1rem;"><strong>Warning:</strong> Disabling 2FA will make your account less secure.</p>
+                                    <div style="display: flex; gap: 1rem; align-items: center;">
+                                        <input type="password" class="form-control" id="disable-2fa-password" placeholder="Enter your password" style="max-width: 250px;">
+                                        <button type="button" class="btn btn-danger" onclick="disable2FA()">Confirm Disable</button>
+                                        <button type="button" class="btn btn-secondary" onclick="hideDisable2FA()">Cancel</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Regenerate Backup Codes Form -->
+                                <div id="twofa-regenerate-form" style="display: none; margin-top: 1rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+                                    <p style="margin-bottom: 1rem;">Enter your current 2FA code to generate new backup codes:</p>
+                                    <div style="display: flex; gap: 1rem; align-items: center;">
+                                        <input type="text" class="form-control" id="regenerate-code" placeholder="6-digit code" maxlength="6" style="max-width: 150px; text-align: center;">
+                                        <button type="button" class="btn btn-primary" onclick="regenerateBackupCodes()">Generate New Codes</button>
+                                        <button type="button" class="btn btn-secondary" onclick="hideRegenerateBackup()">Cancel</button>
+                                    </div>
+                                    <div id="new-backup-codes" style="display: none; margin-top: 1rem; background: #fffbeb; padding: 1rem; border-radius: 8px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('admin');
+            if (!isAuth) return;
+            
+            setupUI();
+            loadProfile();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadProfile() {
+            try {
+                const response = await API.auth.getCurrentUser();
+                
+                if (response.success) {
+                    const user = response.data;
+                    
+                    // Update header
+                    Auth.updateUserDisplay(user);
+                    
+                    // Update profile card
+                    document.getElementById('profile-avatar').textContent = Utils.getInitials(user.name);
+                    document.getElementById('profile-name').textContent = user.name;
+                    document.getElementById('profile-role').textContent = user.role_name;
+                    document.getElementById('profile-email').textContent = user.email;
+                    document.getElementById('profile-phone').textContent = user.phone || '-';
+                    
+                    // Update details
+                    document.getElementById('detail-empid').textContent = user.employee_id;
+                    document.getElementById('detail-email').textContent = user.email;
+                    document.getElementById('detail-phone').textContent = user.phone || '-';
+                    document.getElementById('detail-dept').textContent = user.department || '-';
+                    document.getElementById('detail-designation').textContent = user.designation || '-';
+                    document.getElementById('detail-doj').textContent = user.date_of_joining ? Utils.formatDate(user.date_of_joining) : '-';
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+        
+        async function changePassword(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const currentPassword = form.current_password.value;
+            const newPassword = form.new_password.value;
+            const confirmPassword = form.confirm_password.value;
+            
+            if (newPassword !== confirmPassword) {
+                Utils.showToast('New passwords do not match', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                Utils.showToast('Password must be at least 8 characters', 'error');
+                return;
+            }
+            
+            try {
+                const response = await API.employees.changePassword(currentPassword, newPassword, confirmPassword);
+                
+                if (response.success) {
+                    Utils.showToast('Password changed successfully', 'success');
+                    form.reset();
+                } else {
+                    Utils.showToast(response.message || 'Failed to change password', 'error');
+                }
+            } catch (error) {
+                Utils.showToast('Error changing password', 'error');
+            }
+        }
+        
+        // 2FA Functions
+        async function load2FAStatus() {
+            try {
+                const response = await fetch('../backend/api/two-factor.php?action=status', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                document.getElementById('twofa-status').style.display = 'none';
+                
+                if (data.success && data.data.enabled) {
+                    document.getElementById('twofa-enabled').style.display = 'block';
+                    document.getElementById('twofa-disabled').style.display = 'none';
+                    loadBackupCodesCount();
+                } else {
+                    document.getElementById('twofa-enabled').style.display = 'none';
+                    document.getElementById('twofa-disabled').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('twofa-status').innerHTML = '<p style="color: #e53e3e;">Error loading 2FA status</p>';
+            }
+        }
+        
+        async function loadBackupCodesCount() {
+            try {
+                const response = await fetch('../backend/api/two-factor.php?action=backup-codes', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('backup-codes-remaining').textContent = 
+                        `Backup codes remaining: ${data.data.remaining_count}`;
+                }
+            } catch (error) {
+                // Ignore
+            }
+        }
+        
+        async function setup2FA() {
+            try {
+                Utils.showLoading();
+                const response = await fetch('../backend/api/two-factor.php?action=setup', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                Utils.hideLoading();
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('twofa-disabled').style.display = 'none';
+                    document.getElementById('twofa-setup').style.display = 'block';
+                    
+                    // Clear previous QR code
+                    const qrContainer = document.getElementById('twofa-qr');
+                    qrContainer.innerHTML = '';
+                    
+                    // Generate QR code using qrcodejs
+                    new QRCode(qrContainer, {
+                        text: data.data.otpauth_url,
+                        width: 200,
+                        height: 200,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff'
+                    });
+                    
+                    document.getElementById('twofa-secret').textContent = data.data.secret;
+                    
+                    const backupCodesHtml = data.data.backup_codes.map(code => 
+                        `<span style="display: inline-block; margin: 0.25rem; padding: 0.25rem 0.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px;">${code}</span>`
+                    ).join('');
+                    document.getElementById('twofa-backup-codes').innerHTML = backupCodesHtml;
+                } else {
+                    Utils.showToast(data.message || 'Failed to setup 2FA', 'error');
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                console.error('2FA Setup Error:', error);
+                Utils.showToast('Error setting up 2FA: ' + error.message, 'error');
+            }
+        }
+        
+        async function verify2FASetup() {
+            const code = document.getElementById('twofa-verify-code').value.trim();
+            
+            if (!code || code.length !== 6) {
+                Utils.showToast('Please enter a valid 6-digit code', 'error');
+                return;
+            }
+            
+            try {
+                Utils.showLoading();
+                const response = await fetch('../backend/api/two-factor.php?action=verify-setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ code: code })
+                });
+                Utils.hideLoading();
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    Utils.showToast('2FA enabled successfully!', 'success');
+                    document.getElementById('twofa-setup').style.display = 'none';
+                    document.getElementById('twofa-enabled').style.display = 'block';
+                    loadBackupCodesCount();
+                } else {
+                    Utils.showToast(data.message || 'Invalid code', 'error');
+                    document.getElementById('twofa-verify-code').value = '';
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                Utils.showToast('Error verifying code', 'error');
+            }
+        }
+        
+        function cancel2FASetup() {
+            document.getElementById('twofa-setup').style.display = 'none';
+            document.getElementById('twofa-disabled').style.display = 'block';
+            document.getElementById('twofa-verify-code').value = '';
+        }
+        
+        function showDisable2FA() {
+            document.getElementById('twofa-disable-form').style.display = 'block';
+        }
+        
+        function hideDisable2FA() {
+            document.getElementById('twofa-disable-form').style.display = 'none';
+            document.getElementById('disable-2fa-password').value = '';
+        }
+        
+        async function disable2FA() {
+            const password = document.getElementById('disable-2fa-password').value;
+            
+            if (!password) {
+                Utils.showToast('Please enter your password', 'error');
+                return;
+            }
+            
+            try {
+                Utils.showLoading();
+                const response = await fetch('../backend/api/two-factor.php?action=disable', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ password: password })
+                });
+                Utils.hideLoading();
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    Utils.showToast('2FA disabled', 'success');
+                    hideDisable2FA();
+                    document.getElementById('twofa-enabled').style.display = 'none';
+                    document.getElementById('twofa-disabled').style.display = 'block';
+                } else {
+                    Utils.showToast(data.message || 'Failed to disable 2FA', 'error');
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                Utils.showToast('Error disabling 2FA', 'error');
+            }
+        }
+        
+        function showRegenerateBackup() {
+            document.getElementById('twofa-regenerate-form').style.display = 'block';
+        }
+        
+        function hideRegenerateBackup() {
+            document.getElementById('twofa-regenerate-form').style.display = 'none';
+            document.getElementById('regenerate-code').value = '';
+            document.getElementById('new-backup-codes').style.display = 'none';
+        }
+        
+        async function regenerateBackupCodes() {
+            const code = document.getElementById('regenerate-code').value.trim();
+            
+            if (!code || code.length !== 6) {
+                Utils.showToast('Please enter a valid 6-digit code', 'error');
+                return;
+            }
+            
+            try {
+                Utils.showLoading();
+                const response = await fetch('../backend/api/two-factor.php?action=regenerate-backup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ code: code })
+                });
+                Utils.hideLoading();
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    Utils.showToast('New backup codes generated!', 'success');
+                    
+                    const codesHtml = '<p style="margin-bottom: 0.5rem;"><strong>New Backup Codes (Save these!):</strong></p>' +
+                        data.data.backup_codes.map(code => 
+                            `<span style="display: inline-block; margin: 0.25rem; padding: 0.25rem 0.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-family: monospace;">${code}</span>`
+                        ).join('');
+                    
+                    document.getElementById('new-backup-codes').innerHTML = codesHtml;
+                    document.getElementById('new-backup-codes').style.display = 'block';
+                    document.getElementById('regenerate-code').value = '';
+                    loadBackupCodesCount();
+                } else {
+                    Utils.showToast(data.message || 'Invalid code', 'error');
+                }
+            } catch (error) {
+                Utils.hideLoading();
+                Utils.showToast('Error regenerating codes', 'error');
+            }
+        }
+        
+        // Load 2FA status on page load
+        load2FAStatus();
+        
+    </script>
+</body>
+</html>

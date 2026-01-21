@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Slip | e-Karamchari</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <style>
+        .salary-card { background: #f8fafc; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s; }
+        .salary-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .salary-month { font-size: 1.1rem; font-weight: 600; color: #1e40af; }
+        .salary-amount { font-size: 1.75rem; font-weight: 700; color: #059669; }
+        .salary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .slip-detail { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb; }
+        .slip-detail:last-child { border-bottom: none; }
+        .slip-label { color: #6b7280; }
+        .slip-value { font-weight: 600; }
+        .earnings { color: #059669; }
+        .deductions { color: #dc2626; }
+        .btn-view { background: #3b82f6; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background 0.2s; }
+        .btn-view:hover { background: #2563eb; }
+        .btn-print { background: #10b981; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-download { background: #6366f1; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; border-radius: 12px; max-width: 700px; width: 95%; max-height: 90vh; overflow: auto; }
+        .modal-header { padding: 1.5rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 1.5rem; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
+        .slip-header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .slip-header h2 { margin: 0 0 0.5rem 0; }
+        .emp-info { background: #f1f5f9; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .emp-info p { margin: 0.25rem 0; }
+        .section-title { font-weight: 600; margin: 1rem 0 0.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; }
+        .section-title.earnings { color: #059669; border-color: #059669; }
+        .section-title.deductions { color: #dc2626; border-color: #dc2626; }
+        .total-row { background: #f0fdf4; margin: 0 -1rem; padding: 0.75rem 1rem; font-weight: 600; }
+        .total-row.deductions { background: #fef2f2; }
+        .net-salary-row { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; margin: 1rem -1.5rem -1.5rem; padding: 1.25rem 1.5rem; border-radius: 0 0 12px 12px; }
+        .net-salary-row span:last-child { font-size: 1.5rem; font-weight: 700; }
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .empty-state svg { width: 80px; height: 80px; margin-bottom: 1rem; opacity: 0.5; }
+        @media print { 
+            .no-print { display: none !important; } 
+            .modal-content { max-width: 100%; box-shadow: none; }
+            .net-salary-row { background: #1e40af !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar no-print" id="sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Employee Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Leave Management</div>
+                    <a href="apply-leave.html" class="nav-item"><span class="nav-item-icon">📝</span><span>Apply Leave</span></a>
+                    <a href="leave-status.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Status</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Grievances</div>
+                    <a href="submit-grievance.html" class="nav-item"><span class="nav-item-icon">📢</span><span>Submit Grievance</span></a>
+                    <a href="grievance-status.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📊</span><span>Grievance Status</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>My Attendance</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Profile</div>
+                    <a href="profile.html" class="nav-item" id="nav-profile"><span class="nav-item-icon">👤</span><span>My Profile</span><span class="nav-badge" id="badge-profile" style="display: none;">0</span></a>
+                    <a href="salary-slip.html" class="nav-item active" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Slip</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                    <a href="service-record.html" class="nav-item" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Record</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        <div class="sidebar-overlay no-print" id="sidebar-overlay"></div>
+        <main class="main-content">
+            <header class="top-header no-print">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Salary Slip</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Employee</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item"><span>👤</span> My Profile</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="page-content">
+                <div class="card mb-6 no-print">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 align-center flex-wrap">
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label"><strong>Select Year:</strong></label>
+                                <select id="year-select" class="form-control" style="width: auto; min-width: 120px;" onchange="loadSalarySlips()"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="slips-container">
+                    <div class="empty-state"><p>Loading salary slips...</p></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('employee');
+            if (!isAuth) return;
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            setupUI();
+            initYearSelect();
+            loadSalarySlips();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            menuToggle.addEventListener('click', () => { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); });
+            overlay.addEventListener('click', () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); });
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => { if (!userToggle.contains(e.target)) userMenu.classList.remove('active'); });
+        }
+        
+        function initYearSelect() {
+            const select = document.getElementById('year-select');
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear; y >= currentYear - 5; y--) {
+                select.innerHTML += `<option value="${y}">${y}</option>`;
+            }
+        }
+        
+        function formatCurrency(amount) {
+            return '₹' + parseFloat(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        
+        async function loadSalarySlips() {
+            const year = document.getElementById('year-select').value;
+            const container = document.getElementById('slips-container');
+            container.innerHTML = '<div class="empty-state"><p>Loading salary slips...</p></div>';
+            
+            try {
+                const response = await fetch(`../backend/api/salary.php?action=my-slips&year=${year}`, { credentials: 'include' });
+                const result = await response.json();
+                
+                if (result.success && result.data.slips && result.data.slips.length > 0) {
+                    let html = '<div class="salary-grid">';
+                    result.data.slips.forEach(slip => {
+                        const statusClass = slip.payment_status === 'Paid' ? 'badge-success' : 
+                                           slip.payment_status === 'Hold' ? 'badge-danger' : 'badge-warning';
+                        html += `
+                        <div class="salary-card">
+                            <div class="d-flex justify-between align-center mb-4">
+                                <div class="salary-month">${monthNames[slip.month-1]} ${slip.year}</div>
+                                <span class="badge ${statusClass}">${slip.payment_status}</span>
+                            </div>
+                            <div class="salary-amount">${formatCurrency(slip.net_salary)}</div>
+                            <p class="text-muted mb-2">Net Salary</p>
+                            <div class="d-flex gap-2 mb-4" style="font-size: 0.875rem; color: #6b7280;">
+                                <span>Gross: ${formatCurrency(slip.gross_salary)}</span>
+                                <span>|</span>
+                                <span style="color:#dc2626;">Ded: ${formatCurrency(slip.total_deductions)}</span>
+                            </div>
+                            <button class="btn-view btn-view-slip" data-id="${slip.id}">View</button>
+                        </div>`;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                    
+                    // Add event listeners for view buttons
+                    document.querySelectorAll('.btn-view-slip').forEach(btn => {
+                        btn.addEventListener('click', () => viewSlip(btn.dataset.id));
+                    });
+                } else {
+                    container.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3>No Salary Slips Found</h3>
+                        <p>No salary slips available for ${year}. Please contact HR if you believe this is an error.</p>
+                    </div>`;
+                }
+            } catch (e) { 
+                console.error('Error loading salary slips:', e);
+                container.innerHTML = '<div class="empty-state"><p class="text-danger">Error loading salary slips. Please try again.</p></div>'; 
+            }
+        }
+        
+        async function viewSlip(id) {
+            try {
+                const response = await fetch(`../backend/api/salary.php?action=view&id=${id}`, { credentials: 'include' });
+                const result = await response.json();
+                if (result.success) { 
+                    showSlipModal(result.data); 
+                } else {
+                    Utils.showToast(result.message || 'Error loading slip details', 'error');
+                }
+            } catch (e) { 
+                console.error('Error:', e);
+                Utils.showToast('Error loading slip details', 'error'); 
+            }
+        }
+        
+        function showSlipModal(slip) {
+            // Remove existing modal
+            const existingModal = document.getElementById('slip-modal');
+            if (existingModal) existingModal.remove();
+            
+            const modal = document.createElement('div');
+            modal.id = 'slip-modal';
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;';
+            
+            const paymentInfo = slip.payment_status === 'Paid' && slip.payment_date 
+                ? `<p><strong>Payment Date:</strong> ${new Date(slip.payment_date).toLocaleDateString('en-IN')}</p>` 
+                : '';
+            
+            modal.innerHTML = `
+            <div style="background:white;border-radius:12px;max-width:700px;width:95%;max-height:90vh;overflow:auto;">
+                <div style="padding:1rem 1.5rem;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;" class="no-print">
+                    <h3 style="margin:0;">Salary Slip</h3>
+                    <button onclick="closeModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+                </div>
+                <div style="padding:1.5rem;">
+                    <div class="slip-header">
+                        <h2>e-Karamchari</h2>
+                        <p style="margin:0; opacity: 0.9;">Salary Slip for ${monthNames[slip.month-1]} ${slip.year}</p>
+                    </div>
+                    
+                    <div class="emp-info">
+                        <p><strong>Employee Name:</strong> ${slip.first_name} ${slip.last_name}</p>
+                        <p><strong>Employee ID:</strong> ${slip.emp_code}</p>
+                        <p><strong>Department:</strong> ${slip.dept_name}</p>
+                        <p><strong>Designation:</strong> ${slip.designation_name}</p>
+                        ${paymentInfo}
+                    </div>
+                    
+                    <div class="section-title earnings">Earnings</div>
+                    <div class="slip-detail"><span class="slip-label">Basic Pay</span><span class="slip-value">${formatCurrency(slip.basic_pay)}</span></div>
+                    <div class="slip-detail"><span class="slip-label">Grade Pay</span><span class="slip-value">${formatCurrency(slip.grade_pay)}</span></div>
+                    <div class="slip-detail"><span class="slip-label">Dearness Allowance (DA)</span><span class="slip-value">${formatCurrency(slip.da)}</span></div>
+                    <div class="slip-detail"><span class="slip-label">House Rent Allowance (HRA)</span><span class="slip-value">${formatCurrency(slip.hra)}</span></div>
+                    <div class="slip-detail"><span class="slip-label">Transport Allowance (TA)</span><span class="slip-value">${formatCurrency(slip.ta)}</span></div>
+                    <div class="slip-detail"><span class="slip-label">Other Allowances</span><span class="slip-value">${formatCurrency(slip.other_allowances)}</span></div>
+                    <div class="slip-detail total-row"><span>Gross Salary</span><span class="earnings">${formatCurrency(slip.gross_salary)}</span></div>
+                    
+                    <div class="section-title deductions">Deductions</div>
+                    <div class="slip-detail"><span class="slip-label">Provident Fund (PF)</span><span class="slip-value">${formatCurrency(slip.pf_deduction)}</span></div>
+                    <div class="slip-detail"><span class="slip-label">Income Tax (TDS)</span><span class="slip-value">${formatCurrency(slip.tax_deduction)}</span></div>
+                    <div class="slip-detail"><span class="slip-label">Other Deductions</span><span class="slip-value">${formatCurrency(slip.other_deductions)}</span></div>
+                    <div class="slip-detail total-row deductions"><span>Total Deductions</span><span class="deductions">${formatCurrency(slip.total_deductions)}</span></div>
+                    
+                    <div class="net-salary-row d-flex justify-between align-center">
+                        <span><strong>Net Salary</strong></span>
+                        <span>${formatCurrency(slip.net_salary)}</span>
+                    </div>
+                </div>
+                <div style="padding:1rem 1.5rem;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;" class="no-print">
+                    <button class="btn-print" onclick="printSlip()">Print</button>
+                    <span class="badge ${slip.payment_status === 'Paid' ? 'badge-success' : 'badge-warning'}">${slip.payment_status}</span>
+                </div>
+            </div>`;
+            
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+            document.addEventListener('keydown', handleEscKey);
+        }
+        
+        function handleEscKey(e) {
+            if (e.key === 'Escape') closeModal();
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('slip-modal');
+            if (modal) modal.remove();
+            document.removeEventListener('keydown', handleEscKey);
+        }
+        
+        function printSlip() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Record | e-Karamchari</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Employee Portal</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span><span>Dashboard</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Leave Management</div>
+                    <a href="apply-leave.html" class="nav-item"><span class="nav-item-icon">📝</span><span>Apply Leave</span></a>
+                    <a href="leave-status.html" class="nav-item" id="nav-leave"><span class="nav-item-icon">📋</span><span>Leave Status</span><span class="nav-badge" id="badge-leave" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Grievances</div>
+                    <a href="submit-grievance.html" class="nav-item"><span class="nav-item-icon">📢</span><span>Submit Grievance</span></a>
+                    <a href="grievance-status.html" class="nav-item" id="nav-grievance"><span class="nav-item-icon">📊</span><span>Grievance Status</span><span class="nav-badge" id="badge-grievance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance"><span class="nav-item-icon">⏰</span><span>My Attendance</span><span class="nav-badge" id="badge-attendance" style="display: none;">0</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Profile</div>
+                    <a href="profile.html" class="nav-item" id="nav-profile"><span class="nav-item-icon">👤</span><span>My Profile</span><span class="nav-badge" id="badge-profile" style="display: none;">0</span></a>
+                    <a href="salary-slip.html" class="nav-item" id="nav-salary"><span class="nav-item-icon">💰</span><span>Salary Slip</span><span class="nav-badge" id="badge-salary" style="display: none;">0</span></a>
+                    <a href="service-record.html" class="nav-item active" id="nav-service"><span class="nav-item-icon">📁</span><span>Service Record</span><span class="nav-badge" id="badge-service" style="display: none;">0</span></a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Service Record</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role">Employee</div>
+                            </div>
+                        </button>
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item"><span>👤</span> My Profile</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()"><span>🚪</span> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <!-- Employee Info Card -->
+                <div class="card mb-6">
+                    <div class="card-body">
+                        <div class="d-flex gap-4 align-center flex-wrap">
+                            <div class="user-avatar" id="emp-avatar" style="width: 80px; height: 80px; font-size: 2rem;">--</div>
+                            <div style="flex: 1;">
+                                <h3 id="emp-name" class="mb-0">Loading...</h3>
+                                <p class="text-muted mb-0" id="emp-designation">-</p>
+                                <p class="text-muted" id="emp-department">-</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="mb-0"><strong>Employee ID:</strong> <span id="emp-id">-</span></p>
+                                <p class="mb-0"><strong>Date of Joining:</strong> <span id="emp-joining">-</span></p>
+                                <p class="mb-0"><strong>Service Duration:</strong> <span id="emp-duration">-</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Service Records -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Service History</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="service-records-container">
+                            <div class="empty-state">
+                                <p>Loading service records...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('employee');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            loadServiceRecords();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+        }
+        
+        async function loadServiceRecords() {
+            try {
+                const response = await API.serviceRecords.myRecords();
+                
+                if (response.success) {
+                    const { employee, records } = response.data;
+                    
+                    // Update employee info
+                    const fullName = employee.first_name + ' ' + employee.last_name;
+                    document.getElementById('emp-avatar').textContent = Utils.getInitials(fullName);
+                    document.getElementById('emp-name').textContent = fullName;
+                    document.getElementById('emp-designation').textContent = employee.designation_name || '-';
+                    document.getElementById('emp-department').textContent = employee.dept_name || '-';
+                    document.getElementById('emp-id').textContent = employee.employee_id;
+                    document.getElementById('emp-joining').textContent = Utils.formatDate(employee.date_of_joining);
+                    
+                    if (employee.service_duration) {
+                        const d = employee.service_duration;
+                        document.getElementById('emp-duration').textContent = 
+                            `${d.years} years, ${d.months} months, ${d.days} days`;
+                    }
+                    
+                    // Render service records
+                    const container = document.getElementById('service-records-container');
+                    
+                    if (!records || records.length === 0) {
+                        container.innerHTML = '<div class="empty-state"><p>No service records found</p></div>';
+                        return;
+                    }
+                    
+                    const typeIcons = {
+                        'Promotion': '📈',
+                        'Transfer': '🔄',
+                        'Training': '📚',
+                        'Award': '🏆',
+                        'Disciplinary': '⚠️',
+                        'Increment': '💰',
+                        'Other': '📋'
+                    };
+                    
+                    let html = '<div class="timeline">';
+                    records.forEach(record => {
+                        html += `
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="d-flex justify-between align-center mb-2">
+                                        <div class="d-flex align-center gap-2">
+                                            <span style="font-size: 1.5rem;">${typeIcons[record.record_type] || '📋'}</span>
+                                            <div>
+                                                <h4 class="mb-0">${Utils.escapeHtml(record.title)}</h4>
+                                                <span class="badge badge-primary">${record.record_type}</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <strong>${Utils.formatDate(record.effective_date)}</strong>
+                                            ${record.end_date ? `<br><small class="text-muted">to ${Utils.formatDate(record.end_date)}</small>` : ''}
+                                        </div>
+                                    </div>
+                                    ${record.description ? `<p class="text-muted mb-2">${Utils.escapeHtml(record.description)}</p>` : ''}
+                                    ${record.prev_designation || record.new_designation ? `
+                                        <p class="mb-0">
+                                            <strong>Designation:</strong> 
+                                            ${record.prev_designation || '-'} → ${record.new_designation || '-'}
+                                        </p>
+                                    ` : ''}
+                                    ${record.prev_department || record.new_department ? `
+                                        <p class="mb-0">
+                                            <strong>Department:</strong> 
+                                            ${record.prev_department || '-'} → ${record.new_department || '-'}
+                                        </p>
+                                    ` : ''}
+                                    ${record.order_number ? `<p class="mb-0"><strong>Order No:</strong> ${Utils.escapeHtml(record.order_number)}</p>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading service records:', error);
+                document.getElementById('service-records-container').innerHTML = 
+                    '<div class="empty-state"><p class="text-danger">Error loading service records</p></div>';
+            }
+        }
+    </script>
+</body>
+</html>

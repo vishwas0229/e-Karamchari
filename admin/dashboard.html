@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | e-Karamchari</title>
+    <link rel="stylesheet" href="../frontend/css/common.css">
+    <link rel="stylesheet" href="../frontend/css/dashboard.css">
+    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <script src="../frontend/js/loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);">
+            <div class="sidebar-header">
+                <div>
+                    <div class="sidebar-title">e-Karamchari</div>
+                    <div class="sidebar-subtitle">Admin Portal</div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="dashboard.html" class="nav-item active">
+                        <span class="nav-item-icon">🏠</span>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Employee Management</div>
+                    <a href="employees.html" class="nav-item">
+                        <span class="nav-item-icon">👥</span>
+                        <span>All Employees</span>
+                    </a>
+                    <a href="add-employee.html" class="nav-item">
+                        <span class="nav-item-icon">➕</span>
+                        <span>Add Employee</span>
+                    </a>
+                    <a href="employee-services.html" class="nav-item">
+                        <span class="nav-item-icon">⚡</span>
+                        <span>Employee Services</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Approvals</div>
+                    <a href="leave-approvals.html" class="nav-item" id="nav-leave">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Leave Requests</span>
+                        <span class="nav-badge" id="badge-leave" style="display: none;">0</span>
+                    </a>
+                    <a href="grievances.html" class="nav-item" id="nav-grievance">
+                        <span class="nav-item-icon">📢</span>
+                        <span>Grievances</span>
+                        <span class="nav-badge" id="badge-grievance" style="display: none;">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Attendance</div>
+                    <a href="attendance.html" class="nav-item" id="nav-attendance">
+                        <span class="nav-item-icon">⏰</span>
+                        <span>Attendance Reports</span>
+                        <span class="nav-badge" id="badge-attendance" style="display: none;">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Payroll</div>
+                    <a href="salary.html" class="nav-item" id="nav-salary">
+                        <span class="nav-item-icon">💰</span>
+                        <span>Salary Management</span>
+                        <span class="nav-badge" id="badge-salary" style="display: none;">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Records</div>
+                    <a href="service-records.html" class="nav-item" id="nav-service">
+                        <span class="nav-item-icon">📁</span>
+                        <span>Service Records</span>
+                        <span class="nav-badge" id="badge-service" style="display: none;">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="reports.html" class="nav-item" id="nav-reports">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Reports & Analytics</span>
+                        <span class="nav-badge" id="badge-reports" style="display: none;">0</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="settings.html" class="nav-item" id="nav-settings">
+                        <span class="nav-item-icon">⚙️</span>
+                        <span>Settings</span>
+                        <span class="nav-badge" id="badge-settings" style="display: none;">0</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <h1 class="page-title">Admin Dashboard</h1>
+                </div>
+                
+                <div class="header-right">
+                    <button class="header-icon-btn" id="notification-btn">
+                        🔔
+                        <span class="notification-badge" id="notification-count" style="display: none;">0</span>
+                    </button>
+                    
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="user-dropdown-toggle">
+                            <div class="user-avatar" id="user-avatar">--</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Loading...</div>
+                                <div class="user-role" id="user-role">Admin</div>
+                            </div>
+                        </button>
+                        
+                        <div class="dropdown-menu" id="user-dropdown-menu">
+                            <a href="profile.html" class="dropdown-item">
+                                <span>👤</span> My Profile
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="Auth.logout()">
+                                <span>🚪</span> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">👥</div>
+                        <div class="stat-content">
+                            <h3 id="total-employees">--</h3>
+                            <p>Total Employees</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon success">✓</div>
+                        <div class="stat-content">
+                            <h3 id="present-today">--</h3>
+                            <p id="present-today-label">Present Today</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon warning">📋</div>
+                        <div class="stat-content">
+                            <h3 id="pending-leaves">--</h3>
+                            <p>Pending Leaves</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon danger">📢</div>
+                        <div class="stat-content">
+                            <h3 id="open-grievances">--</h3>
+                            <p>Open Grievances</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Pending Leave Requests -->
+                    <div class="grid-col-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-between align-center">
+                                <h3>Pending Leave Requests</h3>
+                                <a href="leave-approvals.html" class="btn btn-sm btn-secondary">View All</a>
+                            </div>
+                            <div class="card-body">
+                                <div id="pending-leaves-list">
+                                    <div class="empty-state">
+                                        <p>Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Open Grievances -->
+                    <div class="grid-col-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-between align-center">
+                                <h3>Open Grievances</h3>
+                                <a href="grievances.html" class="btn btn-sm btn-secondary">View All</a>
+                            </div>
+                            <div class="card-body">
+                                <div id="open-grievances-list">
+                                    <div class="empty-state">
+                                        <p>Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Department Statistics -->
+                    <div class="grid-col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Employees by Department</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="department-stats">
+                                    <div class="empty-state">
+                                        <p>Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Attendance Trend -->
+                    <div class="grid-col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Weekly Attendance Trend</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="attendance-trend">
+                                    <div class="empty-state">
+                                        <p>Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Notifications Panel -->
+        <div class="notifications-panel" id="notifications-panel">
+            <div class="notifications-header">
+                <h3>Notifications</h3>
+                <button class="notifications-close" onclick="toggleNotifications()">×</button>
+            </div>
+            <div class="notifications-list" id="notifications-list">
+                <div class="empty-state">
+                    <p>No notifications</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../frontend/js/api.js"></script>
+    <script src="../frontend/js/utils.js"></script>
+    <script src="../frontend/js/auth.js"></script>
+    <script src="../frontend/js/notifications.js"></script>
+    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await Auth.checkAuth('admin');
+            if (!isAuth) return;
+            
+            const user = await Auth.getCurrentUser();
+            if (user) Auth.updateUserDisplay(user);
+            
+            setupUI();
+            loadDashboardData();
+        });
+        
+        function setupUI() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            const userToggle = document.getElementById('user-dropdown-toggle');
+            const userMenu = document.getElementById('user-dropdown-menu');
+            
+            userToggle.addEventListener('click', () => userMenu.classList.toggle('active'));
+            document.addEventListener('click', (e) => {
+                if (!userToggle.contains(e.target)) userMenu.classList.remove('active');
+            });
+            
+            // Notification button
+            document.getElementById('notification-btn').addEventListener('click', toggleNotifications);
+        }
+        
+        function toggleNotifications() {
+            const panel = document.getElementById('notifications-panel');
+            panel.classList.toggle('active');
+            
+            if (panel.classList.contains('active')) {
+                loadNotifications();
+            }
+        }
+        
+        async function loadNotifications() {
+            console.log('[Admin Dashboard] Loading notifications...');
+            try {
+                const response = await API.dashboard.getNotifications({ limit: 10 });
+                console.log('[Admin Dashboard] Notifications response:', response);
+                
+                if (response && response.success) {
+                    const { notifications, unread_count, page_counts } = response.data;
+                    console.log('[Admin Dashboard] Notifications data:', { 
+                        count: notifications ? notifications.length : 0, 
+                        unread_count, 
+                        notifications 
+                    });
+                    
+                    const container = document.getElementById('notifications-list');
+                    if (!container) {
+                        console.error('[Admin Dashboard] Notifications container not found!');
+                        return;
+                    }
+                    
+                    // Update header badge
+                    const badge = document.getElementById('notification-count');
+                    if (badge) {
+                        if (unread_count > 0) {
+                            badge.textContent = unread_count;
+                            badge.style.display = 'flex';
+                            console.log('[Admin Dashboard] Badge updated:', unread_count);
+                        } else {
+                            badge.style.display = 'none';
+                            console.log('[Admin Dashboard] No unread notifications');
+                        }
+                    }
+                    
+                    // Update sidebar badges
+                    updateSidebarBadges(page_counts);
+                    
+                    if (!notifications || notifications.length === 0) {
+                        console.log('[Admin Dashboard] No notifications to display');
+                        container.innerHTML = '<div class="empty-state"><p>No notifications</p></div>';
+                        return;
+                    }
+                    
+                    console.log('[Admin Dashboard] Rendering', notifications.length, 'notifications');
+                    let html = '';
+                    notifications.forEach((n, index) => {
+                        console.log(`[Admin Dashboard] Rendering notification ${index + 1}:`, n);
+                        const typeIcons = { 'Success': '✓', 'Warning': '⚠', 'Error': '✕', 'Info': 'ℹ' };
+                        const linkAttr = n.link ? `'${n.link}'` : 'null';
+                        html += `<div class="notification-item ${n.is_read ? '' : 'unread'}" onclick="markNotificationRead(${n.id}, ${linkAttr})" style="cursor: pointer;">
+                            <div class="notification-icon ${n.type.toLowerCase()}">${typeIcons[n.type] || 'ℹ'}</div>
+                            <div class="notification-content">
+                                <div class="notification-title">${Utils.escapeHtml(n.title)}</div>
+                                <div class="notification-message">${Utils.escapeHtml(n.message)}</div>
+                                <div class="notification-time">${Utils.getRelativeTime(n.created_at)}</div>
+                            </div>
+                        </div>`;
+                    });
+                    
+                    html += '<div class="notification-actions"><button class="btn btn-sm btn-secondary" onclick="markAllRead()">Mark all as read</button></div>';
+                    console.log('[Admin Dashboard] Setting HTML, length:', html.length);
+                    container.innerHTML = html;
+                    console.log('[Admin Dashboard] Notifications rendered successfully');
+                } else {
+                    console.error('[Admin Dashboard] Failed to load notifications:', response);
+                    const container = document.getElementById('notifications-list');
+                    if (container) {
+                        container.innerHTML = '<div class="empty-state"><p style="color: red;">Failed to load notifications</p></div>';
+                    }
+                    if (typeof Utils !== 'undefined' && Utils.showToast) {
+                        Utils.showToast('Failed to load notifications', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('[Admin Dashboard] Error loading notifications:', error);
+                const container = document.getElementById('notifications-list');
+                if (container) {
+                    container.innerHTML = '<div class="empty-state"><p style="color: red;">Error: ' + error.message + '</p></div>';
+                }
+                if (typeof Utils !== 'undefined' && Utils.showToast) {
+                    Utils.showToast('Error loading notifications', 'error');
+                }
+            }
+        }
+        
+        // Update sidebar badges based on page-wise notification counts
+        function updateSidebarBadges(pageCounts) {
+            if (!pageCounts) return;
+            
+            const badges = {
+                'badge-leave': pageCounts.leave || 0,
+                'badge-grievance': pageCounts.grievance || 0,
+                'badge-attendance': pageCounts.attendance || 0,
+                'badge-salary': pageCounts.salary || 0,
+                'badge-service': pageCounts.service || 0,
+                'badge-reports': pageCounts.reports || 0,
+                'badge-settings': pageCounts.settings || 0
+            };
+            
+            for (const [id, count] of Object.entries(badges)) {
+                const badge = document.getElementById(id);
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            }
+        }
+        
+        async function markNotificationRead(id, link) {
+            try {
+                const response = await API.dashboard.markNotificationRead(id, false);
+                
+                if (response && response.success) {
+                    // Redirect to the notification link if available
+                    if (link && link !== 'null' && link !== '') {
+                        window.location.href = link;
+                    } else {
+                        loadNotifications();
+                    }
+                } else {
+                    console.error('Failed to mark notification as read');
+                    Utils.showToast('Failed to mark notification as read', 'error');
+                }
+            } catch (error) {
+                console.error('Error marking notification:', error);
+                Utils.showToast('Error marking notification', 'error');
+            }
+        }
+        
+        async function markAllRead() {
+            try {
+                const response = await API.dashboard.markNotificationRead(null, true);
+                
+                if (response && response.success) {
+                    loadNotifications();
+                    Utils.showToast('All notifications marked as read', 'success');
+                } else {
+                    console.error('Failed to mark all notifications as read');
+                    Utils.showToast('Failed to mark all notifications', 'error');
+                }
+            } catch (error) {
+                console.error('Error marking all notifications:', error);
+                Utils.showToast('Error marking all notifications', 'error');
+            }
+        }
+        
+        async function loadDashboardData() {
+            try {
+                const response = await API.dashboard.getAdminStats();
+                
+                if (response.success) {
+                    const data = response.data;
+                    
+                    // Update stats
+                    document.getElementById('total-employees').textContent = data.counts.total_employees || 0;
+                    document.getElementById('pending-leaves').textContent = data.counts.pending_leaves || 0;
+                    document.getElementById('open-grievances').textContent = data.counts.open_grievances || 0;
+                    
+                    // Handle Present Today based on working day
+                    const todayInfo = data.today_info || {};
+                    const presentTodayEl = document.getElementById('present-today');
+                    const presentTodayLabel = document.getElementById('present-today-label');
+                    
+                    if (todayInfo.is_sunday) {
+                        presentTodayEl.textContent = '-';
+                        presentTodayLabel.textContent = 'Sunday - Weekly Off';
+                    } else if (todayInfo.is_holiday) {
+                        presentTodayEl.textContent = '-';
+                        presentTodayLabel.textContent = todayInfo.holiday_name || 'Holiday';
+                    } else {
+                        presentTodayEl.textContent = data.counts.present_today || 0;
+                        presentTodayLabel.textContent = 'Present Today';
+                    }
+                    
+                    // Render lists
+                    renderPendingLeaves(data.recent_leaves);
+                    renderOpenGrievances(data.recent_grievances);
+                    renderDepartmentStats(data.department_stats);
+                    renderAttendanceTrend(data.attendance_trend);
+                    
+                    // Load notifications for sidebar badges
+                    loadNotifications();
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        function renderPendingLeaves(leaves) {
+            const container = document.getElementById('pending-leaves-list');
+            
+            if (!leaves || leaves.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No pending leave requests</p></div>';
+                return;
+            }
+            
+            let html = '<ul class="recent-list">';
+            leaves.forEach(leave => {
+                html += `<li class="recent-item">
+                    <div class="recent-item-info">
+                        <div class="recent-item-avatar">${Utils.getInitials(leave.employee_name)}</div>
+                        <div class="recent-item-details">
+                            <h4>${Utils.escapeHtml(leave.employee_name)}</h4>
+                            <p>${leave.leave_name} | ${Utils.formatDate(leave.start_date)} - ${Utils.formatDate(leave.end_date)}</p>
+                        </div>
+                    </div>
+                    ${Utils.getStatusBadge(leave.status)}
+                </li>`;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+        
+        function renderOpenGrievances(grievances) {
+            const container = document.getElementById('open-grievances-list');
+            
+            if (!grievances || grievances.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No open grievances</p></div>';
+                return;
+            }
+            
+            let html = '<ul class="recent-list">';
+            grievances.forEach(g => {
+                html += `<li class="recent-item">
+                    <div class="recent-item-info">
+                        <div class="recent-item-avatar">${Utils.getInitials(g.employee_name)}</div>
+                        <div class="recent-item-details">
+                            <h4>${Utils.truncate(Utils.escapeHtml(g.subject), 35)}</h4>
+                            <p>${g.category_name} | ${Utils.escapeHtml(g.employee_name)}</p>
+                        </div>
+                    </div>
+                    ${Utils.getPriorityBadge(g.priority)}
+                </li>`;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+        
+        function renderDepartmentStats(stats) {
+            const container = document.getElementById('department-stats');
+            
+            if (!stats || stats.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No department data available</p></div>';
+                return;
+            }
+            
+            let html = '<div class="table-container"><table class="table"><thead><tr><th>Department</th><th>Employees</th></tr></thead><tbody>';
+            stats.forEach(dept => {
+                html += `<tr>
+                    <td>${Utils.escapeHtml(dept.dept_name || 'Unassigned')}</td>
+                    <td><strong>${dept.count}</strong></td>
+                </tr>`;
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+        
+        function renderAttendanceTrend(trend) {
+            const container = document.getElementById('attendance-trend');
+            
+            if (!trend || trend.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No attendance data available</p></div>';
+                return;
+            }
+            
+            let html = '<div class="table-container"><table class="table"><thead><tr><th>Date</th><th>Present</th><th>Absent</th></tr></thead><tbody>';
+            trend.forEach(day => {
+                if (day.is_sunday) {
+                    html += `<tr style="background: #f0f4ff;">
+                        <td>${Utils.formatDate(day.date)}</td>
+                        <td colspan="2" style="text-align: center; color: #666;">
+                            <span style="background: #e2e8f0; padding: 2px 8px; border-radius: 4px;">Sunday - Weekly Off</span>
+                        </td>
+                    </tr>`;
+                } else if (day.is_holiday) {
+                    html += `<tr style="background: #fff5f5;">
+                        <td>${Utils.formatDate(day.date)}</td>
+                        <td colspan="2" style="text-align: center; color: #666;">
+                            <span style="background: #fed7d7; padding: 2px 8px; border-radius: 4px;">${Utils.escapeHtml(day.holiday_name)}</span>
+                        </td>
+                    </tr>`;
+                } else {
+                    html += `<tr>
+                        <td>${Utils.formatDate(day.date)}</td>
+                        <td><span class="badge badge-success">${day.present}</span></td>
+                        <td><span class="badge badge-danger">${day.absent}</span></td>
+                    </tr>`;
+                }
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
