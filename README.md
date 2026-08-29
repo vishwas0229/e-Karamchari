@@ -11,7 +11,7 @@
 
 **A modern and secure HR management system with Two-Factor Authentication**
 
-[Features](#-features) • [Installation](#-quick-start) • [Security](#-security) • [API](#-api-reference)
+[Features](#-features) • [Installation](#-quick-start) • [Security](#-security) • [Notifications](#-notification-system) • [API](#-api-reference)
 
 ---
 
@@ -46,7 +46,7 @@
 | 👥 Employees | Add, edit, manage staff |
 | ✅ Approvals | Leave and grievance actions |
 | 📊 Reports | Attendance and salary reports |
-| � Payrollp | Salary slip generation |
+| 💰 Payroll | Salary slip generation |
 | 📅 Holidays | Holiday calendar management |
 | ⚙️ Settings | System configuration |
 | 🤖 Chatbot | AI assistant for help |
@@ -57,14 +57,44 @@
 
 | Feature | Description |
 |:--------|:------------|
-| � Two-Factoor Auth | TOTP with Google Authenticator |
+| 🔐 Two-Factor Auth | TOTP with Google Authenticator |
 | 🔒 Password Hashing | Bcrypt with auto-salt |
-| �️ CS RF Protection | Token-based validation |
+| 🛡️ CSRF Protection | Token-based validation |
 | 🚫 XSS Prevention | Input sanitization |
 | 💉 SQL Injection | Prepared statements |
 | ⏱️ Rate Limiting | Brute-force protection |
-| � DSession Security | Secure cookies |
-| �  Audit Logging | Complete activity trail |
+| 🍪 Session Security | Secure cookies |
+| 📋 Audit Logging | Complete activity trail |
+
+---
+
+## 🔔 Notification System
+
+Notifications are generated for important employee/admin actions. Leave applications and grievance submissions notify active administrators; leave status changes notify employees; service-record updates can notify relevant users. Notification helpers are implemented in `backend/middleware/notifications.php`.
+
+### Quick Test
+
+After logging in, open the browser console and run:
+
+```javascript
+API.dashboard.createTestNotification().then(() => loadNotifications());
+```
+
+Then open the 🔔 notification panel. For end-to-end testing, apply a leave or submit a grievance as an employee and verify the admin notification.
+
+### Troubleshooting
+
+1. Check **F12 → Console** for `[Notifications]` or `[Dashboard]` logs.
+2. Check the session with `API.auth.checkSession()`.
+3. Check notifications with `API.dashboard.getNotifications({limit: 10})`.
+4. Verify the notification panel/list elements and frontend JavaScript errors.
+5. Check recent database records:
+
+```sql
+SELECT * FROM notifications ORDER BY created_at DESC LIMIT 10;
+SELECT user_id, COUNT(*) AS count FROM notifications GROUP BY user_id;
+SELECT COUNT(*) FROM notifications WHERE is_read = 0;
+```
 
 ---
 
@@ -81,7 +111,7 @@
 
 ---
 
-## � Quick Setart
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -95,7 +125,7 @@
 **Step 1: Clone the repository**
 
 ```bash
-git clone https://github.com/vishwas-2/e-Karamchari.git
+git clone https://github.com/vishwas0229/e-Karamchari.git
 cd e-Karamchari
 ```
 
@@ -115,27 +145,11 @@ Or import `database/schema.sql` via phpMyAdmin.
 
 **Step 4: Configure database**
 
-Edit `backend/config/config.php`:
-
-```php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'ekaramchari');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-```
+Edit `backend/config/config.php` with your local database credentials.
 
 **Step 5: Create an administrator account**
 
-Do not use a password or reusable administrator credential from this README. Generate a unique password locally and store only its bcrypt hash in the database. For example, use PHP's `password_hash()` function:
-
-```php
-<?php
-echo password_hash('REPLACE_WITH_A_UNIQUE_PASSWORD', PASSWORD_BCRYPT);
-```
-
-Use the generated hash when creating the administrator record in your local database, and choose a unique email address and employee ID for the environment. Never commit the plaintext password or a reusable production credential to the repository.
-
-For production deployments, create a unique administrator credential during deployment or through a secure password-reset/setup process, then change it immediately after initial setup.
+Do not use a password or reusable administrator credential from the repository. Generate a unique password locally and store only its bcrypt hash. Never commit plaintext passwords or reusable production credentials.
 
 ### Access URLs
 
@@ -149,43 +163,22 @@ For production deployments, create a unique administrator credential during depl
 
 ## 📁 Project Structure
 
-```
+```text
 e-Karamchari/
 ├── index.html
 ├── admin-login.html
 ├── employee-login.html
-│
 ├── admin/
-│   ├── dashboard.html
-│   ├── employees.html
-│   ├── add-employee.html
-│   ├── leave-approvals.html
-│   ├── grievances.html
-│   ├── attendance.html
-│   ├── salary.html
-│   ├── settings.html
-│   └── profile.html
-│
 ├── employee/
-│   ├── dashboard.html
-│   ├── apply-leave.html
-│   ├── leave-status.html
-│   ├── submit-grievance.html
-│   ├── attendance.html
-│   ├── salary-slip.html
-│   └── profile.html
-│
 ├── backend/
 │   ├── api/
 │   ├── config/
 │   ├── middleware/
 │   └── logs/
-│
 ├── frontend/
 │   ├── css/
 │   ├── js/
 │   └── chatbot/
-│
 └── database/
     └── schema.sql
 ```
@@ -210,6 +203,7 @@ e-Karamchari/
 | two_factor_auth | 2FA secrets and backup codes |
 | holidays | Holiday calendar |
 | sessions | Active user sessions |
+| notifications | In-app notifications |
 | activity_logs | Audit trail |
 
 ---
@@ -289,6 +283,7 @@ e-Karamchari/
 | 404 on API calls | Enable Apache mod_rewrite |
 | Session issues | Clear browser cookies |
 | 2FA QR not showing | Check internet connection |
+| Notifications not showing | Check session, API response, console logs, and database records |
 
 ---
 
@@ -300,6 +295,8 @@ e-Karamchari/
 - [ ] Configure firewall rules
 - [ ] Setup automated database backups
 - [ ] Enable error logging
+- [ ] Verify notification delivery
+- [ ] Remove test notifications before production use
 
 ---
 
@@ -308,8 +305,10 @@ e-Karamchari/
 1. Fork the repository
 2. Create feature branch: `git checkout -b feature/AmazingFeature`
 3. Commit changes: `git commit -m 'Add AmazingFeature'`
-4. Push to branch: `git push origin feature/AmazingFeature`
+4. Push to GitHub
 5. Open Pull Request
+
+All normal code changes should be made on a separate feature/fix branch and merged through a Pull Request rather than directly into `main`.
 
 ---
 
