@@ -124,24 +124,18 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 ```
 
-**Step 5: Create admin user**
+**Step 5: Create an administrator account**
 
-Run this SQL query in phpMyAdmin:
+Do not use a password or reusable administrator credential from this README. Generate a unique password locally and store only its bcrypt hash in the database. For example, use PHP's `password_hash()` function:
 
-```sql
-INSERT INTO users (employee_id, email, password_hash, role_id, first_name, last_name, phone, is_active, date_of_joining)
-VALUES ('ADMIN001', 'admin@ekaramchari.com', '$2y$10$8K1p/a0dL1LXMIgoEDFrwOfMQkLgY1iKFjY1Rk8o.M3O3f5lS/Fia', 1, 'Super', 'Admin', '9999999999', 1, CURDATE());
+```php
+<?php
+echo password_hash('REPLACE_WITH_A_UNIQUE_PASSWORD', PASSWORD_BCRYPT);
 ```
 
-### Default Admin Credentials
+Use the generated hash when creating the administrator record in your local database, and choose a unique email address and employee ID for the environment. Never commit the plaintext password or a reusable production credential to the repository.
 
-| Field | Value |
-|:------|:------|
-| **Email** | admin@ekaramchari.com |
-| **Employee ID** | ADMIN001 |
-| **Password** | Admin@123 |
-
-> ⚠️ **Important:** Change password after first login!
+For production deployments, create a unique administrator credential during deployment or through a secure password-reset/setup process, then change it immediately after initial setup.
 
 ### Access URLs
 
@@ -301,7 +295,7 @@ e-Karamchari/
 ## ✅ Production Checklist
 
 - [ ] Enable HTTPS/SSL
-- [ ] Change default admin credentials
+- [ ] Create unique administrator credentials during deployment
 - [ ] Set SESSION_SECURE = true in config
 - [ ] Configure firewall rules
 - [ ] Setup automated database backups
