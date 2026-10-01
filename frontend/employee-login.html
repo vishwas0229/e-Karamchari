@@ -150,9 +150,13 @@
             if (pwd.type === 'password') {
                 pwd.type = 'text';
                 this.textContent = 'Hide';
+                this.setAttribute('aria-label', 'Hide password');
+                this.setAttribute('aria-pressed', 'true');
             } else {
                 pwd.type = 'password';
                 this.textContent = 'Show';
+                this.setAttribute('aria-label', 'Show password');
+                this.setAttribute('aria-pressed', 'false');
             }
         });
         
