@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings | e-Karamchari Admin</title>
-    <link rel="stylesheet" href="../frontend/css/common.css">
-    <link rel="stylesheet" href="../frontend/css/dashboard.css">
-    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
-    <script src="../frontend/js/loader.js"></script>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../chatbot/chatbot.css">
+    <script src="../js/loader.js"></script>
 </head>
 <body>
     <div class="dashboard-layout">
@@ -201,11 +201,11 @@
         </div>
     </div>
     
-    <script src="../frontend/js/api.js"></script>
-    <script src="../frontend/js/utils.js"></script>
-    <script src="../frontend/js/auth.js"></script>
-    <script src="../frontend/js/notifications.js"></script>
-    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../chatbot/chatbot.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const isAuth = await Auth.checkAuth('admin');
@@ -291,7 +291,7 @@
         
         async function loadLeaveTypes() {
             try {
-                const response = await fetch('../backend/api/settings.php?action=leave-types', { credentials: 'include' });
+                const response = await fetch('../../backend/api/settings.php?action=leave-types', { credentials: 'include' });
                 const data = await response.json();
                 if (data.success) {
                     let html = '';
@@ -370,7 +370,7 @@
             if (!confirm(`Generate holidays for ${year}? This will add all fixed-date holidays.`)) return;
             
             try {
-                const response = await fetch('../backend/api/holidays.php?action=generate', {
+                const response = await fetch('../../backend/api/holidays.php?action=generate', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -419,7 +419,7 @@
             };
             
             try {
-                const response = await fetch('../backend/api/holidays.php?action=create', {
+                const response = await fetch('../../backend/api/holidays.php?action=create', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -443,7 +443,7 @@
             if (!confirm(`Delete holiday "${name}"?`)) return;
             
             try {
-                const response = await fetch('../backend/api/holidays.php?action=delete', {
+                const response = await fetch('../../backend/api/holidays.php?action=delete', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
