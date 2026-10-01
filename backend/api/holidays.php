@@ -329,7 +329,7 @@ function createHoliday() {
     // Check if date already has a holiday
     $exists = $db->fetch(
         "SELECT id, holiday_name FROM holidays WHERE holiday_date = :date",
-        ['date' => $input['holiday_date']]
+        ['date' => $holidayDate]
     );
     
     if ($exists) {
@@ -337,9 +337,9 @@ function createHoliday() {
     }
     
     $id = $db->insert('holidays', [
-        'holiday_date' => $input['holiday_date'],
+        'holiday_date' => $holidayDate,
         'holiday_name' => sanitize($input['holiday_name']),
-        'holiday_type' => $input['holiday_type'] ?? 'National',
+        'holiday_type' => $holidayType,
         'is_active' => 1
     ]);
     
