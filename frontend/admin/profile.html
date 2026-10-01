@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile | e-Karamchari Admin</title>
-    <link rel="stylesheet" href="../frontend/css/common.css">
-    <link rel="stylesheet" href="../frontend/css/dashboard.css">
-    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
-    <script src="../frontend/js/loader.js"></script>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../chatbot/chatbot.css">
+    <script src="../js/loader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
@@ -228,11 +228,11 @@
         </main>
     </div>
     
-    <script src="../frontend/js/api.js"></script>
-    <script src="../frontend/js/utils.js"></script>
-    <script src="../frontend/js/auth.js"></script>
-    <script src="../frontend/js/notifications.js"></script>
-    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../chatbot/chatbot.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const isAuth = await Auth.checkAuth('admin');
@@ -331,7 +331,7 @@
         // 2FA Functions
         async function load2FAStatus() {
             try {
-                const response = await fetch('../backend/api/two-factor.php?action=status', {
+                const response = await fetch('../../backend/api/two-factor.php?action=status', {
                     credentials: 'include'
                 });
                 const data = await response.json();
@@ -353,7 +353,7 @@
         
         async function loadBackupCodesCount() {
             try {
-                const response = await fetch('../backend/api/two-factor.php?action=backup-codes', {
+                const response = await fetch('../../backend/api/two-factor.php?action=backup-codes', {
                     credentials: 'include'
                 });
                 const data = await response.json();
@@ -370,7 +370,7 @@
         async function setup2FA() {
             try {
                 Utils.showLoading();
-                const response = await fetch('../backend/api/two-factor.php?action=setup', {
+                const response = await fetch('../../backend/api/two-factor.php?action=setup', {
                     method: 'POST',
                     credentials: 'include'
                 });
@@ -421,7 +421,7 @@
             
             try {
                 Utils.showLoading();
-                const response = await fetch('../backend/api/two-factor.php?action=verify-setup', {
+                const response = await fetch('../../backend/api/two-factor.php?action=verify-setup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -471,7 +471,7 @@
             
             try {
                 Utils.showLoading();
-                const response = await fetch('../backend/api/two-factor.php?action=disable', {
+                const response = await fetch('../../backend/api/two-factor.php?action=disable', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -515,7 +515,7 @@
             
             try {
                 Utils.showLoading();
-                const response = await fetch('../backend/api/two-factor.php?action=regenerate-backup', {
+                const response = await fetch('../../backend/api/two-factor.php?action=regenerate-backup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
