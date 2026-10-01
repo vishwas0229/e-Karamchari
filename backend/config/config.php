@@ -62,7 +62,7 @@ function setSecurityHeaders() {
     // Referrer policy
     header('Referrer-Policy: strict-origin-when-cross-origin');
     // Content Security Policy
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';");
+    header("Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';");
     // Permissions Policy
     header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
 }
