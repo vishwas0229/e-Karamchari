@@ -430,7 +430,7 @@
             
             try {
                 Utils.showLoading();
-                const response = await fetch('../../../backend/api/employees.php?action=update', {
+                const response = await fetch('../../backend/api/employees.php?action=update', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
