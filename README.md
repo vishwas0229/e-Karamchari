@@ -585,6 +585,10 @@ Current security-related mechanisms include:
 - Activity/audit logging.
 - Runtime secrets excluded through `.gitignore`.
 
+### CSP hardening
+
+The API security headers now add `base-uri 'self'`, `object-src 'none'`, `frame-ancestors 'none'`, and `form-action 'self'`. The unnecessary `script-src 'unsafe-inline'` directive has been removed. `style-src 'unsafe-inline'` remains temporarily because the public landing page currently contains inline CSS and uses Tailwind's browser Play CDN; Tailwind documents the Play CDN as a development-oriented, browser-runtime approach rather than the recommended production build workflow. Official reference: https://tailwindcss.com/docs/installation/play-cdn
+
 ### Security work still tracked
 
 The security implementation is not considered a substitute for a production security review. Open security hardening work includes:
