@@ -318,68 +318,103 @@ function applyLeave() {
  */
 function approveLeave() {
     Auth::requireAdmin();
-    
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         errorResponse('Method not allowed', 405);
     }
-    
+
     $input = json_decode(file_get_contents('php://input'), true);
     $id = (int)($input['id'] ?? 0);
-    
+
     if (!$id) {
         errorResponse('Leave request ID is required');
     }
-    
+
     $db = Database::getInstance();
-    
-    $leave = $db->fetch("SELECT * FROM leave_requests WHERE id = :id", ['id' => $id]);
-    
-    if (!$leave) {
-        errorResponse('Leave request not found', 404);
-    }
-    
-    if ($leave['status'] !== 'Pending') {
-        errorResponse('Only pending requests can be approved');
-    }
-    
+
     try {
         $db->beginTransaction();
-        
-        // Update leave request
+
+        $leave = $db->fetch(
+            "SELECT lr.*, lt.leave_code, lt.max_days_per_year
+             FROM leave_requests lr
+             JOIN leave_types lt ON lr.leave_type_id = lt.id
+             WHERE lr.id = :id
+             FOR UPDATE",
+            ['id' => $id]
+        );
+
+        if (!$leave) {
+            throw new RuntimeException('Leave request not found', 404);
+        }
+
+        if ($leave['status'] !== 'Pending') {
+            throw new RuntimeException('Only pending requests can be approved', 409);
+        }
+
+        // Serialize approvals for the same employee.
+        $db->fetch(
+            "SELECT id FROM users WHERE id = :employee_id FOR UPDATE",
+            ['employee_id' => $leave['employee_id']]
+        );
+
+        $leaveYear = (int)date('Y', strtotime($leave['start_date']));
+
+        if ($leave['leave_code'] !== 'LWP') {
+            $balance = $db->fetch(
+                "SELECT id, total_allocated, used, carried_forward
+                 FROM leave_balance
+                 WHERE employee_id = :emp_id
+                   AND leave_type_id = :type_id
+                   AND year = :year
+                 FOR UPDATE",
+                [
+                    'emp_id' => $leave['employee_id'],
+                    'type_id' => $leave['leave_type_id'],
+                    'year' => $leaveYear
+                ]
+            );
+
+            $availableBalance = $balance
+                ? ((int)$balance['total_allocated'] - (int)$balance['used'] + (int)$balance['carried_forward'])
+                : (int)$leave['max_days_per_year'];
+
+            if ($availableBalance < (int)$leave['total_days']) {
+                throw new RuntimeException('Insufficient leave balance', 422);
+            }
+        } else {
+            $balance = null;
+        }
+
         $db->update('leave_requests', [
             'status' => 'Approved',
             'approved_by' => $_SESSION['user_id'],
             'approved_at' => date('Y-m-d H:i:s')
         ], 'id = :id', ['id' => $id]);
-        
-        // Check if leave balance entry exists
-        $balanceExists = $db->fetch(
-            "SELECT id FROM leave_balance WHERE employee_id = :emp_id AND leave_type_id = :type_id AND year = YEAR(CURDATE())",
-            ['emp_id' => $leave['employee_id'], 'type_id' => $leave['leave_type_id']]
-        );
-        
-        if ($balanceExists) {
-            // Update existing balance
-            $db->query(
-                "UPDATE leave_balance 
-                 SET used = used + :days 
-                 WHERE employee_id = :emp_id AND leave_type_id = :type_id AND year = YEAR(CURDATE())",
-                ['days' => $leave['total_days'], 'emp_id' => $leave['employee_id'], 'type_id' => $leave['leave_type_id']]
-            );
-        } else {
-            // Create new balance entry with max_days_per_year as allocated
-            $leaveType = $db->fetch("SELECT max_days_per_year FROM leave_types WHERE id = :id", ['id' => $leave['leave_type_id']]);
-            $db->insert('leave_balance', [
-                'employee_id' => $leave['employee_id'],
-                'leave_type_id' => $leave['leave_type_id'],
-                'year' => date('Y'),
-                'total_allocated' => $leaveType['max_days_per_year'],
-                'used' => $leave['total_days'],
-                'carried_forward' => 0
-            ]);
+
+        if ($leave['leave_code'] !== 'LWP') {
+            if ($balance) {
+                $db->query(
+                    "UPDATE leave_balance
+                     SET used = used + :days
+                     WHERE id = :balance_id",
+                    [
+                        'days' => (int)$leave['total_days'],
+                        'balance_id' => $balance['id']
+                    ]
+                );
+            } else {
+                $db->insert('leave_balance', [
+                    'employee_id' => $leave['employee_id'],
+                    'leave_type_id' => $leave['leave_type_id'],
+                    'year' => $leaveYear,
+                    'total_allocated' => $leave['max_days_per_year'],
+                    'used' => $leave['total_days'],
+                    'carried_forward' => 0
+                ]);
+            }
         }
-        
-        // Create notification
+
         $db->insert('notifications', [
             'user_id' => $leave['employee_id'],
             'title' => 'Leave Approved',
@@ -387,21 +422,26 @@ function approveLeave() {
             'type' => 'Success',
             'link' => 'leave-status.html'
         ]);
-        
+
         $db->commit();
-        
+
         logActivity($_SESSION['user_id'], 'APPROVE_LEAVE', 'LEAVES', "Approved leave: {$leave['request_number']}");
-        
+
         successResponse([], 'Leave request approved successfully');
-    } catch (Exception $e) {
-        $db->rollback();
+    } catch (Throwable $e) {
+        if ($db->getConnection()->inTransaction()) {
+            $db->rollback();
+        }
+
+        $statusCode = (int)$e->getCode();
+        if ($statusCode >= 400 && $statusCode < 500) {
+            errorResponse($e->getMessage(), $statusCode);
+        }
+
         errorResponse('Failed to approve leave request');
     }
 }
 
-/**
- * Reject leave request (Admin only)
- */
 function rejectLeave() {
     Auth::requireAdmin();
     

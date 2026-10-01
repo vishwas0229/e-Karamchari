@@ -35,6 +35,9 @@ define('RATE_LIMIT_AUTH_REQUESTS', 10);
 define('RATE_LIMIT_AUTH_WINDOW', 60);
 define('RATE_LIMIT_REQUESTS', 100); // Max requests per minute
 define('RATE_LIMIT_WINDOW', 60); // 1 minute window
+// Attendance automation configuration.
+define('ATTENDANCE_AUTO_CHECKOUT_TIME', getenv('ATTENDANCE_AUTO_CHECKOUT_TIME') ?: '18:00:00');
+define('ATTENDANCE_CRON_SECRET', getenv('ATTENDANCE_CRON_SECRET') ?: '');
 
 // File Upload Settings
 define('UPLOAD_MAX_SIZE', 5 * 1024 * 1024); // 5MB
@@ -109,12 +112,28 @@ function enforceCsrfForStateChange() {
         return;
     }
 
+    // A valid server-to-server attendance cron request uses its deployment
+    // secret and is the only non-session exception to browser CSRF validation.
+    if ($script === 'attendance.php' && $action === 'auto-mark' && isValidAttendanceCronRequest()) {
+        return;
+    }
+
     if (!class_exists('Auth') || !Auth::verifyCsrf($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) {
         errorResponse('Invalid or missing CSRF token', 403);
     }
 }
 
 // Rate Limiting
+function isValidAttendanceCronRequest() {
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? '');
+    $providedSecret = $_SERVER['HTTP_X_CRON_SECRET'] ?? '';
+
+    return $method === 'POST'
+        && ATTENDANCE_CRON_SECRET !== ''
+        && $providedSecret !== ''
+        && hash_equals(ATTENDANCE_CRON_SECRET, $providedSecret);
+}
+
 function checkRateLimit($identifier = null, $limit = null, $window = null) {
     $identifier = $identifier ?: ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
     $requestLimit = $limit ?? (

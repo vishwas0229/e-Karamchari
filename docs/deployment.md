@@ -19,6 +19,26 @@ docker compose -f compose.yaml -f compose.production.yaml up -d --build
 
 Set `DB_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `APP_URL` and `SESSION_SAMESITE` explicitly. The production override does not publish MySQL.
 
+## Attendance automation
+
+Manual attendance automation remains available to authenticated administrators.
+
+For unattended server-to-server automation, set `ATTENDANCE_CRON_SECRET` as a deployment secret and send it in the `X-Cron-Secret` header. The secret is intentionally not accepted in a query parameter.
+
+Example:
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "X-Cron-Secret: $ATTENDANCE_CRON_SECRET" \
+  -d '{"date":"2026-10-01"}' \
+  "$APP_URL/backend/api/attendance.php?action=auto-mark"
+```
+
+The cron secret must be long and randomly generated. Leaving `ATTENDANCE_CRON_SECRET` empty disables unauthenticated cron execution; normal browser/admin requests still require authentication and CSRF protection.
+
+`ATTENDANCE_AUTO_CHECKOUT_TIME` is the shared automatic checkout time and defaults to `18:00:00`.
+
 ## Temporary tunnel
 A tunnel is appropriate only for temporary demos/testing. Terminate the tunnel after the demo and do not use it as the permanent production edge.
 

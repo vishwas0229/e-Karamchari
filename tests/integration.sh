@@ -8,11 +8,14 @@ ADMIN_ID="IADMIN$RANDOM"
 PASSWORD="IntegrationTest!2026"
 ADMIN_PASSWORD="AdminIntegrationTest!2026"
 RUN_ID="$RANDOM"
+TEST_DB_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-root_demo_password}"
 COOKIE_FILE="/tmp/ekaramchari-cookie-$RUN_ID.txt"
 ADMIN_COOKIE_FILE="/tmp/ekaramchari-admin-cookie-$RUN_ID.txt"
 CSRF_RESPONSE_FILE="/tmp/ekaramchari-csrf-response-$RUN_ID.json"
 LEAVE_RESPONSE_FILE="/tmp/ekaramchari-leave-response-$RUN_ID.json"
 ADMIN_CSRF_RESPONSE_FILE="/tmp/ekaramchari-admin-csrf-response-$RUN_ID.json"
+ATTENDANCE_CRON_SECRET="integration-cron-secret-$RUN_ID"
+export ATTENDANCE_CRON_SECRET
 
 compose() {
   docker compose -p "$PROJECT" -f compose.yaml "$@"
@@ -129,19 +132,102 @@ echo "[12/12] Checking attendance auto-check-in regression"
 compose exec -T app php /var/www/html/tests/auth-attendance-regression.php
 
 echo "[13/13] Verifying approved leave attendance handling"
-LEAVE_TEST_DATE="2099-01-08"
+LEAVE_TEST_DATE="2020-01-08"
+LEAVE_REQUEST_NUMBER="TEST-LEAVE-$RUN_ID"
+LEAVE_AUTO_RESPONSE_FILE="/tmp/ekaramchari-auto-leave-$RUN_ID.json"
+
 compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari' <<SQL
 INSERT INTO leave_requests
 (request_number, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approved_by, approved_at)
-SELECT 'TEST-LEAVE-20990108',
+SELECT '$LEAVE_REQUEST_NUMBER',
        (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID' LIMIT 1),
        1, '$LEAVE_TEST_DATE', '$LEAVE_TEST_DATE', 1,
        'Integration attendance regression', 'Approved',
        (SELECT id FROM users WHERE employee_id = '$ADMIN_ID' LIMIT 1), NOW();
 SQL
-AUTO_LEAVE_STATUS=$(curl -sS -o "/tmp/ekaramchari-auto-leave-$RANDOM.json" -w '%{http_code}'   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF"   -d '{"date":"2099-01-08"}'   "$BASE_URL/backend/api/attendance.php?action=auto-mark")
-test "$AUTO_LEAVE_STATUS" = "200"
-LEAVE_ATTENDANCE_STATUS=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" -Nse "SELECT status FROM attendance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '\''$EMPLOYEE_ID'\'') AND attendance_date = '\''2099-01-08'\'' LIMIT 1"')
-test "$LEAVE_ATTENDANCE_STATUS" = "On Leave"
 
+AUTO_LEAVE_STATUS=$(curl -sS -o "$LEAVE_AUTO_RESPONSE_FILE" -w '%{http_code}'   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF"   -d '{"date":"2020-01-08"}'   "$BASE_URL/backend/api/attendance.php?action=auto-mark")
+
+if [ "$AUTO_LEAVE_STATUS" != "200" ]; then
+  echo "Approved-leave auto-mark request returned HTTP $AUTO_LEAVE_STATUS"
+  cat "$LEAVE_AUTO_RESPONSE_FILE"
+  exit 1
+fi
+
+LEAVE_ATTENDANCE_STATUS=$(compose exec -T db sh -c "mysql -h 127.0.0.1 -u root -p\"\$MYSQL_ROOT_PASSWORD\" ekaramchari -Nse \"SELECT status FROM attendance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID') AND attendance_date = '2020-01-08' LIMIT 1\"")
+if [ "$LEAVE_ATTENDANCE_STATUS" != "On Leave" ]; then
+  echo "Expected On Leave attendance, got: [$LEAVE_ATTENDANCE_STATUS]"
+  compose exec -T db sh -c "mysql -h 127.0.0.1 -u root -p\"\$MYSQL_ROOT_PASSWORD\" ekaramchari -e \"SELECT request_number, status, start_date, end_date FROM leave_requests WHERE request_number = '$LEAVE_REQUEST_NUMBER'; SELECT employee_id, attendance_date, status, remarks FROM attendance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID') AND attendance_date = '2020-01-08';\""
+  exit 1
+fi
+
+
+
+echo "[14/17] Verifying leave approval balance protection"
+BALANCE_REQUEST="TEST-BALANCE-$RUN_ID"
+BALANCE_DATE="$(date -d '+1 day' +%Y-%m-%d)"
+BALANCE_YEAR="$(date -d "$BALANCE_DATE" +%Y)"
+
+db_mysql() {
+  compose exec -T db env MYSQL_PWD="$TEST_DB_ROOT_PASSWORD" mysql -h 127.0.0.1 -u root ekaramchari "$@"
+}
+
+db_mysql <<SQL
+INSERT INTO leave_balance (employee_id, leave_type_id, year, total_allocated, used, carried_forward)
+SELECT id, 1, $BALANCE_YEAR, 1, 1, 0
+FROM users WHERE employee_id = '$EMPLOYEE_ID'
+ON DUPLICATE KEY UPDATE total_allocated = 1, used = 1, carried_forward = 0;
+
+INSERT INTO leave_requests
+(request_number, employee_id, leave_type_id, start_date, end_date, total_days, reason, status)
+SELECT '$BALANCE_REQUEST',
+       (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID' LIMIT 1),
+       1, '$BALANCE_DATE', '$BALANCE_DATE', 1,
+       'Integration leave balance regression', 'Pending';
+SQL
+
+BALANCE_REQUEST_ID=$(db_mysql -Nse "SELECT id FROM leave_requests WHERE request_number = '$BALANCE_REQUEST' LIMIT 1")
+test -n "$BALANCE_REQUEST_ID"
+
+BALANCE_STATUS=$(curl -sS -o "/tmp/ekaramchari-balance-$RUN_ID.json" -w '%{http_code}'   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF"   -d '{"id":'"$BALANCE_REQUEST_ID"'}'   "$BASE_URL/backend/api/leaves.php?action=approve")
+if [ "$BALANCE_STATUS" != "422" ]; then
+  echo "Expected 422 from leave approval, got $BALANCE_STATUS"
+  cat "/tmp/ekaramchari-balance-$RUN_ID.json"
+  exit 1
+fi
+
+BALANCE_REQUEST_STATE=$(db_mysql -Nse "SELECT status FROM leave_requests WHERE request_number = '$BALANCE_REQUEST' LIMIT 1")
+test "$BALANCE_REQUEST_STATE" = "Pending"
+
+BALANCE_USED=$(db_mysql -Nse "SELECT used FROM leave_balance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID') AND leave_type_id = 1 AND year = $BALANCE_YEAR LIMIT 1")
+test "$BALANCE_USED" = "1"
+
+echo "[15/17] Rejecting future attendance auto-mark requests"
+FUTURE_STATUS=$(curl -sS -o "/tmp/ekaramchari-future-attendance-$RANDOM.json" -w '%{http_code}' \
+  -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF" \
+  -d '{"date":"2099-12-31"}' \
+  "$BASE_URL/backend/api/attendance.php?action=auto-mark")
+test "$FUTURE_STATUS" = "422"
+
+echo "[16/17] Verifying attendance cron authentication"
+LEGACY_CRON_STATUS=$(curl -sS -o "/tmp/ekaramchari-legacy-cron-$RANDOM.json" -w '%{http_code}' \
+  "$BASE_URL/backend/api/attendance.php?action=auto-mark&cron_key=your_secret_cron_key_here")
+test "$LEGACY_CRON_STATUS" != "200"
+NO_SECRET_STATUS=$(curl -sS -o "/tmp/ekaramchari-no-secret-cron-$RANDOM.json" -w '%{http_code}' \
+  -X POST -H 'Content-Type: application/json' \
+  -d '{"date":"2020-01-02"}' \
+  "$BASE_URL/backend/api/attendance.php?action=auto-mark")
+test "$NO_SECRET_STATUS" != "200"
+VALID_GET_CRON_STATUS=$(curl -sS -o "/tmp/ekaramchari-get-cron-$RANDOM.json" -w '%{http_code}' \
+  -H "X-Cron-Secret: $ATTENDANCE_CRON_SECRET" \
+  "$BASE_URL/backend/api/attendance.php?action=auto-mark")
+test "$VALID_GET_CRON_STATUS" != "200"
+CRON_STATUS=$(curl -sS -o "/tmp/ekaramchari-cron-$RANDOM.json" -w '%{http_code}' \
+  -X POST -H 'Content-Type: application/json' -H "X-Cron-Secret: $ATTENDANCE_CRON_SECRET" \
+  -d '{"date":"2020-01-02"}' \
+  "$BASE_URL/backend/api/attendance.php?action=auto-mark")
+test "$CRON_STATUS" = "200"
+
+echo "[17/17] Verifying canonical attendance automation time"
+compose exec -T app php /var/www/html/tests/auth-attendance-regression.php
 echo "Integration tests passed."

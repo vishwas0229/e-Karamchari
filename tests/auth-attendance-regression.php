@@ -24,4 +24,15 @@ foreach ($cases as [$role, $time, $isSunday, $isHoliday, $expected]) {
     }
 }
 
+if (ATTENDANCE_AUTO_CHECKOUT_TIME !== '18:00:00') {
+    fwrite(STDERR, "Unexpected canonical attendance checkout time\n");
+    exit(1);
+}
+
+$attendanceSource = file_get_contents(__DIR__ . '/../backend/api/attendance.php');
+if (substr_count($attendanceSource, 'ATTENDANCE_AUTO_CHECKOUT_TIME') < 3) {
+    fwrite(STDERR, "Attendance paths are not using the canonical checkout time\n");
+    exit(1);
+}
+
 echo "Attendance auto-check-in regression tests passed.\n";
