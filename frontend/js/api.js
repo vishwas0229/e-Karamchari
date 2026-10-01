@@ -188,7 +188,7 @@ const API = {
         },
         
         async logout() {
-            return API.get('auth.php?action=logout');
+            return API.post('auth.php?action=logout');
         },
         
         async checkSession() {
