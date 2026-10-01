@@ -8,10 +8,6 @@ require_once __DIR__ . '/../middleware/auth.php';
 
 setCorsHeaders();
 
-// Apply the general API rate limit before dispatching the request.
-// Authentication endpoints also apply a stricter per-identifier limit.
-checkRateLimit();
-
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
