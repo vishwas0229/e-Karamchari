@@ -241,7 +241,7 @@
             
             try {
                 // Load monthly report
-                const response = await fetch(`../../backend/api/reports.php?action=monthly&year=${year}&month=${month}`, {
+                const response = await fetch(`../../../backend/api/reports.php?action=monthly&year=${year}&month=${month}`, {
                     credentials: 'include'
                 });
                 const data = await response.json();
