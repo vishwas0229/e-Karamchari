@@ -10,6 +10,7 @@ services:
       DB_USER: ekaramchari
       DB_PASS: ${DB_PASSWORD:-ekaramchari_password}
       APP_URL: ${APP_URL:-http://localhost:8080}
+      SESSION_SAMESITE: ${SESSION_SAMESITE:-Lax}
     depends_on:
       db:
         condition: service_healthy
