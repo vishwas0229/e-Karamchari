@@ -11,7 +11,10 @@ const API = {
     // Detect base URL dynamically
     get baseUrl() {
         const path = window.location.pathname;
-        if (path.includes('/admin/') || path.includes('/employee/')) {
+        if (path.includes('/frontend/admin/') || path.includes('/frontend/employee/')) {
+            return '../../backend/api';
+        }
+        if (path.includes('/frontend/')) {
             return '../backend/api';
         }
         return 'backend/api';
