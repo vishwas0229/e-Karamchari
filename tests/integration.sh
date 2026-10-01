@@ -230,4 +230,7 @@ test "$CRON_STATUS" = "200"
 
 echo "[17/17] Verifying canonical attendance automation time"
 compose exec -T app php /var/www/html/tests/auth-attendance-regression.php
+echo "[21/21] Checking leave validation and cancellation invariants"
+compose exec -T app php /var/www/html/tests/leave-validation-regression.php
+
 echo "Integration tests passed."
