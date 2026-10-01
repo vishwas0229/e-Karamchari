@@ -681,6 +681,20 @@ function initAccessibility() {
         }
     });
 
+    // Add a keyboard-accessible skip link to pages that expose a main content region.
+    document.querySelectorAll('main.main-content, main').forEach((main, index) => {
+        if (!main.id) main.id = index === 0 ? 'main-content' : 'main-content-' + (index + 1);
+        const target = '#' + main.id;
+        const existing = document.querySelector('.skip-link[href="' + target + '"]');
+        if (!existing) {
+            const link = document.createElement('a');
+            link.className = 'skip-link';
+            link.href = target;
+            link.textContent = 'Skip to main content';
+            document.body.prepend(link);
+        }
+    });
+
     document.querySelectorAll('.modal-close').forEach((button) => {
         if (!button.getAttribute('aria-label')) button.setAttribute('aria-label', 'Close dialog');
     });
