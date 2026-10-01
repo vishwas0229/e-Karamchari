@@ -36,7 +36,7 @@ if (strpos($cancel, "YEAR(CURDATE())") !== false) {
     exit(1);
 }
 
-foreach (["date($lockedLeave['start_date'])", "SET used = GREATEST(0, used - :days)", "status' => 'Cancelled'"] as $needle) {
+foreach (["date('Y', strtotime($lockedLeave['start_date']))", "SET used = GREATEST(0, used - :days)", "status' => 'Cancelled'"] as $needle) {
     if (strpos($cancel, $needle) === false) {
         fwrite(STDERR, "Missing cancellation balance invariant: {$needle}\n");
         exit(1);

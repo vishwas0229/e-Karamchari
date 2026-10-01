@@ -40,10 +40,24 @@ for _ in $(seq 1 60); do
 done
 curl -fsS "$BASE_URL/frontend/employee-login.html" >/dev/null
 
-echo "[3/11] Seeding temporary employee and admin"
+echo "[3/11] Waiting for MySQL TCP readiness"
+for _ in $(seq 1 60); do
+  if compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari -e "SELECT 1" >/dev/null 2>&1'; then
+    break
+  fi
+  sleep 2
+done
+compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari -e "SELECT 1" >/dev/null'
+
+echo "[4/11] Seeding temporary employee and admin"
 HASH=$(compose exec -T -e TEST_PASSWORD="$PASSWORD" app php -r 'echo password_hash(getenv("TEST_PASSWORD"), PASSWORD_DEFAULT);')
 ADMIN_HASH=$(compose exec -T -e TEST_PASSWORD="$ADMIN_PASSWORD" app php -r 'echo password_hash(getenv("TEST_PASSWORD"), PASSWORD_DEFAULT);')
-compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari' <<SQL
+
+db_mysql() {
+  compose exec -T db env MYSQL_PWD="$TEST_DB_ROOT_PASSWORD" mysql -h 127.0.0.1 -u root ekaramchari "$@"
+}
+
+db_mysql <<SQL
 INSERT INTO users
 (employee_id, email, password_hash, role_id, first_name, last_name, department_id, designation_id, is_active, is_locked)
 VALUES
@@ -56,17 +70,17 @@ VALUES
 ('$ADMIN_ID', '$ADMIN_ID@example.test', '$ADMIN_HASH', 2, 'Integration', 'Admin', 1, 1, 1, 0);
 SQL
 
-echo "[4/11] Checking employee CSRF bootstrap"
+echo "[5/11] Checking employee CSRF bootstrap"
 curl -fsS -c "$COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=csrf" | grep -q '"success":true'
 
-echo "[5/11] Testing employee login"
+echo "[6/11] Testing employee login"
 LOGIN=$(curl -fsS -b "$COOKIE_FILE" -c "$COOKIE_FILE" \
   -H 'Content-Type: application/json' \
   -d '{"employee_id":"'"$EMPLOYEE_ID"'","password":"'"$PASSWORD"'"}' \
   "$BASE_URL/backend/api/auth.php?action=login")
 echo "$LOGIN" | grep -q '"success":true'
 
-echo "[6/11] Testing employee HR reads"
+echo "[7/11] Testing employee HR reads"
 curl -fsS -b "$COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=check" | grep -q '"success":true'
 curl -fsS -b "$COOKIE_FILE" "$BASE_URL/backend/api/employees.php?action=profile" | grep -q '"success":true'
 curl -fsS -b "$COOKIE_FILE" "$BASE_URL/backend/api/attendance.php?action=today" | grep -q '"success":true'
@@ -80,7 +94,7 @@ curl -fsS -b "$COOKIE_FILE" "$BASE_URL/backend/api/dashboard.php?action=notifica
 curl -fsS -b "$COOKIE_FILE" "$BASE_URL/backend/api/two-factor.php?action=status" | grep -q '"success":true'
 curl -fsS -b "$COOKIE_FILE" "$BASE_URL/backend/api/holidays.php?action=upcoming" | grep -q '"success":true'
 
-echo "[7/11] Testing employee CSRF enforcement"
+echo "[8/11] Testing employee CSRF enforcement"
 CSRF=$(curl -fsS -b "$COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=csrf" | sed -n 's/.*"csrf_token":"\([^"]*\)".*/\1/p')
 test -n "$CSRF"
 STATUS=$(curl -sS -o "$CSRF_RESPONSE_FILE" -w '%{http_code}' \
@@ -89,7 +103,7 @@ STATUS=$(curl -sS -o "$CSRF_RESPONSE_FILE" -w '%{http_code}' \
   "$BASE_URL/backend/api/leaves.php?action=apply")
 test "$STATUS" = "403"
 
-echo "[8/11] Testing employee CSRF-protected mutation"
+echo "[9/11] Testing employee CSRF-protected mutation"
 STATUS=$(curl -sS -o "$LEAVE_RESPONSE_FILE" -w '%{http_code}' \
   -b "$COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $CSRF" \
   -d '{"reason":"integration test","start_date":"2099-01-02","end_date":"2099-01-02","leave_type_id":1}' \
@@ -98,7 +112,7 @@ test "$STATUS" = "200"
 
 rm -f "$CSRF_RESPONSE_FILE" "$LEAVE_RESPONSE_FILE"
 
-echo "[9/11] Testing admin login"
+echo "[10/11] Testing admin login"
 curl -fsS -c "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=csrf" | grep -q '"success":true'
 ADMIN_LOGIN=$(curl -fsS -b "$ADMIN_COOKIE_FILE" -c "$ADMIN_COOKIE_FILE" \
   -H 'Content-Type: application/json' \
@@ -106,7 +120,7 @@ ADMIN_LOGIN=$(curl -fsS -b "$ADMIN_COOKIE_FILE" -c "$ADMIN_COOKIE_FILE" \
   "$BASE_URL/backend/api/auth.php?action=admin-login")
 echo "$ADMIN_LOGIN" | grep -q '"success":true'
 
-echo "[10/11] Testing admin HR reads"
+echo "[11/11] Testing admin HR reads"
 curl -fsS -b "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/dashboard.php?action=admin-stats" | grep -q '"success":true'
 curl -fsS -b "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/employees.php?action=list" | grep -q '"success":true'
 curl -fsS -b "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/attendance.php?action=list" | grep -q '"success":true'
@@ -118,7 +132,7 @@ curl -fsS -b "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/reports.php?action=over
 curl -fsS -b "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/settings.php?action=list" | grep -q '"success":true'
 curl -fsS -b "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/two-factor.php?action=status" | grep -q '"success":true'
 
-echo "[11/11] Testing admin CSRF enforcement"
+echo "[12/12] Testing admin CSRF enforcement"
 ADMIN_CSRF=$(curl -fsS -b "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=csrf" | sed -n 's/.*"csrf_token":"\([^"]*\)".*/\1/p')
 test -n "$ADMIN_CSRF"
 ADMIN_STATUS=$(curl -sS -o "/tmp/ekaramchari-admin-csrf-response-$RANDOM.json" -w '%{http_code}' \
@@ -128,10 +142,10 @@ ADMIN_STATUS=$(curl -sS -o "/tmp/ekaramchari-admin-csrf-response-$RANDOM.json" -
 test "$ADMIN_STATUS" = "403"
 
 rm -f "$ADMIN_CSRF_RESPONSE_FILE"
-echo "[12/12] Checking attendance auto-check-in regression"
+echo "[13/13] Checking attendance auto-check-in regression"
 compose exec -T app php /var/www/html/tests/auth-attendance-regression.php
 
-echo "[13/13] Verifying approved leave attendance handling"
+echo "[14/14] Verifying approved leave attendance handling"
 LEAVE_TEST_DATE="2020-01-08"
 LEAVE_REQUEST_NUMBER="TEST-LEAVE-$RUN_ID"
 LEAVE_AUTO_RESPONSE_FILE="/tmp/ekaramchari-auto-leave-$RUN_ID.json"
@@ -163,7 +177,7 @@ fi
 
 
 
-echo "[14/17] Verifying leave approval balance protection"
+echo "[15/18] Verifying leave approval balance protection"
 BALANCE_REQUEST="TEST-BALANCE-$RUN_ID"
 BALANCE_DATE="$(date -d '+1 day' +%Y-%m-%d)"
 BALANCE_YEAR="$(date -d "$BALANCE_DATE" +%Y)"
@@ -202,14 +216,14 @@ test "$BALANCE_REQUEST_STATE" = "Pending"
 BALANCE_USED=$(db_mysql -Nse "SELECT used FROM leave_balance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID') AND leave_type_id = 1 AND year = $BALANCE_YEAR LIMIT 1")
 test "$BALANCE_USED" = "1"
 
-echo "[15/17] Rejecting future attendance auto-mark requests"
+echo "[16/18] Rejecting future attendance auto-mark requests"
 FUTURE_STATUS=$(curl -sS -o "/tmp/ekaramchari-future-attendance-$RANDOM.json" -w '%{http_code}' \
   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF" \
   -d '{"date":"2099-12-31"}' \
   "$BASE_URL/backend/api/attendance.php?action=auto-mark")
 test "$FUTURE_STATUS" = "422"
 
-echo "[16/17] Verifying attendance cron authentication"
+echo "[17/18] Verifying attendance cron authentication"
 LEGACY_CRON_STATUS=$(curl -sS -o "/tmp/ekaramchari-legacy-cron-$RANDOM.json" -w '%{http_code}' \
   "$BASE_URL/backend/api/attendance.php?action=auto-mark&cron_key=your_secret_cron_key_here")
 test "$LEGACY_CRON_STATUS" != "200"
@@ -228,9 +242,9 @@ CRON_STATUS=$(curl -sS -o "/tmp/ekaramchari-cron-$RANDOM.json" -w '%{http_code}'
   "$BASE_URL/backend/api/attendance.php?action=auto-mark")
 test "$CRON_STATUS" = "200"
 
-echo "[17/17] Verifying canonical attendance automation time"
+echo "[18/18] Verifying canonical attendance automation time"
 compose exec -T app php /var/www/html/tests/auth-attendance-regression.php
-echo "[21/21] Checking leave validation and cancellation invariants"
+echo "[19/19] Checking leave validation and cancellation invariants"
 compose exec -T app php /var/www/html/tests/leave-validation-regression.php
 
 echo "Integration tests passed."
