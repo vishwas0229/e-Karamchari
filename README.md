@@ -315,6 +315,14 @@ Configure database values through the environment where possible.
 
 ---
 
+# 📚 Deployment, API and Recovery Guides
+
+The detailed operational guides are maintained separately:
+
+- [Deployment guide](docs/deployment.md) — Docker development/production, tunnels, VPS deployment and split frontend/backend deployments.
+- [API reference](docs/api-reference.md) — action-level methods, authentication, CSRF, responses, authorization and rate limiting.
+- [Backup and recovery](docs/backup-recovery.md) — database dumps, uploads, verification, restore and incident recovery.
+
 # ⚙️ Configuration
 
 The main configuration is in:
@@ -570,7 +578,6 @@ Current security-related mechanisms include:
 The security implementation is not considered a substitute for a production security review. Open security hardening work includes:
 
 - CSP hardening — [Issue #36](https://github.com/vishwas0229/e-Karamchari/issues/36)
-- Complete API documentation — [Issue #34](https://github.com/vishwas0229/e-Karamchari/issues/34)
 
 ---
 
@@ -652,8 +659,8 @@ The default fallback holiday list requires alignment with the intended Delhi/NCT
 See:
 
 - [Issue #24 — 2026 Delhi holiday data](https://github.com/vishwas0229/e-Karamchari/issues/24)
-- [Issue #25 — Holiday templates](https://github.com/vishwas0229/e-Karamchari/issues/25)
-- [Issue #29 — Holiday validation](https://github.com/vishwas0229/e-Karamchari/issues/29)
+
+Holiday templates and input validation have been implemented and closed in the completed security/configuration batches.
 
 ---
 
