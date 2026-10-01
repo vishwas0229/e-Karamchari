@@ -464,6 +464,9 @@ function deleteHoliday() {
     $db = Database::getInstance();
     
     $holiday = $db->fetch("SELECT holiday_name FROM holidays WHERE id = :id", ['id' => $id]);
+    if (!$holiday) {
+        errorResponse('Holiday not found', 404);
+    }
     
     $db->delete('holidays', 'id = :id', ['id' => $id]);
     
