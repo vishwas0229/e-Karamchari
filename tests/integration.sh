@@ -8,6 +8,7 @@ ADMIN_ID="IADMIN$RANDOM"
 PASSWORD="IntegrationTest!2026"
 ADMIN_PASSWORD="AdminIntegrationTest!2026"
 RUN_ID="$RANDOM"
+TEST_DB_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-root_demo_password}"
 COOKIE_FILE="/tmp/ekaramchari-cookie-$RUN_ID.txt"
 ADMIN_COOKIE_FILE="/tmp/ekaramchari-admin-cookie-$RUN_ID.txt"
 CSRF_RESPONSE_FILE="/tmp/ekaramchari-csrf-response-$RUN_ID.json"
@@ -168,7 +169,7 @@ BALANCE_DATE="$(date -d '+1 day' +%Y-%m-%d)"
 BALANCE_YEAR="$(date -d "$BALANCE_DATE" +%Y)"
 
 db_mysql() {
-  compose exec -T db env MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -h 127.0.0.1 -u root ekaramchari "$@"
+  compose exec -T db env MYSQL_PWD="$TEST_DB_ROOT_PASSWORD" mysql -h 127.0.0.1 -u root ekaramchari "$@"
 }
 
 db_mysql <<SQL
