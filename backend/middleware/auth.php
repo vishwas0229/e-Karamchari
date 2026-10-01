@@ -37,6 +37,26 @@ class Auth {
     }
     
     /**
+     * Determine whether login-triggered auto-attendance is allowed.
+     *
+     * Employees follow the same 08:00–17:00 working-hour window as
+     * the explicit check-in endpoint. Administrative roles remain
+     * unrestricted here because their portal has separate attendance rules.
+     */
+    public static function shouldAutoMarkAttendance($roleCode, $currentTime, $isSunday, $isHoliday) {
+        if ($isSunday || $isHoliday) {
+            return false;
+        }
+
+        if ($roleCode === 'EMPLOYEE') {
+            $time = strtotime($currentTime);
+            return $time >= strtotime('08:00:00') && $time <= strtotime('17:00:00');
+        }
+
+        return true;
+    }
+
+    /**
      * Mark attendance on login (auto check-in)
      */
     public static function markAttendance($userId, $roleCode) {
@@ -60,8 +80,9 @@ class Auth {
             }
             $isHoliday = $holiday ? true : false;
             
-            // Skip attendance on Sunday and holidays
-            if ($isSunday || $isHoliday) {
+            // Respect the same working-day and check-in window used by
+            // the employee attendance endpoint.
+            if (!self::shouldAutoMarkAttendance($roleCode, $currentTime, $isSunday, $isHoliday)) {
                 return false;
             }
             

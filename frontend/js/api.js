@@ -45,8 +45,8 @@ const API = {
                 credentials: 'include'
             });
             const data = await response.json();
-            if (data.success && data.data.token) {
-                this.csrfToken = data.data.token;
+            if (data.success && data.data.csrf_token) {
+                this.csrfToken = data.data.csrf_token;
             }
         } catch (e) {
             console.error('Failed to get CSRF token:', e);
