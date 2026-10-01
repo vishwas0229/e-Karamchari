@@ -654,13 +654,7 @@ The API supports:
 
 ### Current work
 
-The default fallback holiday list requires alignment with the intended Delhi/NCT calendar and year-specific floating holidays.
-
-See:
-
-- [Issue #24 — 2026 Delhi holiday data](https://github.com/vishwas0229/e-Karamchari/issues/24)
-
-Holiday templates and input validation have been implemented and closed in the completed security/configuration batches.
+The default generator now uses the official 2026 GNCTD general-holiday schedule, including the separately notified 11 September 2026 BRICS Summit holiday. Year-specific floating/restricted holidays should continue to be managed through the holiday templates/admin workflow. The official 2026 notification declares 18 general holidays and a separate restricted-holiday schedule. citeturn0search23turn0search3
 
 ---
 
