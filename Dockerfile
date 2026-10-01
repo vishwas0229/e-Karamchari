@@ -5,7 +5,7 @@ RUN docker-php-ext-install pdo pdo_mysql \
 
 COPY . /var/www/html/
 
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+RUN mkdir -p /var/www/html/backend/logs /var/www/html/backend/uploads \
+    && chown -R www-data:www-data /var/www/html/backend/logs /var/www/html/backend/uploads
 
 EXPOSE 80

@@ -291,7 +291,7 @@
         
         async function loadLeaveTypes() {
             try {
-                const response = await fetch('../backend/api/settings.php?action=leave-types', { credentials: 'include' });
+                const response = await fetch('../../../backend/api/settings.php?action=leave-types', { credentials: 'include' });
                 const data = await response.json();
                 if (data.success) {
                     let html = '';
@@ -316,7 +316,7 @@
             const summary = document.getElementById('holidays-summary');
             
             try {
-                const response = await fetch(`../backend/api/holidays.php?action=list&year=${year}`, { credentials: 'include' });
+                const response = await fetch(`../../backend/api/holidays.php?action=list&year=${year}`, { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success) {
@@ -370,7 +370,7 @@
             if (!confirm(`Generate holidays for ${year}? This will add all fixed-date holidays.`)) return;
             
             try {
-                const response = await fetch('../backend/api/holidays.php?action=generate', {
+                const response = await fetch('../../../backend/api/holidays.php?action=generate', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -419,7 +419,7 @@
             };
             
             try {
-                const response = await fetch('../backend/api/holidays.php?action=create', {
+                const response = await fetch('../../../backend/api/holidays.php?action=create', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -443,7 +443,7 @@
             if (!confirm(`Delete holiday "${name}"?`)) return;
             
             try {
-                const response = await fetch('../backend/api/holidays.php?action=delete', {
+                const response = await fetch('../../../backend/api/holidays.php?action=delete', {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },

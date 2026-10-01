@@ -7,7 +7,6 @@
 const Chatbot = {
     isOpen: false,
     isTyping: false,
-    basePath: '',
     isAdminPage: false,
     
     // Knowledge base for common questions
@@ -224,12 +223,6 @@ Ya specific question poochein!`,
     // Initialize chatbot
     init() {
         const path = window.location.pathname;
-        if (path.includes('/admin/') || path.includes('/employee/')) {
-            this.basePath = '../frontend/chatbot/';
-        } else {
-            this.basePath = 'frontend/chatbot/';
-        }
-        
         this.isAdminPage = path.includes('/admin/') || path.includes('admin-');
         
         this.createChatbotHTML();

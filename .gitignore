@@ -1,0 +1,23 @@
+# Runtime logs
+backend/logs/*.log
+backend/logs/lockout_*.json
+
+# Runtime uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Docker/local development
+docker-compose.override.yml
+
+# Editor/OS files
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db

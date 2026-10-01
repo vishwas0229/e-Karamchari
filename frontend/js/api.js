@@ -11,18 +11,12 @@ const API = {
     // Detect base URL dynamically
     get baseUrl() {
         const path = window.location.pathname;
-
-        // Pages inside /frontend/admin/ or /frontend/employee/
         if (path.includes('/frontend/admin/') || path.includes('/frontend/employee/')) {
             return '../../backend/api';
         }
-
-        // Pages directly inside /frontend/ (login, home, etc.)
         if (path.includes('/frontend/')) {
             return '../backend/api';
         }
-
-        // Root-level fallback
         return 'backend/api';
     },
     

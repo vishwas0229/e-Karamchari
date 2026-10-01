@@ -294,7 +294,7 @@
         
         async function loadEmployees() {
             try {
-                const response = await fetch('../backend/api/employees.php?action=list', { credentials: 'include' });
+                const response = await fetch('../../../backend/api/employees.php?action=list', { credentials: 'include' });
                 const data = await response.json();
                 if (data.success) {
                     const filter = document.getElementById('employee-filter');
@@ -319,7 +319,7 @@
                 const empId = document.getElementById('employee-filter').value;
                 const type = document.getElementById('type-filter').value;
                 
-                let url = '../backend/api/service-records.php?action=list';
+                let url = '../../../backend/api/service-records.php?action=list';
                 if (empId) url += `&employee_id=${empId}`;
                 if (type) url += `&type=${type}`;
                 
@@ -386,7 +386,7 @@
             const data = Object.fromEntries(formData);
             
             try {
-                const response = await fetch('../backend/api/service-records.php?action=create', {
+                const response = await fetch('../../../backend/api/service-records.php?action=create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',

@@ -262,7 +262,7 @@
             tbody.innerHTML = '<tr><td colspan="8" class="text-center">Loading...</td></tr>';
             
             try {
-                let url = `../backend/api/attendance.php?action=list&date=${date}&show_all=true`;
+                let url = `../../backend/api/attendance.php?action=list&date=${date}&show_all=true`;
                 if (department) url += `&department=${department}`;
                 if (status) url += `&status=${encodeURIComponent(status)}`;
                 
