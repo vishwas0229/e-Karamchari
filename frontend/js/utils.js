@@ -636,4 +636,61 @@ const Utils = {
 };
 
 // Export for use in other files
+
+/**
+ * Enhance common controls with accessible names and state semantics.
+ * This keeps shared dashboard controls consistent without duplicating markup.
+ */
+function initAccessibility() {
+    document.querySelectorAll('.menu-toggle').forEach((button) => {
+        const sidebar = button.closest('.dashboard-layout')?.querySelector('.sidebar');
+        const sync = () => {
+            const expanded = !!sidebar?.classList.contains('active');
+            button.setAttribute('aria-label', expanded ? 'Close navigation menu' : 'Open navigation menu');
+            button.setAttribute('aria-expanded', String(expanded));
+            button.setAttribute('aria-controls', sidebar?.id || 'sidebar');
+        };
+        sync();
+        if (!button.dataset.a11yBound) {
+            button.addEventListener('click', () => window.setTimeout(sync, 0));
+            button.dataset.a11yBound = 'true';
+        }
+    });
+
+    document.querySelectorAll('#notification-btn, .notifications-close').forEach((button) => {
+        if (!button.getAttribute('aria-label')) {
+            button.setAttribute('aria-label', button.classList.contains('notifications-close')
+                ? 'Close notifications'
+                : 'Open notifications');
+        }
+    });
+
+    document.querySelectorAll('.user-dropdown-toggle').forEach((button) => {
+        button.setAttribute('aria-haspopup', 'menu');
+        if (!button.hasAttribute('aria-expanded')) button.setAttribute('aria-expanded', 'false');
+        const menuId = button.getAttribute('aria-controls') || 'user-dropdown-menu';
+        button.setAttribute('aria-controls', menuId);
+        const menu = document.getElementById(menuId);
+        if (!button.dataset.a11yBound) {
+            button.addEventListener('click', () => {
+                window.setTimeout(() => {
+                    button.setAttribute('aria-expanded', String(menu?.classList.contains('active') || false));
+                }, 0);
+            });
+            button.dataset.a11yBound = 'true';
+        }
+    });
+
+    document.querySelectorAll('.modal-close').forEach((button) => {
+        if (!button.getAttribute('aria-label')) button.setAttribute('aria-label', 'Close dialog');
+    });
+
+    document.querySelectorAll('.modal-overlay.active .modal').forEach((modal) => {
+        modal.setAttribute('role', modal.getAttribute('role') || 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initAccessibility);
+
 window.Utils = Utils;
