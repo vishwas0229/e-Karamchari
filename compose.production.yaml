@@ -1,0 +1,26 @@
+# Production Docker Compose
+
+Use this override together with `compose.yaml`:
+
+```bash
+docker compose -f compose.yaml -f compose.production.yaml up -d --build
+```
+
+Production deployments must provide secrets explicitly through the environment or a protected `.env` file:
+
+```env
+DB_PASSWORD=<strong-unique-password>
+MYSQL_ROOT_PASSWORD=<strong-unique-root-password>
+APP_URL=https://your-domain.example
+SESSION_SAMESITE=Lax
+```
+
+The production override:
+
+- does not publish MySQL port 3306 to the host;
+- requires database passwords instead of using repository defaults;
+- keeps PHP-to-MySQL traffic on the private Docker network;
+- restarts the application and database unless explicitly stopped;
+- keeps the application HTTP port available for a reverse proxy or private network.
+
+Put TLS termination, public exposure and firewall policy in front of the application. Do not expose MySQL directly to the Internet.
