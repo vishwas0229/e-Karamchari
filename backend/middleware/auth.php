@@ -21,7 +21,7 @@ class Auth {
                 'domain' => '',
                 'secure' => SESSION_SECURE,
                 'httponly' => SESSION_HTTPONLY,
-                'samesite' => 'Lax'  // Lax allows cookies on navigation
+                'samesite' => SESSION_SAMESITE
             ]);
             session_name(SESSION_NAME);
             session_start();
