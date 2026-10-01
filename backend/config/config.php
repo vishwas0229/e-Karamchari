@@ -90,6 +90,8 @@ function setCorsHeaders() {
     // Enforce the session-bound CSRF token for state-changing API requests.
     // Authentication bootstrap endpoints are intentionally exempt until a
     // session token exists; all authenticated mutations must provide X-CSRF-Token.
+    checkRateLimit();
+    enforceSensitiveRateLimit();
     enforceCsrfForStateChange();
 }
 
@@ -113,32 +115,72 @@ function enforceCsrfForStateChange() {
 }
 
 // Rate Limiting
-function checkRateLimit($identifier = null) {
+function checkRateLimit($identifier = null, $limit = null, $window = null) {
     $identifier = $identifier ?: ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+    $requestLimit = $limit ?? (
+        (strpos($identifier, 'login:') === 0 || strpos($identifier, 'admin-login:') === 0)
+            ? RATE_LIMIT_AUTH_REQUESTS
+            : RATE_LIMIT_REQUESTS
+    );
+    $requestWindow = $window ?? RATE_LIMIT_WINDOW;
+
     $cacheFile = __DIR__ . '/../logs/rate_limit_' . md5($identifier) . '.json';
-    $requestLimit = (strpos($identifier, 'login:') === 0 || strpos($identifier, 'admin-login:') === 0)
-        ? RATE_LIMIT_AUTH_REQUESTS
-        : RATE_LIMIT_REQUESTS;
-    
     $now = time();
     $requests = [];
-    
-    if (file_exists($cacheFile)) {
-        $data = json_decode(file_get_contents($cacheFile), true);
-        if ($data) {
-            // Filter requests within the time window
-            $requests = array_filter($data, function($timestamp) use ($now) {
-                return ($now - $timestamp) < RATE_LIMIT_WINDOW;
-            });
-        }
+
+    $handle = fopen($cacheFile, 'c+');
+    if ($handle === false) {
+        // Fail closed for abuse-sensitive controls.
+        errorResponse('Rate limit service unavailable. Please try again later.', 503);
     }
-    
+
+    if (!flock($handle, LOCK_EX)) {
+        fclose($handle);
+        errorResponse('Rate limit service unavailable. Please try again later.', 503);
+    }
+
+    $contents = stream_get_contents($handle);
+    $data = json_decode($contents ?: '[]', true);
+    if (is_array($data)) {
+        $requests = array_values(array_filter($data, function($timestamp) use ($now, $requestWindow) {
+            return is_numeric($timestamp) && ($now - (int)$timestamp) < $requestWindow;
+        }));
+    }
+
     if (count($requests) >= $requestLimit) {
+        flock($handle, LOCK_UN);
+        fclose($handle);
         errorResponse('Too many requests. Please try again later.', 429);
     }
-    
+
     $requests[] = $now;
-    file_put_contents($cacheFile, json_encode(array_values($requests)));
+    ftruncate($handle, 0);
+    rewind($handle);
+    fwrite($handle, json_encode($requests));
+    fflush($handle);
+    flock($handle, LOCK_UN);
+    fclose($handle);
+}
+
+function enforceSensitiveRateLimit() {
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
+        return;
+    }
+
+    $script = basename($_SERVER['SCRIPT_FILENAME'] ?? '');
+    $action = $_GET['action'] ?? '';
+
+    if ($script === 'auth.php' && in_array($action, ['login', 'admin-login'], true)) {
+        return;
+    }
+
+    $identity = $_SESSION['user_id'] ?? ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+    checkRateLimit(
+        'sensitive:' . $identity . ':' . $script . ':' . $action,
+        30,
+        60
+    );
 }
 
 // JSON Response Helper
