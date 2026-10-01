@@ -60,6 +60,26 @@ switch ($action) {
 }
 
 /**
+ * Get an approved leave covering a specific date for an employee.
+ */
+function getApprovedLeaveForDate($db, $employeeId, $date) {
+    return $db->fetch(
+        "SELECT id, request_number
+         FROM leave_requests
+         WHERE employee_id = :employee_id
+           AND status = 'Approved'
+           AND start_date <= :start_date
+           AND end_date >= :end_date
+         LIMIT 1",
+        [
+            'employee_id' => $employeeId,
+            'start_date' => $date,
+            'end_date' => $date
+        ]
+    );
+}
+
+/**
  * Get attendance records (Admin only)
  * Automatically marks absent/finalizes for past dates
  */
@@ -191,13 +211,24 @@ function autoMarkForDate($db, $date) {
         );
         
         if (!$attendance) {
-            // No check-in between 8 AM - 5 PM = Absent
-            $db->insert('attendance', [
-                'employee_id' => $emp['id'],
-                'attendance_date' => $date,
-                'status' => 'Absent',
-                'remarks' => 'Auto-marked absent (no check-in)'
-            ]);
+            $approvedLeave = getApprovedLeaveForDate($db, $emp['id'], $date);
+
+            if ($approvedLeave) {
+                $db->insert('attendance', [
+                    'employee_id' => $emp['id'],
+                    'attendance_date' => $date,
+                    'status' => 'On Leave',
+                    'remarks' => 'Auto-marked on approved leave (' . $approvedLeave['request_number'] . ')'
+                ]);
+            } else {
+                // No check-in between 8 AM - 5 PM = Absent
+                $db->insert('attendance', [
+                    'employee_id' => $emp['id'],
+                    'attendance_date' => $date,
+                    'status' => 'Absent',
+                    'remarks' => 'Auto-marked absent (no check-in)'
+                ]);
+            }
         } else if ($attendance['check_in_time'] && !$attendance['check_out_time']) {
             // Checked in but didn't checkout - auto checkout at 17:00 (5 PM)
             $checkOutTime = '17:00:00';
@@ -297,6 +328,11 @@ function checkIn() {
     );
     if ($holiday) {
         errorResponse("आज {$holiday['holiday_name']} की छुट्टी है। Check-in नहीं हो सकता।");
+    }
+
+    $approvedLeave = getApprovedLeaveForDate($db, $userId, $today);
+    if ($approvedLeave) {
+        errorResponse("You are on approved leave ({$approvedLeave['request_number']}) today. Check-in is not allowed.");
     }
     
     // Time restriction only for employees (8 AM - 5 PM), Admin can check-in anytime
@@ -769,14 +805,25 @@ function autoMarkAttendance() {
         );
         
         if (!$attendance) {
-            // No record - mark as Absent
-            $db->insert('attendance', [
-                'employee_id' => $emp['id'],
-                'attendance_date' => $date,
-                'status' => 'Absent',
-                'remarks' => 'Auto-marked absent (no check-in)'
-            ]);
-            $absentMarked++;
+            $approvedLeave = getApprovedLeaveForDate($db, $emp['id'], $date);
+
+            if ($approvedLeave) {
+                $db->insert('attendance', [
+                    'employee_id' => $emp['id'],
+                    'attendance_date' => $date,
+                    'status' => 'On Leave',
+                    'remarks' => 'Auto-marked on approved leave (' . $approvedLeave['request_number'] . ')'
+                ]);
+            } else {
+                // No record - mark as Absent
+                $db->insert('attendance', [
+                    'employee_id' => $emp['id'],
+                    'attendance_date' => $date,
+                    'status' => 'Absent',
+                    'remarks' => 'Auto-marked absent (no check-in)'
+                ]);
+                $absentMarked++;
+            }
         } else if ($attendance['check_in_time'] && !$attendance['check_out_time']) {
             // Checked in but didn't checkout - auto checkout at 18:00
             $checkOutTime = '18:00:00';
