@@ -280,8 +280,6 @@ function generateDefaultHolidays($db, $year, $overwrite) {
         ['month' => 11, 'day' => 8, 'name' => 'Diwali (Deepavali)', 'type' => 'National'],
         ['month' => 11, 'day' => 24, 'name' => 'Guru Nanak Birthday', 'type' => 'National'],
         ['month' => 12, 'day' => 25, 'name' => 'Christmas Day', 'type' => 'National'],
-        // Separate GNCTD notification dated 03-09-2026 declared 11 September 2026
-        // a holiday in Delhi on account of the BRICS Summit.
         ['month' => 9, 'day' => 11, 'name' => 'Special Holiday - BRICS Summit', 'type' => 'Regional'],
     ];
     
@@ -444,26 +442,6 @@ function updateHoliday() {
     successResponse([], 'Holiday updated successfully');
 }
 
-    $db = Database::getInstance();
-    
-    $updateData = [];
-    if (isset($input['holiday_name'])) $updateData['holiday_name'] = sanitize($input['holiday_name']);
-    if (isset($input['holiday_date'])) $updateData['holiday_date'] = $input['holiday_date'];
-    if (isset($input['holiday_type'])) $updateData['holiday_type'] = $input['holiday_type'];
-    if (isset($input['is_active'])) $updateData['is_active'] = $input['is_active'] ? 1 : 0;
-    
-    if (empty($updateData)) {
-        errorResponse('No data to update');
-    }
-    
-    $db->update('holidays', $updateData, 'id = :id', ['id' => $id]);
-    
-    logActivity($_SESSION['user_id'], 'UPDATE_HOLIDAY', 'SETTINGS', "Updated holiday ID: {$id}");
-    
-    successResponse([], 'Holiday updated successfully');
-}
-
-/**
  * Delete a holiday
  */
 function deleteHoliday() {
