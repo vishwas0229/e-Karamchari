@@ -143,7 +143,7 @@ SELECT 'TEST-LEAVE-20990108',
 SQL
 AUTO_LEAVE_STATUS=$(curl -sS -o "/tmp/ekaramchari-auto-leave-$RANDOM.json" -w '%{http_code}'   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF"   -d '{"date":"2020-01-08"}'   "$BASE_URL/backend/api/attendance.php?action=auto-mark")
 test "$AUTO_LEAVE_STATUS" = "200"
-LEAVE_ATTENDANCE_STATUS=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" -Nse "SELECT status FROM attendance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '\''$EMPLOYEE_ID'\'') AND attendance_date = '\''2020-01-08'\'' LIMIT 1"')
+LEAVE_ATTENDANCE_STATUS=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari -Nse "SELECT status FROM attendance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '\''$EMPLOYEE_ID'\'') AND attendance_date = '\''2020-01-08'\'' LIMIT 1"')
 test "$LEAVE_ATTENDANCE_STATUS" = "On Leave"
 
 
@@ -170,7 +170,7 @@ BALANCE_STATUS=$(curl -sS -o "/tmp/ekaramchari-balance-$RANDOM.json" -w '%{http_
   -d '{"id":'"$BALANCE_REQUEST_ID"'}' \
   "$BASE_URL/backend/api/leaves.php?action=approve")
 test "$BALANCE_STATUS" = "422"
-BALANCE_REQUEST_STATE=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" -Nse "SELECT status FROM leave_requests WHERE id = '"$BALANCE_REQUEST_ID"' LIMIT 1"')
+BALANCE_REQUEST_STATE=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari -Nse "SELECT status FROM leave_requests WHERE id = '"$BALANCE_REQUEST_ID"' LIMIT 1"')
 test "$BALANCE_REQUEST_STATE" = "Pending"
 BALANCE_USED=$(compose exec -T db sh -c "mysql -h 127.0.0.1 -u root -p\\\"\$MYSQL_ROOT_PASSWORD\\\" -Nse \\\"SELECT used FROM leave_balance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID') AND leave_type_id = 1 AND year = $BALANCE_YEAR LIMIT 1\\\"")
 test "$BALANCE_USED" = "1"
