@@ -315,6 +315,14 @@ Configure database values through the environment where possible.
 
 ---
 
+# 📚 Deployment, API and Recovery Guides
+
+The detailed operational guides are maintained separately:
+
+- [Deployment guide](docs/deployment.md) — Docker development/production, tunnels, VPS deployment and split frontend/backend deployments.
+- [API reference](docs/api-reference.md) — action-level methods, authentication, CSRF, responses, authorization and rate limiting.
+- [Backup and recovery](docs/backup-recovery.md) — database dumps, uploads, verification, restore and incident recovery.
+
 # ⚙️ Configuration
 
 The main configuration is in:
