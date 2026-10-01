@@ -15,7 +15,6 @@ date_default_timezone_set('Asia/Kolkata');
 
 // Include required files
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/constants.php';
 
 echo "=== Daily Attendance Auto-Mark ===\n";
 echo "Date: " . date('Y-m-d H:i:s') . "\n\n";
