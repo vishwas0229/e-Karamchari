@@ -388,7 +388,10 @@
             try {
                 const response = await fetch('../../backend/api/service-records.php?action=create', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': await API.getCsrfToken()
+                    },
                     credentials: 'include',
                     body: JSON.stringify(data)
                 });
