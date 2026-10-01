@@ -950,7 +950,8 @@ select.form-control {
     .header-icon-btn,
     .user-dropdown-toggle,
     .modal-close,
-    .notifications-close {
+    .notifications-close,
+    #toggle-password {
         min-width: 44px;
         min-height: 44px;
     }
