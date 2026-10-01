@@ -220,7 +220,7 @@
             errorDiv.style.display = 'none';
             
             try {
-                const response = await fetch('../../backend/api/two-factor.php?action=verify', {
+                const response = await fetch('../../../backend/api/two-factor.php?action=verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
