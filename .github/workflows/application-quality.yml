@@ -15,6 +15,80 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Reject tracked runtime logs
+        run: |
+          set -euo pipefail
+          tracked_logs="$(git ls-files | grep -E '^backend/logs/.*\\.(log|json)        run: |
+          set -e
+          find backend -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Validate UI accessibility source checks
+        run: bash tests/ui-accessibility.sh
+
+      - name: Validate JavaScript syntax
+        run: |
+          set -e
+          find frontend/js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+
+      - name: Start Docker application
+        run: docker compose up -d --build
+
+      - name: Wait for application
+        run: |
+          set -e
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8080/frontend/employee-login.html >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose ps
+          docker compose logs app
+          exit 1
+
+      - name: Verify static assets
+        run: |
+          set -euo pipefail
+
+          check_asset() {
+            url="$1"
+            expected="$2"
+            headers="$(curl -fsSI "$url")"
+            echo "$headers"
+
+            echo "$headers" | grep -Eq '^HTTP/[0-9.]+ 200'
+            echo "$headers" | grep -iEq "^Content-Type: $expected"
+          }
+
+          check_asset http://127.0.0.1:8080/frontend/css/common.css 'text/css'
+          check_asset http://127.0.0.1:8080/frontend/css/auth.css 'text/css'
+          check_asset http://127.0.0.1:8080/frontend/js/api.js '.*javascript.*'
+          check_asset http://127.0.0.1:8080/frontend/js/auth.js '.*javascript.*'
+
+      - name: Verify no nested frontend asset paths
+        run: |
+          set -e
+          if grep -RInE 'frontend/frontend|\.\./\.\./\.\./backend' frontend --include='*.html' --include='*.js'; then
+            echo "Invalid nested/legacy frontend paths found."
+            exit 1
+          fi
+
+      - name: Stop static verification stack
+        run: docker compose down -v --remove-orphans
+
+      - name: Run integration suite
+        run: bash tests/integration.sh
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v --remove-orphans
+ || true)"
+          if [ -n "$tracked_logs" ]; then
+            echo "Runtime log files must not be tracked:"
+            echo "$tracked_logs"
+            exit 1
+          fi
+
       - name: Validate PHP syntax
         run: |
           set -e
