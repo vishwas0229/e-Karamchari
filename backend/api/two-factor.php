@@ -400,6 +400,10 @@ function verify2FA() {
     Auth::markAttendance($userData['id'], $userData['role_code']);
     
     // Set session data
+    // Rotate the identifier after successful 2FA authentication.
+    session_regenerate_id(true);
+    $_SESSION['last_regeneration'] = time();
+
     $_SESSION['user_id'] = $userData['id'];
     $_SESSION['employee_id'] = $userData['employee_id'];
     $_SESSION['role_code'] = $userData['role_code'];

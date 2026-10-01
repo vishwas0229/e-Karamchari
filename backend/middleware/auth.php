@@ -224,6 +224,9 @@ class Auth {
         self::markAttendance($user['id'], $user['role_code']);
 
         self::initSession();
+        // Rotate the session identifier at the authentication boundary to prevent session fixation.
+        session_regenerate_id(true);
+        $_SESSION['last_regeneration'] = time();
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['employee_id'] = $user['employee_id'];
         $_SESSION['role_code'] = $user['role_code'];
@@ -292,7 +295,14 @@ class Auth {
         // Verify session in database if token exists
         $db = Database::getInstance();
         $session = $db->fetch(
-            "SELECT * FROM sessions WHERE session_token = :token AND user_id = :user_id AND expires_at > NOW()",
+            "SELECT s.*, u.is_active, u.is_locked
+             FROM sessions s
+             JOIN users u ON s.user_id = u.id
+             WHERE s.session_token = :token
+               AND s.user_id = :user_id
+               AND s.expires_at > NOW()
+               AND u.is_active = 1
+               AND u.is_locked = 0",
             ['token' => $_SESSION['session_token'], 'user_id' => $_SESSION['user_id']]
         );
         
