@@ -86,6 +86,30 @@ function setCorsHeaders() {
     header('Access-Control-Allow-Headers: Content-Type, Authorization, X-CSRF-Token');
     header('Access-Control-Allow-Credentials: true');
     header('Content-Type: application/json; charset=UTF-8');
+
+    // Enforce the session-bound CSRF token for state-changing API requests.
+    // Authentication bootstrap endpoints are intentionally exempt until a
+    // session token exists; all authenticated mutations must provide X-CSRF-Token.
+    enforceCsrfForStateChange();
+}
+
+function enforceCsrfForStateChange() {
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
+        return;
+    }
+
+    $script = basename($_SERVER['SCRIPT_FILENAME'] ?? '');
+    $action = $_GET['action'] ?? '';
+
+    // Credential bootstrap must work before an authenticated session exists.
+    if ($script === 'auth.php' && in_array($action, ['login', 'admin-login', 'csrf'], true)) {
+        return;
+    }
+
+    if (!class_exists('Auth') || !Auth::verifyCsrf($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) {
+        errorResponse('Invalid or missing CSRF token', 403);
+    }
 }
 
 // Rate Limiting
