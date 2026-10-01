@@ -8,13 +8,30 @@ const API = {
     // CSRF token storage
     csrfToken: null,
     
-    // Detect base URL dynamically
+    // Detect the backend API base URL dynamically.
+    // A deployment can override this with:
+    // window.EKARAMCHARI_API_BASE_URL = 'https://api.example.com/backend/api';
     get baseUrl() {
+        const configuredBaseUrl = window.EKARAMCHARI_API_BASE_URL;
+        if (configuredBaseUrl) {
+            return configuredBaseUrl.replace(/\/$/, '');
+        }
+
         const path = window.location.pathname;
-        if (path.includes('/admin/') || path.includes('/employee/')) {
+
+        // Local/self-hosted repo layout:
+        // /frontend/admin/* and /frontend/employee/* -> /backend/api
+        if (path.includes('/frontend/admin/') || path.includes('/frontend/employee/')) {
+            return '../../backend/api';
+        }
+
+        // /frontend/* -> /backend/api
+        if (path.includes('/frontend/')) {
             return '../backend/api';
         }
-        return 'backend/api';
+
+        // Frontend served from repository/web root.
+        return '/backend/api';
     },
     
     /**

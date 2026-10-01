@@ -21,7 +21,8 @@ define('APP_URL', getenv('APP_URL') ?: 'http://localhost/e-Karamchari');
 // Session Configuration
 define('SESSION_NAME', 'EKARAMCHARI_SESSION');
 define('SESSION_LIFETIME', 28800); // 8 hours
-define('SESSION_SECURE', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'); // Auto-detect HTTPS
+define('SESSION_SAMESITE', getenv('SESSION_SAMESITE') ?: 'Lax');
+define('SESSION_SECURE', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || SESSION_SAMESITE === 'None');
 define('SESSION_HTTPONLY', true);
 
 // Security Settings
@@ -61,7 +62,7 @@ function setSecurityHeaders() {
     // Referrer policy
     header('Referrer-Policy: strict-origin-when-cross-origin');
     // Content Security Policy
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';");
     // Permissions Policy
     header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
 }

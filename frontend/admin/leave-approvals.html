@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leave Approvals | e-Karamchari Admin</title>
-    <link rel="stylesheet" href="../frontend/css/common.css">
-    <link rel="stylesheet" href="../frontend/css/dashboard.css">
-    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
-    <script src="../frontend/js/loader.js"></script>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../chatbot/chatbot.css">
+    <script src="../js/loader.js"></script>
 </head>
 <body>
     <div class="dashboard-layout">
@@ -160,11 +160,11 @@
         </div>
     </div>
     
-    <script src="../frontend/js/api.js"></script>
-    <script src="../frontend/js/utils.js"></script>
-    <script src="../frontend/js/auth.js"></script>
-    <script src="../frontend/js/notifications.js"></script>
-    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../chatbot/chatbot.js"></script>
     <script>
         let currentPage = 1;
         let currentLeaveId = null;
@@ -307,7 +307,7 @@
                 document.getElementById('view-modal').classList.add('active');
                 
                 // Get full details via API
-                const response = await fetch(`../backend/api/leaves.php?action=get&id=${id}`, { credentials: 'include' });
+                const response = await fetch(`../../backend/api/leaves.php?action=get&id=${id}`, { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success) {

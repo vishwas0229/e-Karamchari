@@ -1,5 +1,8 @@
 services:
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/main
   app:
     build: .
     container_name: ekaramchari-app
@@ -9,8 +12,14 @@ services:
       DB_HOST: db
       DB_NAME: ekaramchari
       DB_USER: ekaramchari
+<<<<<<< HEAD
       DB_PASS: ekaramchari_password
       APP_URL: http://localhost:8080
+=======
+      DB_PASS: ${DB_PASSWORD:-ekaramchari_password}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      SESSION_SAMESITE: ${SESSION_SAMESITE:-Lax}
+>>>>>>> refs/remotes/origin/main
     depends_on:
       db:
         condition: service_healthy
@@ -25,15 +34,24 @@ services:
     environment:
       MYSQL_DATABASE: ekaramchari
       MYSQL_USER: ekaramchari
+<<<<<<< HEAD
       MYSQL_PASSWORD: ekaramchari_password
       MYSQL_ROOT_PASSWORD: root_password
+=======
+      MYSQL_PASSWORD: ${DB_PASSWORD:-ekaramchari_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_demo_password}
+>>>>>>> refs/remotes/origin/main
     ports:
       - "3307:3306"
     volumes:
       - ekaramchari_mysql:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     healthcheck:
+<<<<<<< HEAD
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+=======
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} || exit 1"]
+>>>>>>> refs/remotes/origin/main
       interval: 5s
       timeout: 5s
       retries: 20

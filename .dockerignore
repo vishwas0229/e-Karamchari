@@ -1,0 +1,21 @@
+# Git
+.git
+.github
+
+# Runtime data
+backend/logs/*.log
+backend/logs/lockout_*.json
+backend/uploads/*
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local editor / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db

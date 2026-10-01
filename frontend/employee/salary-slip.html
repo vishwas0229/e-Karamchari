@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salary Slip | e-Karamchari</title>
-    <link rel="stylesheet" href="../frontend/css/common.css">
-    <link rel="stylesheet" href="../frontend/css/dashboard.css">
-    <link rel="stylesheet" href="../frontend/chatbot/chatbot.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../chatbot/chatbot.css">
     <style>
         .salary-card { background: #f8fafc; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s; }
         .salary-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -125,11 +125,11 @@
         </main>
     </div>
 
-    <script src="../frontend/js/api.js"></script>
-    <script src="../frontend/js/utils.js"></script>
-    <script src="../frontend/js/auth.js"></script>
-    <script src="../frontend/js/notifications.js"></script>
-    <script src="../frontend/chatbot/chatbot.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../chatbot/chatbot.js"></script>
     <script>
         const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
         
@@ -173,7 +173,7 @@
             container.innerHTML = '<div class="empty-state"><p>Loading salary slips...</p></div>';
             
             try {
-                const response = await fetch(`../backend/api/salary.php?action=my-slips&year=${year}`, { credentials: 'include' });
+                const response = await fetch(`../../backend/api/salary.php?action=my-slips&year=${year}`, { credentials: 'include' });
                 const result = await response.json();
                 
                 if (result.success && result.data.slips && result.data.slips.length > 0) {
@@ -222,7 +222,7 @@
         
         async function viewSlip(id) {
             try {
-                const response = await fetch(`../backend/api/salary.php?action=view&id=${id}`, { credentials: 'include' });
+                const response = await fetch(`../../backend/api/salary.php?action=view&id=${id}`, { credentials: 'include' });
                 const result = await response.json();
                 if (result.success) { 
                     showSlipModal(result.data); 
