@@ -193,24 +193,29 @@ class Auth {
             ];
         }
 
-        // Mark attendance on login (auto check-in)
+        return self::completeLogin($user);
+    }
+
+    /**
+     * Complete a previously verified login by creating the authenticated session.
+     */
+    public static function completeLogin(array $user) {
         self::markAttendance($user['id'], $user['role_code']);
-        
-        // Create session
+
         self::initSession();
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['employee_id'] = $user['employee_id'];
         $_SESSION['role_code'] = $user['role_code'];
         $_SESSION['role_name'] = $user['role_name'];
-        $_SESSION['permissions'] = json_decode($user['permissions'], true);
+        $_SESSION['permissions'] = json_decode($user['permissions'] ?? '[]', true);
         $_SESSION['full_name'] = $user['first_name'] . ' ' . $user['last_name'];
         $_SESSION['email'] = $user['email'];
-        $_SESSION['department'] = $user['dept_name'];
-        $_SESSION['designation'] = $user['designation_name'];
+        $_SESSION['department'] = $user['dept_name'] ?? null;
+        $_SESSION['designation'] = $user['designation_name'] ?? null;
         $_SESSION['login_time'] = time();
         $_SESSION['csrf_token'] = generateToken();
-        
-        // Store session in database
+
+        $db = Database::getInstance();
         $sessionToken = generateToken();
         $db->insert('sessions', [
             'user_id' => $user['id'],
@@ -220,12 +225,9 @@ class Auth {
             'expires_at' => date('Y-m-d H:i:s', time() + SESSION_LIFETIME)
         ]);
         $_SESSION['session_token'] = $sessionToken;
-        
+
         logActivity($user['id'], 'LOGIN_SUCCESS', 'AUTH', 'User logged in successfully');
-        
-        // Remove sensitive data
-        unset($user['password_hash']);
-        
+
         return [
             'success' => true,
             'message' => 'Login successful',
@@ -236,8 +238,8 @@ class Auth {
                 'email' => $user['email'],
                 'role' => $user['role_code'],
                 'role_name' => $user['role_name'],
-                'department' => $user['dept_name'],
-                'designation' => $user['designation_name']
+                'department' => $user['dept_name'] ?? null,
+                'designation' => $user['designation_name'] ?? null
             ]
         ];
     }
