@@ -164,7 +164,7 @@ SELECT '$BALANCE_REQUEST',
        1, '$BALANCE_DATE', '$BALANCE_DATE', 1,
        'Integration leave balance regression', 'Pending';
 SQL
-BALANCE_REQUEST_ID=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" -Nse "SELECT id FROM leave_requests WHERE request_number = '''$BALANCE_REQUEST''' LIMIT 1"')
+BALANCE_REQUEST_ID=$(compose exec -T db sh -c "mysql -h 127.0.0.1 -u root -p\\\"\$MYSQL_ROOT_PASSWORD\\\" -Nse \\\"SELECT id FROM leave_requests WHERE request_number = '$BALANCE_REQUEST' LIMIT 1\\\"")
 BALANCE_STATUS=$(curl -sS -o "/tmp/ekaramchari-balance-$RANDOM.json" -w '%{http_code}' \
   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF" \
   -d '{"id":'"$BALANCE_REQUEST_ID"'}' \
@@ -172,7 +172,7 @@ BALANCE_STATUS=$(curl -sS -o "/tmp/ekaramchari-balance-$RANDOM.json" -w '%{http_
 test "$BALANCE_STATUS" = "422"
 BALANCE_REQUEST_STATE=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" -Nse "SELECT status FROM leave_requests WHERE id = '"$BALANCE_REQUEST_ID"' LIMIT 1"')
 test "$BALANCE_REQUEST_STATE" = "Pending"
-BALANCE_USED=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" -Nse "SELECT used FROM leave_balance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '''$EMPLOYEE_ID''') AND leave_type_id = 1 AND year = '"$BALANCE_YEAR"' LIMIT 1"')
+BALANCE_USED=$(compose exec -T db sh -c "mysql -h 127.0.0.1 -u root -p\\\"\$MYSQL_ROOT_PASSWORD\\\" -Nse \\\"SELECT used FROM leave_balance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID') AND leave_type_id = 1 AND year = $BALANCE_YEAR LIMIT 1\\\"")
 test "$BALANCE_USED" = "1"
 
 echo "[15/17] Rejecting future attendance auto-mark requests"
