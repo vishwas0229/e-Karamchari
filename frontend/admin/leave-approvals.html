@@ -307,7 +307,7 @@
                 document.getElementById('view-modal').classList.add('active');
                 
                 // Get full details via API
-                const response = await fetch(`../backend/api/leaves.php?action=get&id=${id}`, { credentials: 'include' });
+                const response = await fetch(`../../backend/api/leaves.php?action=get&id=${id}`, { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success) {
