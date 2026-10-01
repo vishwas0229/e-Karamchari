@@ -373,6 +373,7 @@
                 const response = await fetch('../../backend/api/two-factor.php?action=setup', {
                     method: 'POST',
                     credentials: 'include'
+                    credentials: 'include'headers: { 'X-CSRF-Token': await API.getCsrfToken() },
                 });
                 Utils.hideLoading();
                 
