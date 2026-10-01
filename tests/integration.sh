@@ -128,4 +128,20 @@ rm -f "$ADMIN_CSRF_RESPONSE_FILE"
 echo "[12/12] Checking attendance auto-check-in regression"
 compose exec -T app php /var/www/html/tests/auth-attendance-regression.php
 
+echo "[13/13] Verifying approved leave attendance handling"
+LEAVE_TEST_DATE="2099-01-08"
+compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari' <<SQL
+INSERT INTO leave_requests
+(request_number, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approved_by, approved_at)
+SELECT 'TEST-LEAVE-20990108',
+       (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID' LIMIT 1),
+       1, '$LEAVE_TEST_DATE', '$LEAVE_TEST_DATE', 1,
+       'Integration attendance regression', 'Approved',
+       (SELECT id FROM users WHERE employee_id = '$ADMIN_ID' LIMIT 1), NOW();
+SQL
+AUTO_LEAVE_STATUS=$(curl -sS -o "/tmp/ekaramchari-auto-leave-$RANDOM.json" -w '%{http_code}'   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF"   -d '{"date":"2099-01-08"}'   "$BASE_URL/backend/api/attendance.php?action=auto-mark")
+test "$AUTO_LEAVE_STATUS" = "200"
+LEAVE_ATTENDANCE_STATUS=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" -Nse "SELECT status FROM attendance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '\''$EMPLOYEE_ID'\'') AND attendance_date = '\''2099-01-08'\'' LIMIT 1"')
+test "$LEAVE_ATTENDANCE_STATUS" = "On Leave"
+
 echo "Integration tests passed."
