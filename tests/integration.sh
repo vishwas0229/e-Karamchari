@@ -99,7 +99,7 @@ echo "[9/11] Testing admin login"
 curl -fsS -c "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=csrf" | grep -q '"success":true'
 ADMIN_LOGIN=$(curl -fsS -b "$ADMIN_COOKIE_FILE" -c "$ADMIN_COOKIE_FILE" \
   -H 'Content-Type: application/json' \
-  -d '{"employee_id":"'"$ADMIN_ID"'","password":"'"$ADMIN_PASSWORD"'"}' \
+  -d '{"identifier":"'"$ADMIN_ID"'","password":"'"$ADMIN_PASSWORD"'"}' \
   "$BASE_URL/backend/api/auth.php?action=admin-login")
 echo "$ADMIN_LOGIN" | grep -q '"success":true'
 
