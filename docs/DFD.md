@@ -94,3 +94,113 @@ Admin payroll operation -> salary.php -> salary_slips -> employee salary-slip vi
 ### Service Record
 
 Admin service action -> service-records.php -> service_records -> employee service-record view
+
+## Level 2 Data Flows
+
+### Leave Management
+
+    Employee
+       |
+       v
+    Leave form
+       |
+       v
+    leaves.php
+       |
+       +--> validate dates/type/balance
+       |
+       +--> leave_requests
+       |       |
+       |       +--> notification
+       |
+       +--> leave_balance
+       |
+       v
+    JSON response / employee status
+
+    Admin
+       |
+       v
+    Approval request
+       |
+       v
+    leaves.php
+       |
+       +--> role/CSRF validation
+       +--> update leave_requests
+       +--> update leave_balance
+       +--> notification
+       v
+    JSON response
+
+### Grievance Management
+
+    Employee
+       |
+       v
+    grievance form
+       |
+       v
+    grievances.php
+       |
+       +--> validate category/content
+       +--> create grievances row
+       +--> optional notification
+       v
+    status response
+
+    Admin/Officer
+       |
+       v
+    review/assign/resolve
+       |
+       v
+    grievances.php
+       |
+       +--> role/CSRF validation
+       +--> update grievances
+       +--> create grievance_comments where applicable
+       +--> activity/audit data
+       v
+    JSON response
+
+### Attendance
+
+    Employee
+       |
+       +--> check-in/out
+       v
+    attendance.php
+       |
+       +--> session + CSRF + rate-limit checks
+       +--> validate current date/state
+       +--> insert/update attendance
+       v
+    attendance record
+
+    Admin
+       |
+       +--> list/mark/report
+       v
+    attendance.php
+       |
+       +--> role validation
+       +--> holiday/weekend rules
+       +--> attendance query/update
+       v
+    attendance report
+
+### Payroll
+
+    Admin
+       |
+       v
+    salary.php
+       |
+       +--> role + CSRF validation
+       +--> salary_slips
+       v
+    payroll response
+       ^
+       |
+    Employee salary-slip view
