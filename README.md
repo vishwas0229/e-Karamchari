@@ -654,7 +654,7 @@ The API supports:
 
 ### Current work
 
-The default generator now uses the official 2026 GNCTD general-holiday schedule, including the separately notified 11 September 2026 BRICS Summit holiday. Year-specific floating/restricted holidays should continue to be managed through the holiday templates/admin workflow. The official 2026 notification declares 18 general holidays and a separate restricted-holiday schedule. citeturn0search23turn0search3
+The default generator now uses the official 2026 GNCTD general-holiday schedule, including the separately notified 11 September 2026 BRICS Summit holiday. Year-specific floating/restricted holidays should continue to be managed through the holiday templates/admin workflow. The official 2026 notification declares 18 general holidays and a separate restricted-holiday schedule. Official source: https://dkvib.delhi.gov.in/sites/default/files/DKVIB/circulars-orders/govtholidays2026.pdf
 
 ---
 
