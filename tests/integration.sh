@@ -40,7 +40,7 @@ curl -fsS "$BASE_URL/frontend/employee-login.html" >/dev/null
 echo "[3/11] Seeding temporary employee and admin"
 HASH=$(compose exec -T -e TEST_PASSWORD="$PASSWORD" app php -r 'echo password_hash(getenv("TEST_PASSWORD"), PASSWORD_DEFAULT);')
 ADMIN_HASH=$(compose exec -T -e TEST_PASSWORD="$ADMIN_PASSWORD" app php -r 'echo password_hash(getenv("TEST_PASSWORD"), PASSWORD_DEFAULT);')
-compose exec -T db sh -c 'mysql -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari' <<SQL
+compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari' <<SQL
 INSERT INTO users
 (employee_id, email, password_hash, role_id, first_name, last_name, department_id, designation_id, is_active, is_locked)
 VALUES
