@@ -7,8 +7,8 @@ EMPLOYEE_ID="ITEST$RANDOM"
 ADMIN_ID="IADMIN$RANDOM"
 PASSWORD="IntegrationTest!2026"
 ADMIN_PASSWORD="AdminIntegrationTest!2026"
-COOKIE_FILE="/tmp/ekaramchari-cookie-$.txt"
-ADMIN_COOKIE_FILE="/tmp/ekaramchari-admin-cookie-$.txt"
+COOKIE_FILE="/tmp/ekaramchari-cookie-$RANDOM.txt"
+ADMIN_COOKIE_FILE="/tmp/ekaramchari-admin-cookie-$RANDOM.txt"
 
 compose() {
   docker compose -p "$PROJECT" -f compose.yaml "$@"
@@ -23,21 +23,19 @@ trap cleanup EXIT
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 2; }
 command -v curl >/dev/null || { echo "curl is required" >&2; exit 2; }
 
-echo "[1/8] Starting isolated test stack"
+echo "[1/11] Starting isolated test stack"
 compose up -d --build
 
-echo "[2/8] Waiting for HTTP endpoint"
+echo "[2/11] Waiting for HTTP endpoint"
 for _ in $(seq 1 60); do
   if curl -fsS "$BASE_URL/frontend/employee-login.html" >/dev/null 2>&1; then break; fi
   sleep 2
 done
 curl -fsS "$BASE_URL/frontend/employee-login.html" >/dev/null
 
-echo "[3/8] Seeding temporary employee and admin"
+echo "[3/11] Seeding temporary employee and admin"
 HASH=$(compose exec -T -e TEST_PASSWORD="$PASSWORD" app php -r 'echo password_hash(getenv("TEST_PASSWORD"), PASSWORD_DEFAULT);')
 ADMIN_HASH=$(compose exec -T -e TEST_PASSWORD="$ADMIN_PASSWORD" app php -r 'echo password_hash(getenv("TEST_PASSWORD"), PASSWORD_DEFAULT);')
-c_tmp="__ADMIN_HASH_PLACEHOLDER__"
-: "$c_tmp"
 compose exec -T db sh -c 'mysql -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari' <<SQL
 INSERT INTO users
 (employee_id, email, password_hash, role_id, first_name, last_name, department_id, designation_id, is_active, is_locked)
@@ -91,7 +89,7 @@ STATUS=$(curl -sS -o "/tmp/ekaramchari-leave-response-$$.json" -w '%{http_code}'
   "$BASE_URL/backend/api/leaves.php?action=apply")
 test "$STATUS" = "200"
 
-rm -f "/tmp/ekaramchari-csrf-response-$.json" "/tmp/ekaramchari-leave-response-$.json"
+rm -f "/tmp/ekaramchari-csrf-response-$RANDOM.json" "/tmp/ekaramchari-leave-response-$RANDOM.json"
 
 echo "[9/11] Testing admin login"
 curl -fsS -c "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=csrf" | grep -q '"success":true'
@@ -116,7 +114,7 @@ curl -fsS -b "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/two-factor.php?action=s
 echo "[11/11] Testing admin CSRF enforcement"
 ADMIN_CSRF=$(curl -fsS -b "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=csrf" | sed -n 's/.*"csrf_token":"\([^"]*\)".*/\1/p')
 test -n "$ADMIN_CSRF"
-ADMIN_STATUS=$(curl -sS -o "/tmp/ekaramchari-admin-csrf-response-$.json" -w '%{http_code}' \
+ADMIN_STATUS=$(curl -sS -o "/tmp/ekaramchari-admin-csrf-response-$RANDOM.json" -w '%{http_code}' \
   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' \
   -d '{"key":"integration_test","value":"denied"}' \
   "$BASE_URL/backend/api/settings.php?action=update")
