@@ -250,6 +250,18 @@ The production override removes the MySQL host-port publication and requires exp
 
 For the exact override details, see `compose.production.yaml`.
 
+### Integration tests
+
+The repository includes an isolated Docker integration suite for authentication, CSRF and representative HR workflows.
+
+Run it from the repository root:
+
+```bash
+bash tests/integration.sh
+```
+
+The suite creates a temporary Compose project and database volume, seeds a temporary employee account using PHP's native password hashing API, exercises login/session APIs, employee profile, attendance, leave balance, and verifies that a leave mutation is rejected without CSRF and accepted with a valid CSRF token. The test stack is removed automatically when the script exits.
+
 ### 7. Stop the application
 
 ```bash
