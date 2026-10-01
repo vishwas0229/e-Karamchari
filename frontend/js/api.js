@@ -460,7 +460,7 @@ const API = {
         },
         
         async createTestNotification() {
-            return API.get('dashboard.php?action=test-notification');
+            return API.post('dashboard.php?action=test-notification');
         }
     },
     
