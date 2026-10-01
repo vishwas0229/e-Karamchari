@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Employee Login - e-Karamchari Portal">
     <title>Employee Login | e-Karamchari</title>
-    <link rel="stylesheet" href="frontend/css/common.css">
-    <link rel="stylesheet" href="frontend/css/auth.css">
-    <script src="frontend/js/loader.js"></script>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="js/loader.js"></script>
 </head>
 <body>
     <div class="login-page">
@@ -137,9 +137,9 @@
         </div>
     </div>
     
-    <script src="frontend/js/api.js"></script>
-    <script src="frontend/js/utils.js"></script>
-    <script src="frontend/js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
     <script>
         let pendingUserId = null;
         let pendingTempToken = null;
@@ -234,7 +234,7 @@
             errorDiv.style.display = 'none';
             
             try {
-                const response = await fetch('backend/api/two-factor.php?action=verify', {
+                const response = await fetch('../backend/api/two-factor.php?action=verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
