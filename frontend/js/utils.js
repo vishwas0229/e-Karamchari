@@ -231,62 +231,70 @@ const Utils = {
     showConfirm(title, message, onConfirm, onCancel = null) {
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay active';
-        
+        const titleId = 'confirm-dialog-title-' + Date.now();
+
         overlay.innerHTML = `
-            <div class="modal">
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="${titleId}">
                 <div class="modal-header">
-                    <h3>${this.escapeHtml(title)}</h3>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+                    <h3 id="${titleId}">${this.escapeHtml(title)}</h3>
+                    <button type="button" aria-label="Close dialog" class="modal-close">&times;</button>
                 </div>
                 <div class="modal-body">
                     <p>${this.escapeHtml(message)}</p>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
-                    <button class="btn btn-primary" id="confirm-ok">Confirm</button>
+                    <button type="button" class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirm-ok">Confirm</button>
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(overlay);
-        
-        overlay.querySelector('#confirm-ok').addEventListener('click', () => {
-            overlay.remove();
-            if (onConfirm) onConfirm();
-        });
-        
-        overlay.querySelector('#confirm-cancel').addEventListener('click', () => {
-            overlay.remove();
+        const modal = overlay.querySelector('.modal');
+        const close = () => overlay.remove();
+
+        modal.querySelector('.modal-close').addEventListener('click', () => {
+            close();
             if (onCancel) onCancel();
         });
-        
+        modal.querySelector('#confirm-ok').addEventListener('click', () => {
+            close();
+            if (onConfirm) onConfirm();
+        });
+        modal.querySelector('#confirm-cancel').addEventListener('click', () => {
+            close();
+            if (onCancel) onCancel();
+        });
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
-                overlay.remove();
+                close();
                 if (onCancel) onCancel();
             }
         });
+
+        this.setupModalKeyboard(modal);
     },
-    
+
     /**
      * Show alert modal
      */
     showAlert(title, message, type = 'info') {
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay active';
-        
+        const titleId = 'alert-dialog-title-' + Date.now();
+
         const icons = {
             success: '✓',
             error: '✕',
             warning: '⚠',
             info: 'ℹ'
         };
-        
+
         overlay.innerHTML = `
-            <div class="modal">
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="${titleId}">
                 <div class="modal-header">
-                    <h3>${this.escapeHtml(title)}</h3>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+                    <h3 id="${titleId}">${this.escapeHtml(title)}</h3>
+                    <button type="button" aria-label="Close dialog" class="modal-close">&times;</button>
                 </div>
                 <div class="modal-body text-center">
                     <div class="error-icon ${type}" style="font-size: 3rem; margin-bottom: 1rem;">
@@ -295,14 +303,23 @@ const Utils = {
                     <p>${this.escapeHtml(message)}</p>
                 </div>
                 <div class="modal-footer justify-center">
-                    <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">OK</button>
+                    <button type="button" class="btn btn-primary alert-ok">OK</button>
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(overlay);
+        const modal = overlay.querySelector('.modal');
+        const close = () => overlay.remove();
+        modal.querySelector('.modal-close').addEventListener('click', close);
+        modal.querySelector('.alert-ok').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        this.setupModalKeyboard(modal);
     },
-    
+
     /**
      * Validate form
      */
@@ -636,4 +653,79 @@ const Utils = {
 };
 
 // Export for use in other files
+
+/**
+ * Enhance common controls with accessible names and state semantics.
+ * This keeps shared dashboard controls consistent without duplicating markup.
+ */
+function initAccessibility() {
+    document.querySelectorAll('.menu-toggle').forEach((button) => {
+        const sidebar = button.closest('.dashboard-layout')?.querySelector('.sidebar');
+        if (sidebar && !sidebar.id) sidebar.id = 'sidebar';
+        const sync = () => {
+            const expanded = !!sidebar?.classList.contains('active');
+            button.setAttribute('aria-label', expanded ? 'Close navigation menu' : 'Open navigation menu');
+            button.setAttribute('aria-expanded', String(expanded));
+            if (sidebar?.id) button.setAttribute('aria-controls', sidebar.id);
+        };
+        sync();
+        if (!button.dataset.a11yBound) {
+            button.addEventListener('click', () => window.setTimeout(sync, 0));
+            button.dataset.a11yBound = 'true';
+        }
+    });
+
+    document.querySelectorAll('#notification-btn, .notifications-close').forEach((button) => {
+        if (!button.getAttribute('aria-label')) {
+            button.setAttribute('aria-label', button.classList.contains('notifications-close')
+                ? 'Close notifications'
+                : 'Open notifications');
+        }
+    });
+
+    document.querySelectorAll('.user-dropdown-toggle').forEach((button) => {
+        button.setAttribute('aria-haspopup', 'menu');
+        if (!button.hasAttribute('aria-expanded')) button.setAttribute('aria-expanded', 'false');
+        let menuId = button.getAttribute('aria-controls');
+        let menu = menuId ? document.getElementById(menuId) : null;
+        if (!menu) menu = button.closest('.user-dropdown')?.querySelector('.dropdown-menu');
+        if (menu && !menu.id) menu.id = 'user-dropdown-menu';
+        menuId = menu?.id || menuId;
+        if (menuId) button.setAttribute('aria-controls', menuId);
+        if (!button.dataset.a11yBound) {
+            button.addEventListener('click', () => {
+                window.setTimeout(() => {
+                    button.setAttribute('aria-expanded', String(menu?.classList.contains('active') || false));
+                }, 0);
+            });
+            button.dataset.a11yBound = 'true';
+        }
+    });
+
+    // Add a keyboard-accessible skip link to pages that expose a main content region.
+    document.querySelectorAll('main.main-content, main').forEach((main, index) => {
+        if (!main.id) main.id = index === 0 ? 'main-content' : 'main-content-' + (index + 1);
+        const target = '#' + main.id;
+        const existing = document.querySelector('.skip-link[href="' + target + '"]');
+        if (!existing) {
+            const link = document.createElement('a');
+            link.className = 'skip-link';
+            link.href = target;
+            link.textContent = 'Skip to main content';
+            document.body.prepend(link);
+        }
+    });
+
+    document.querySelectorAll('.modal-close').forEach((button) => {
+        if (!button.getAttribute('aria-label')) button.setAttribute('aria-label', 'Close dialog');
+    });
+
+    document.querySelectorAll('.modal-overlay.active .modal').forEach((modal) => {
+        modal.setAttribute('role', modal.getAttribute('role') || 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initAccessibility);
+
 window.Utils = Utils;
