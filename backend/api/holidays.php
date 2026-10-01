@@ -258,6 +258,10 @@ function generateYearHolidays() {
  * Generate default holidays without templates
  */
 function generateDefaultHolidays($db, $year, $overwrite) {
+    if ($year !== 2026) {
+        errorResponse('No official Delhi holiday schedule is configured for this year. Add year-specific templates before generating holidays.');
+    }
+
     // GNCTD General Administration Department notification dated 04-12-2025.
     // Source: https://dkvib.delhi.gov.in/sites/default/files/DKVIB/circulars-orders/govtholidays2026.pdf
     // 2026 Delhi government general-holiday schedule.
