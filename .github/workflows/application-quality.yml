@@ -15,6 +15,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Reject tracked runtime logs
+        run: |
+          set -euo pipefail
+          tracked_logs="$(git ls-files 'backend/logs/*.log' 'backend/logs/lockout_*.json')"
+          if [ -n "$tracked_logs" ]; then
+            echo "Runtime log files must not be tracked:"
+            echo "$tracked_logs"
+            exit 1
+          fi
       - name: Validate PHP syntax
         run: |
           set -e
