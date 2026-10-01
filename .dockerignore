@@ -1,0 +1,7 @@
+.git
+.github
+backend/logs/*
+backend/uploads/*
+*.log
+*.tmp
+.DS_Store
