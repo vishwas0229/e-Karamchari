@@ -234,7 +234,7 @@
                 const status = document.getElementById('status-filter').value;
                 
                 // Build URL manually to avoid any issues
-                let url = '../../../backend/api/employees.php?action=list&page=' + page;
+                let url = '../../backend/api/employees.php?action=list&page=' + page;
                 if (search) url += '&search=' + encodeURIComponent(search);
                 if (department) url += '&department=' + encodeURIComponent(department);
                 if (status !== '') url += '&status=' + encodeURIComponent(status);
