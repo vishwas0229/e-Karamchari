@@ -132,19 +132,34 @@ compose exec -T app php /var/www/html/tests/auth-attendance-regression.php
 
 echo "[13/13] Verifying approved leave attendance handling"
 LEAVE_TEST_DATE="2020-01-08"
+LEAVE_REQUEST_NUMBER="TEST-LEAVE-$RUN_ID"
+LEAVE_AUTO_RESPONSE_FILE="/tmp/ekaramchari-auto-leave-$RUN_ID.json"
+
 compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari' <<SQL
 INSERT INTO leave_requests
 (request_number, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approved_by, approved_at)
-SELECT 'TEST-LEAVE-20990108',
+SELECT '$LEAVE_REQUEST_NUMBER',
        (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID' LIMIT 1),
        1, '$LEAVE_TEST_DATE', '$LEAVE_TEST_DATE', 1,
        'Integration attendance regression', 'Approved',
        (SELECT id FROM users WHERE employee_id = '$ADMIN_ID' LIMIT 1), NOW();
 SQL
-AUTO_LEAVE_STATUS=$(curl -sS -o "/tmp/ekaramchari-auto-leave-$RANDOM.json" -w '%{http_code}'   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF"   -d '{"date":"2020-01-08"}'   "$BASE_URL/backend/api/attendance.php?action=auto-mark")
-test "$AUTO_LEAVE_STATUS" = "200"
-LEAVE_ATTENDANCE_STATUS=$(compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari -Nse "SELECT status FROM attendance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '\''$EMPLOYEE_ID'\'') AND attendance_date = '\''2020-01-08'\'' LIMIT 1"')
-test "$LEAVE_ATTENDANCE_STATUS" = "On Leave"
+
+AUTO_LEAVE_STATUS=$(curl -sS -o "$LEAVE_AUTO_RESPONSE_FILE" -w '%{http_code}'   -b "$ADMIN_COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $ADMIN_CSRF"   -d '{"date":"2020-01-08"}'   "$BASE_URL/backend/api/attendance.php?action=auto-mark")
+
+if [ "$AUTO_LEAVE_STATUS" != "200" ]; then
+  echo "Approved-leave auto-mark request returned HTTP $AUTO_LEAVE_STATUS"
+  cat "$LEAVE_AUTO_RESPONSE_FILE"
+  exit 1
+fi
+
+LEAVE_ATTENDANCE_STATUS=$(compose exec -T db sh -c "mysql -h 127.0.0.1 -u root -p\"\$MYSQL_ROOT_PASSWORD\" ekaramchari -Nse \"SELECT status FROM attendance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID') AND attendance_date = '2020-01-08' LIMIT 1\"")
+if [ "$LEAVE_ATTENDANCE_STATUS" != "On Leave" ]; then
+  echo "Expected On Leave attendance, got: [$LEAVE_ATTENDANCE_STATUS]"
+  compose exec -T db sh -c "mysql -h 127.0.0.1 -u root -p\"\$MYSQL_ROOT_PASSWORD\" ekaramchari -e \"SELECT request_number, status, start_date, end_date FROM leave_requests WHERE request_number = '$LEAVE_REQUEST_NUMBER'; SELECT employee_id, attendance_date, status, remarks FROM attendance WHERE employee_id = (SELECT id FROM users WHERE employee_id = '$EMPLOYEE_ID') AND attendance_date = '2020-01-08';\""
+  exit 1
+fi
+
 
 
 echo "[14/17] Verifying leave approval balance protection"
