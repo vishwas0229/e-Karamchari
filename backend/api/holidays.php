@@ -260,7 +260,7 @@ function generateYearHolidays() {
 function generateDefaultHolidays($db, $year, $overwrite) {
     // GNCTD General Administration Department notification dated 04-12-2025.
     // Source: https://dkvib.delhi.gov.in/sites/default/files/DKVIB/circulars-orders/govtholidays2026.pdf
-    // The list below is the 2026 Delhi government general-holiday schedule.
+    // 2026 Delhi government general-holiday schedule.
     $defaultHolidays = [
         ['month' => 1, 'day' => 26, 'name' => 'Republic Day', 'type' => 'National'],
         ['month' => 3, 'day' => 4, 'name' => 'Holi', 'type' => 'National'],
@@ -440,6 +440,9 @@ function updateHoliday() {
     $db->update('holidays', $updateData, 'id = :id', ['id' => $id]);
     
     logActivity($_SESSION['user_id'], 'UPDATE_HOLIDAY', 'SETTINGS', "Updated holiday ID: {$id}");
+    
+    successResponse([], 'Holiday updated successfully');
+}
 
     $db = Database::getInstance();
     
