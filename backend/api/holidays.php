@@ -442,6 +442,7 @@ function updateHoliday() {
     successResponse([], 'Holiday updated successfully');
 }
 
+/**
  * Delete a holiday
  */
 function deleteHoliday() {
