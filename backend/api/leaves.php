@@ -206,96 +206,133 @@ function getMyLeaves() {
 /**
  * Apply for leave
  */
+function validateLeaveDate($date, $fieldName) {
+    $date = trim((string)$date);
+    $parsed = DateTime::createFromFormat('!Y-m-d', $date);
+    $errors = DateTime::getLastErrors();
+
+    if (
+        !$parsed ||
+        ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0)) ||
+        $parsed->format('Y-m-d') !== $date
+    ) {
+        errorResponse("{$fieldName} must be a valid YYYY-MM-DD date", 422);
+    }
+
+    return $date;
+}
+
+/**
+ * Apply for leave
+ */
 function applyLeave() {
     Auth::requireAuth();
-    
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         errorResponse('Method not allowed', 405);
     }
-    
+
     $input = json_decode(file_get_contents('php://input'), true);
-    
+
     $required = ['leave_type_id', 'start_date', 'end_date', 'reason'];
     foreach ($required as $field) {
         if (empty($input[$field])) {
             errorResponse("Field '{$field}' is required");
         }
     }
-    
+
     $db = Database::getInstance();
     $userId = $_SESSION['user_id'];
-    
-    $startDate = $input['start_date'];
-    $endDate = $input['end_date'];
-    
-    // Validate dates
-    if (strtotime($startDate) > strtotime($endDate)) {
-        errorResponse('End date must be after start date');
+
+    $startDate = validateLeaveDate($input['start_date'], 'Start date');
+    $endDate = validateLeaveDate($input['end_date'], 'End date');
+
+    if ($startDate > $endDate) {
+        errorResponse('End date must be after start date', 422);
     }
-    
-    if (strtotime($startDate) < strtotime(date('Y-m-d'))) {
-        errorResponse('Cannot apply leave for past dates');
+
+    if ($startDate < date('Y-m-d')) {
+        errorResponse('Cannot apply leave for past dates', 422);
     }
-    
-    // Calculate total days
-    $totalDays = (strtotime($endDate) - strtotime($startDate)) / (60 * 60 * 24) + 1;
-    
-    // Maximum 30 days leave at a time
+
+    $start = new DateTimeImmutable($startDate);
+    $end = new DateTimeImmutable($endDate);
+    $totalDays = $start->diff($end)->days + 1;
+
     if ($totalDays > 30) {
-        errorResponse('Maximum 30 days leave can be applied at a time');
+        errorResponse('Maximum 30 days leave can be applied at a time', 422);
     }
-    
-    // Check leave balance
+
+    $leaveTypeId = (int)$input['leave_type_id'];
+    $leaveType = $db->fetch(
+        "SELECT * FROM leave_types WHERE id = :id AND is_active = 1",
+        ['id' => $leaveTypeId]
+    );
+
+    if (!$leaveType) {
+        errorResponse('Invalid or inactive leave type', 422);
+    }
+
+    $leaveYear = (int)$start->format('Y');
     $balance = $db->fetch(
         "SELECT (total_allocated - used + carried_forward) as available
          FROM leave_balance
-         WHERE employee_id = :user_id AND leave_type_id = :type_id AND year = YEAR(CURDATE())",
-        ['user_id' => $userId, 'type_id' => $input['leave_type_id']]
+         WHERE employee_id = :user_id
+           AND leave_type_id = :type_id
+           AND year = :year",
+        [
+            'user_id' => $userId,
+            'type_id' => $leaveTypeId,
+            'year' => $leaveYear
+        ]
     );
-    
-    $leaveType = $db->fetch("SELECT * FROM leave_types WHERE id = :id", ['id' => $input['leave_type_id']]);
-    
-    // If no balance entry exists, use max_days_per_year as available balance
+
     $availableBalance = $balance ? $balance['available'] : $leaveType['max_days_per_year'];
-    
+
     if ($leaveType['leave_code'] !== 'LWP' && $availableBalance < $totalDays) {
         errorResponse('Insufficient leave balance');
     }
-    
-    // Check for overlapping leaves
+
     $overlap = $db->fetch(
-        "SELECT id FROM leave_requests 
-         WHERE employee_id = :user_id 
+        "SELECT id FROM leave_requests
+         WHERE employee_id = :user_id
          AND status IN ('Pending', 'Approved')
-         AND ((start_date BETWEEN :start1 AND :end1) OR (end_date BETWEEN :start2 AND :end2)
+         AND ((start_date BETWEEN :start1 AND :end1)
+              OR (end_date BETWEEN :start2 AND :end2)
               OR (start_date <= :start3 AND end_date >= :end3))",
-        ['user_id' => $userId, 'start1' => $startDate, 'end1' => $endDate, 
-         'start2' => $startDate, 'end2' => $endDate, 'start3' => $startDate, 'end3' => $endDate]
+        [
+            'user_id' => $userId,
+            'start1' => $startDate,
+            'end1' => $endDate,
+            'start2' => $startDate,
+            'end2' => $endDate,
+            'start3' => $startDate,
+            'end3' => $endDate
+        ]
     );
-    
+
     if ($overlap) {
         errorResponse('You already have a leave request for these dates');
     }
-    
+
     try {
         $requestNumber = generateRequestNumber('LV');
-        
+
         $leaveData = [
             'request_number' => $requestNumber,
             'employee_id' => $userId,
-            'leave_type_id' => $input['leave_type_id'],
+            'leave_type_id' => $leaveTypeId,
             'start_date' => $startDate,
             'end_date' => $endDate,
             'total_days' => $totalDays,
             'reason' => sanitize($input['reason']),
             'status' => 'Pending'
         ];
-        
+
         $id = $db->insert('leave_requests', $leaveData);
-        
+
         logActivity($userId, 'APPLY_LEAVE', 'LEAVES', "Applied leave: {$requestNumber}");
-        
-        // Notify all admins about new leave request
+
         $employeeName = getUserName($userId);
         notifyAdmins(
             'New Leave Request',
@@ -303,7 +340,7 @@ function applyLeave() {
             'Info',
             'leave-approvals.html'
         );
-        
+
         successResponse([
             'id' => $id,
             'request_number' => $requestNumber
@@ -313,9 +350,6 @@ function applyLeave() {
     }
 }
 
-/**
- * Approve leave request (Admin only)
- */
 function approveLeave() {
     Auth::requireAdmin();
 
@@ -499,53 +533,91 @@ function rejectLeave() {
  */
 function cancelLeave() {
     Auth::requireAuth();
-    
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         errorResponse('Method not allowed', 405);
     }
-    
+
     $input = json_decode(file_get_contents('php://input'), true);
     $id = (int)($input['id'] ?? 0);
-    
+
     if (!$id) {
         errorResponse('Leave request ID is required');
     }
-    
+
     $db = Database::getInstance();
-    
+
     $leave = $db->fetch(
         "SELECT * FROM leave_requests WHERE id = :id AND employee_id = :user_id",
         ['id' => $id, 'user_id' => $_SESSION['user_id']]
     );
-    
+
     if (!$leave) {
         errorResponse('Leave request not found', 404);
     }
-    
-    if (!in_array($leave['status'], ['Pending', 'Approved'])) {
+
+    if (!in_array($leave['status'], ['Pending', 'Approved'], true)) {
         errorResponse('This leave request cannot be cancelled');
     }
-    
-    // If approved, restore balance
-    if ($leave['status'] === 'Approved') {
-        $db->query(
-            "UPDATE leave_balance 
-             SET used = used - :days 
-             WHERE employee_id = :emp_id AND leave_type_id = :type_id AND year = YEAR(CURDATE())",
-            ['days' => $leave['total_days'], 'emp_id' => $leave['employee_id'], 'type_id' => $leave['leave_type_id']]
+
+    try {
+        $db->beginTransaction();
+
+        // Re-read and lock the request to prevent duplicate concurrent cancellations.
+        $lockedLeave = $db->fetch(
+            "SELECT * FROM leave_requests
+             WHERE id = :id AND employee_id = :user_id
+             FOR UPDATE",
+            ['id' => $id, 'user_id' => $_SESSION['user_id']]
         );
+
+        if (!$lockedLeave || !in_array($lockedLeave['status'], ['Pending', 'Approved'], true)) {
+            $db->rollback();
+            errorResponse('This leave request cannot be cancelled', 409);
+        }
+
+        if ($lockedLeave['status'] === 'Approved') {
+            $leaveYear = (int)date('Y', strtotime($lockedLeave['start_date']));
+            $db->query(
+                "UPDATE leave_balance
+                 SET used = GREATEST(0, used - :days)
+                 WHERE employee_id = :emp_id
+                   AND leave_type_id = :type_id
+                   AND year = :year",
+                [
+                    'days' => $lockedLeave['total_days'],
+                    'emp_id' => $lockedLeave['employee_id'],
+                    'type_id' => $lockedLeave['leave_type_id'],
+                    'year' => $leaveYear
+                ]
+            );
+        }
+
+        $db->update(
+            'leave_requests',
+            ['status' => 'Cancelled'],
+            'id = :id',
+            ['id' => $id]
+        );
+
+        $db->commit();
+
+        logActivity($_SESSION['user_id'], 'CANCEL_LEAVE', 'LEAVES', "Cancelled leave: {$lockedLeave['request_number']}");
+
+        successResponse([], 'Leave request cancelled');
+    } catch (Throwable $e) {
+        if ($db->getConnection()->inTransaction()) {
+            $db->rollback();
+        }
+
+        if ($e instanceof RuntimeException && (int)$e->getCode() >= 400) {
+            errorResponse($e->getMessage(), (int)$e->getCode());
+        }
+
+        errorResponse('Failed to cancel leave request');
     }
-    
-    $db->update('leave_requests', ['status' => 'Cancelled'], 'id = :id', ['id' => $id]);
-    
-    logActivity($_SESSION['user_id'], 'CANCEL_LEAVE', 'LEAVES', "Cancelled leave: {$leave['request_number']}");
-    
-    successResponse([], 'Leave request cancelled');
 }
 
-/**
- * Get leave balance
- */
 function getLeaveBalance() {
     Auth::requireAuth();
     
