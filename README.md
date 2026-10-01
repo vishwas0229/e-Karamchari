@@ -197,7 +197,7 @@ ekaramchari-db
 
 ### 5. MySQL access
 
-The Docker database is mapped to host port `3307` for local development:
+The development Compose file maps MySQL to host port `3307` for local database access:
 
 ```text
 Host:       127.0.0.1
@@ -214,7 +214,7 @@ Host: db
 Port: 3306
 ```
 
-> **Production:** MySQL should not be publicly exposed. See [Issue #30](https://github.com/vishwas0229/e-Karamchari/issues/30).
+> **Production:** do not publish MySQL to the host. Use the production override so the database remains reachable only through the private Docker network.
 
 ### 6. Enter MySQL from the container
 
@@ -228,6 +228,27 @@ Then:
 USE ekaramchari;
 SHOW TABLES;
 ```
+
+### Production Docker deployment
+
+Use the hardened production override:
+
+```bash
+docker compose -f compose.yaml -f compose.production.yaml up -d --build
+```
+
+Set strong, unique secrets before starting production:
+
+```env
+DB_PASSWORD=<strong-unique-password>
+MYSQL_ROOT_PASSWORD=<strong-unique-root-password>
+APP_URL=https://your-domain.example
+SESSION_SAMESITE=Lax
+```
+
+The production override removes the MySQL host-port publication and requires explicit database passwords. Put HTTPS/reverse-proxy, firewall and public exposure controls in front of the application; do not expose MySQL directly to the Internet.
+
+For the exact override details, see `compose.production.yaml`.
 
 ### 7. Stop the application
 
@@ -385,6 +406,8 @@ The repository schema is defined in:
 ```text
 database/schema.sql
 ```
+
+The canonical employee account table is `users`. If an older deployment still uses an `employees` table, do not mix it with the current application code. Follow [the legacy migration guide](database/migrations/002_legacy_employees_migration.md) and keep a database backup before migration.
 
 ### Core tables
 
@@ -546,11 +569,8 @@ Current security-related mechanisms include:
 
 The security implementation is not considered a substitute for a production security review. Open security hardening work includes:
 
-- Complete CSRF enforcement audit — [Issue #27](https://github.com/vishwas0229/e-Karamchari/issues/27)
-- Broader abuse/rate-limit coverage — [Issue #28](https://github.com/vishwas0229/e-Karamchari/issues/28)
-- Configurable SameSite cookie behavior — [Issue #26](https://github.com/vishwas0229/e-Karamchari/issues/26)
 - CSP hardening — [Issue #36](https://github.com/vishwas0229/e-Karamchari/issues/36)
-- Production Docker hardening — [Issue #30](https://github.com/vishwas0229/e-Karamchari/issues/30)
+- Complete API documentation — [Issue #34](https://github.com/vishwas0229/e-Karamchari/issues/34)
 
 ---
 
