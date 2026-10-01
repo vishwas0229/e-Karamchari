@@ -133,9 +133,13 @@
             if (pwd.type === 'password') {
                 pwd.type = 'text';
                 icon.textContent = 'Hide';
+                icon.setAttribute('aria-label', 'Hide password');
+                icon.setAttribute('aria-pressed', 'true');
             } else {
                 pwd.type = 'password';
                 icon.textContent = 'Show';
+                icon.setAttribute('aria-label', 'Show password');
+                icon.setAttribute('aria-pressed', 'false');
             }
         }
         
