@@ -102,7 +102,7 @@ class Auth {
     /**
      * Authenticate user with credentials
      */
-    public static function login($identifier, $password, $isAdmin = false) {
+    public static function login($identifier, $password, $isAdmin = false, $createSession = true) {
         $db = Database::getInstance();
         $lockUntil = null;
         
@@ -182,6 +182,17 @@ class Auth {
             'last_login' => date('Y-m-d H:i:s')
         ], 'id = :id', ['id' => $user['id']]);
         
+        // Credential verification is complete. Callers that need to perform
+        // an additional step (such as 2FA) can defer session creation.
+        unset($user['password_hash']);
+        if (!$createSession) {
+            return [
+                'success' => true,
+                'message' => 'Credentials verified',
+                'user' => $user
+            ];
+        }
+
         // Mark attendance on login (auto check-in)
         self::markAttendance($user['id'], $user['role_code']);
         
