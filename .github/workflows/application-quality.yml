@@ -20,6 +20,9 @@ jobs:
           set -e
           find backend -type f -name '*.php' -print0 | xargs -0 -n1 php -l
 
+      - name: Validate UI accessibility source checks
+        run: bash tests/ui-accessibility.sh
+
       - name: Start Docker application
         run: docker compose up -d --build
 
