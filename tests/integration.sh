@@ -7,8 +7,12 @@ EMPLOYEE_ID="ITEST$RANDOM"
 ADMIN_ID="IADMIN$RANDOM"
 PASSWORD="IntegrationTest!2026"
 ADMIN_PASSWORD="AdminIntegrationTest!2026"
-COOKIE_FILE="/tmp/ekaramchari-cookie-$RANDOM.txt"
-ADMIN_COOKIE_FILE="/tmp/ekaramchari-admin-cookie-$RANDOM.txt"
+RUN_ID="$RANDOM"
+COOKIE_FILE="/tmp/ekaramchari-cookie-$RUN_ID.txt"
+ADMIN_COOKIE_FILE="/tmp/ekaramchari-admin-cookie-$RUN_ID.txt"
+CSRF_RESPONSE_FILE="/tmp/ekaramchari-csrf-response-$RUN_ID.json"
+LEAVE_RESPONSE_FILE="/tmp/ekaramchari-leave-response-$RUN_ID.json"
+ADMIN_CSRF_RESPONSE_FILE="/tmp/ekaramchari-admin-csrf-response-$RUN_ID.json"
 
 compose() {
   docker compose -p "$PROJECT" -f compose.yaml "$@"
@@ -76,20 +80,20 @@ curl -fsS -b "$COOKIE_FILE" "$BASE_URL/backend/api/holidays.php?action=upcoming"
 echo "[7/11] Testing employee CSRF enforcement"
 CSRF=$(curl -fsS -b "$COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=csrf" | sed -n 's/.*"csrf_token":"\([^"]*\)".*/\1/p')
 test -n "$CSRF"
-STATUS=$(curl -sS -o "/tmp/ekaramchari-csrf-response-$$.json" -w '%{http_code}' \
+STATUS=$(curl -sS -o "$CSRF_RESPONSE_FILE" -w '%{http_code}' \
   -b "$COOKIE_FILE" -H 'Content-Type: application/json' \
   -d '{"reason":"integration test","start_date":"2099-01-02","end_date":"2099-01-02","leave_type_id":1}' \
   "$BASE_URL/backend/api/leaves.php?action=apply")
 test "$STATUS" = "403"
 
 echo "[8/11] Testing employee CSRF-protected mutation"
-STATUS=$(curl -sS -o "/tmp/ekaramchari-leave-response-$$.json" -w '%{http_code}' \
+STATUS=$(curl -sS -o "$LEAVE_RESPONSE_FILE" -w '%{http_code}' \
   -b "$COOKIE_FILE" -H 'Content-Type: application/json' -H "X-CSRF-Token: $CSRF" \
   -d '{"reason":"integration test","start_date":"2099-01-02","end_date":"2099-01-02","leave_type_id":1}' \
   "$BASE_URL/backend/api/leaves.php?action=apply")
 test "$STATUS" = "200"
 
-rm -f "/tmp/ekaramchari-csrf-response-$RANDOM.json" "/tmp/ekaramchari-leave-response-$RANDOM.json"
+rm -f "$CSRF_RESPONSE_FILE" "$LEAVE_RESPONSE_FILE"
 
 echo "[9/11] Testing admin login"
 curl -fsS -c "$ADMIN_COOKIE_FILE" "$BASE_URL/backend/api/auth.php?action=csrf" | grep -q '"success":true'
@@ -120,5 +124,5 @@ ADMIN_STATUS=$(curl -sS -o "/tmp/ekaramchari-admin-csrf-response-$RANDOM.json" -
   "$BASE_URL/backend/api/settings.php?action=update")
 test "$ADMIN_STATUS" = "403"
 
-rm -f "/tmp/ekaramchari-admin-csrf-response-$.json"
+rm -f "$ADMIN_CSRF_RESPONSE_FILE"
 echo "Integration tests passed."
