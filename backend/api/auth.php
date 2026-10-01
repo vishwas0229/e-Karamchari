@@ -202,6 +202,10 @@ function handleAdminLogin() {
  * Handle logout
  */
 function handleLogout() {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        errorResponse('Method not allowed', 405);
+    }
+
     Auth::logout();
     successResponse([], 'Logged out successfully');
 }
