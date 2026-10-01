@@ -125,4 +125,7 @@ ADMIN_STATUS=$(curl -sS -o "/tmp/ekaramchari-admin-csrf-response-$RANDOM.json" -
 test "$ADMIN_STATUS" = "403"
 
 rm -f "$ADMIN_CSRF_RESPONSE_FILE"
-echo "[0/11] Checking attendance auto-check-in regression\n"\ncompose exec -T app php /var/www/html/tests/auth-attendance-regression.php\n\necho "Integration tests passed."
+echo "[12/12] Checking attendance auto-check-in regression"
+compose exec -T app php /var/www/html/tests/auth-attendance-regression.php
+
+echo "Integration tests passed."
