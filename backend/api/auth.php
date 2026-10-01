@@ -111,7 +111,7 @@ function handleLogin() {
             ], '2FA verification required');
         }
 
-        $result = Auth::login($identifier, $password, false, true);
+        $result = Auth::completeLogin($user);
         if ($result['success']) {
             successResponse($result['user'], $result['message']);
         }
@@ -190,7 +190,7 @@ function handleAdminLogin() {
         ], '2FA verification required');
     }
 
-    $result = Auth::login($identifier, $password, true, true);
+    $result = Auth::completeLogin($user);
     if ($result['success']) {
         successResponse($result['user'], $result['message']);
     }
