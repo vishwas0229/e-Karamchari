@@ -126,6 +126,18 @@ The application is organized into:
 
 ---
 
+# 📚 Project Documentation
+
+- System architecture: docs/Architecture.md
+- Software requirements specification: docs/SRS.md
+- Data-flow diagrams: docs/DFD.md
+- Entity-relationship model: docs/ER-Diagram.md
+- Testing strategy: docs/Testing.md
+- UI responsive/accessibility QA: docs/ui-qa.md
+- Deployment: docs/deployment.md
+- API reference: docs/api-reference.md
+- Backup and recovery: docs/backup-recovery.md
+
 # 🚀 Docker Quick Start
 
 Docker is the recommended way to run the current repository consistently.
