@@ -29,6 +29,9 @@ define('CSRF_TOKEN_NAME', 'csrf_token');
 define('PASSWORD_MIN_LENGTH', 8);
 define('MAX_LOGIN_ATTEMPTS', 5);
 define('LOCKOUT_TIME', 900); // 15 minutes
+// Failed-login lock timestamp column. Kept in session/application state to avoid schema changes.
+define('RATE_LIMIT_AUTH_REQUESTS', 10);
+define('RATE_LIMIT_AUTH_WINDOW', 60);
 define('RATE_LIMIT_REQUESTS', 100); // Max requests per minute
 define('RATE_LIMIT_WINDOW', 60); // 1 minute window
 
@@ -88,6 +91,9 @@ function setCorsHeaders() {
 function checkRateLimit($identifier = null) {
     $identifier = $identifier ?: ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
     $cacheFile = __DIR__ . '/../logs/rate_limit_' . md5($identifier) . '.json';
+    $requestLimit = (strpos($identifier, 'login:') === 0 || strpos($identifier, 'admin-login:') === 0)
+        ? RATE_LIMIT_AUTH_REQUESTS
+        : RATE_LIMIT_REQUESTS;
     
     $now = time();
     $requests = [];
@@ -102,7 +108,7 @@ function checkRateLimit($identifier = null) {
         }
     }
     
-    if (count($requests) >= RATE_LIMIT_REQUESTS) {
+    if (count($requests) >= $requestLimit) {
         errorResponse('Too many requests. Please try again later.', 429);
     }
     

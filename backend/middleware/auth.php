@@ -104,6 +104,7 @@ class Auth {
      */
     public static function login($identifier, $password, $isAdmin = false) {
         $db = Database::getInstance();
+        $lockUntil = null;
         
         // Check if identifier is email or employee_id
         // Using separate parameter names for PDO compatibility
@@ -123,22 +124,42 @@ class Auth {
             return ['success' => false, 'message' => 'Invalid credentials'];
         }
         
-        // Check if account is locked
+        // Check if account is manually locked.
         if ($user['is_locked']) {
             return ['success' => false, 'message' => 'Account is locked. Please contact administrator.'];
         }
         
-        // Check failed login attempts
-        if ($user['failed_login_attempts'] >= MAX_LOGIN_ATTEMPTS) {
-            $db->update('users', ['is_locked' => 1], 'id = :id', ['id' => $user['id']]);
-            logActivity($user['id'], 'ACCOUNT_LOCKED', 'AUTH', 'Account locked due to multiple failed attempts');
-            return ['success' => false, 'message' => 'Account locked due to multiple failed attempts.'];
+        // Enforce the configured temporary lockout window for failed attempts.
+        $lockFile = __DIR__ . '/../logs/lockout_' . md5((string)$user['id']) . '.json';
+        if (file_exists($lockFile)) {
+            $lockData = json_decode(file_get_contents($lockFile), true);
+            $lockUntil = (int)($lockData['until'] ?? 0);
+            if ($lockUntil > time()) {
+                return ['success' => false, 'message' => 'Account temporarily locked. Please try again later.'];
+            }
+            @unlink($lockFile);
+            if ((int)$user['failed_login_attempts'] >= MAX_LOGIN_ATTEMPTS) {
+                $db->update('users', ['failed_login_attempts' => 0], 'id = :id', ['id' => $user['id']]);
+                $user['failed_login_attempts'] = 0;
+            }
+        }
+        
+        if ((int)$user['failed_login_attempts'] >= MAX_LOGIN_ATTEMPTS) {
+            $until = time() + LOCKOUT_TIME;
+            file_put_contents($lockFile, json_encode(['until' => $until]), LOCK_EX);
+            logActivity($user['id'], 'ACCOUNT_LOCKED', 'AUTH', 'Account temporarily locked due to multiple failed attempts');
+            return ['success' => false, 'message' => 'Account temporarily locked. Please try again later.'];
         }
         
         // Verify password
         if (!password_verify($password, $user['password_hash'])) {
-            $db->query("UPDATE users SET failed_login_attempts = failed_login_attempts + 1 WHERE id = :id", 
-                      ['id' => $user['id']]);
+            $newAttempts = (int)$user['failed_login_attempts'] + 1;
+            $db->update('users', ['failed_login_attempts' => $newAttempts], 'id = :id', ['id' => $user['id']]);
+            if ($newAttempts >= MAX_LOGIN_ATTEMPTS) {
+                $lockFile = __DIR__ . '/../logs/lockout_' . md5((string)$user['id']) . '.json';
+                file_put_contents($lockFile, json_encode(['until' => time() + LOCKOUT_TIME]), LOCK_EX);
+                logActivity($user['id'], 'ACCOUNT_LOCKED', 'AUTH', 'Account temporarily locked due to multiple failed attempts');
+            }
             logActivity($user['id'], 'LOGIN_FAILED', 'AUTH', 'Invalid password');
             return ['success' => false, 'message' => 'Invalid credentials'];
         }
@@ -229,8 +250,9 @@ class Auth {
         // Skip database verification for now - session data is sufficient
         // This avoids issues with session_token not being set properly
         if (!isset($_SESSION['session_token'])) {
-            // Session exists but no token - still valid if within time limit
-            return true;
+            // Do not accept a session that cannot be revoked/validated server-side.
+            self::logout();
+            return false;
         }
         
         // Verify session in database if token exists

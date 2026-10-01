@@ -8,6 +8,10 @@ require_once __DIR__ . '/../middleware/auth.php';
 
 setCorsHeaders();
 
+// Apply the general API rate limit before dispatching the request.
+// Authentication endpoints also apply a stricter per-identifier limit.
+checkRateLimit();
+
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -52,6 +56,9 @@ function handleLogin() {
         
         $identifier = sanitize($input['employee_id'] ?? '');
         $password = $input['password'] ?? '';
+        if ($identifier !== '') {
+            checkRateLimit('login:' . strtolower($identifier));
+        }
         
         if (empty($identifier) || empty($password)) {
             errorResponse('Employee ID/Email and password are required');
@@ -139,6 +146,9 @@ function handleAdminLogin() {
     
     $identifier = sanitize($input['identifier'] ?? '');
     $password = $input['password'] ?? '';
+    if ($identifier !== '') {
+        checkRateLimit('admin-login:' . strtolower($identifier));
+    }
     
     if (empty($identifier) || empty($password)) {
         errorResponse('Admin ID/Email and password are required');
