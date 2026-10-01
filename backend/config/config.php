@@ -21,7 +21,8 @@ define('APP_URL', getenv('APP_URL') ?: 'http://localhost/e-Karamchari');
 // Session Configuration
 define('SESSION_NAME', 'EKARAMCHARI_SESSION');
 define('SESSION_LIFETIME', 28800); // 8 hours
-define('SESSION_SECURE', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'); // Auto-detect HTTPS
+define('SESSION_SAMESITE', getenv('SESSION_SAMESITE') ?: 'Lax');
+define('SESSION_SECURE', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || SESSION_SAMESITE === 'None');
 define('SESSION_HTTPONLY', true);
 
 // Security Settings
