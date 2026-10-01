@@ -90,6 +90,15 @@ const API = {
             clearTimeout(timeoutId);
             
             const data = await response.json();
+
+            // Successful authentication creates a fresh session CSRF token.
+            // Drop the pre-login token so the next mutation fetches the new one.
+            if (response.ok && data.success &&
+                (endpoint.includes('auth.php?action=login') ||
+                 endpoint.includes('auth.php?action=admin-login') ||
+                 endpoint.includes('two-factor.php?action=verify'))) {
+                this.csrfToken = null;
+            }
             
             // Don't redirect on auth pages (login, register)
             const isAuthPage = window.location.pathname.includes('login') || 
