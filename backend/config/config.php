@@ -124,7 +124,7 @@ function checkRateLimit($identifier = null, $limit = null, $window = null) {
     );
     $requestWindow = $window ?? RATE_LIMIT_WINDOW;
 
-    $cacheFile = __DIR__ . '/../logs/rate_limit_' . md5($identifier) . '.json';
+    $cacheFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'ekaramchari_rate_limit_' . md5($identifier) . '.json';
     $now = time();
     $requests = [];
 
