@@ -63,6 +63,9 @@ jobs:
             exit 1
           fi
 
+      - name: Stop static verification stack
+        run: docker compose down -v --remove-orphans
+
       - name: Run integration suite
         run: bash tests/integration.sh
 
