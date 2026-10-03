@@ -1,6 +1,6 @@
 # Runtime logs
 backend/logs/*.log
-backend/logs/lockout_*.json
+backend/logs/*.json
 
 # Runtime uploads
 backend/uploads/*
