@@ -41,7 +41,9 @@ done
 curl -fsS "$BASE_URL/frontend/employee-login.html" >/dev/null
 
 echo "[2a] Checking application/database health endpoint"
-curl -fsS "$BASE_URL/backend/health.php" | grep -q '"status":"ok"'
+HEALTH_RESPONSE=$(curl -sS -w '\nHTTP_STATUS=%{http_code}' "$BASE_URL/backend/health.php")
+echo "$HEALTH_RESPONSE"
+echo "$HEALTH_RESPONSE" | grep -q '"status":"ok"'
 
 echo "[3/11] Waiting for MySQL TCP readiness"
 for _ in $(seq 1 60); do
