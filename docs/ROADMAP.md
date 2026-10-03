@@ -28,6 +28,7 @@ This roadmap separates completed stabilization work from future product enhancem
 - administration/settings
 
 ### Quality and documentation
+- Application/database health endpoint and Docker app health status
 - Docker asset verification in CI
 - PHP syntax validation
 - frontend JavaScript syntax validation
@@ -62,7 +63,7 @@ Real-browser/device and assistive-technology evaluation remains a manual release
 - expanded integration fixtures for every write workflow
 - dependency/security scanning
 - performance/load testing
-- observability and structured application metrics
+- richer observability and structured application metrics beyond the basic health endpoint
 
 ### Platform
 - hardened VPS/cloud deployment templates
