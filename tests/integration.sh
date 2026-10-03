@@ -8,7 +8,7 @@ ADMIN_ID="IADMIN$RANDOM"
 PASSWORD="IntegrationTest!2026"
 ADMIN_PASSWORD="AdminIntegrationTest!2026"
 RUN_ID="$RANDOM"
-TEST_DB_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-root_demo_password}"
+TEST_DB_ROOT_PASSWORD="root_demo_password"
 COOKIE_FILE="/tmp/ekaramchari-cookie-$RUN_ID.txt"
 ADMIN_COOKIE_FILE="/tmp/ekaramchari-admin-cookie-$RUN_ID.txt"
 CSRF_RESPONSE_FILE="/tmp/ekaramchari-csrf-response-$RUN_ID.json"
@@ -18,7 +18,7 @@ ATTENDANCE_CRON_SECRET="integration-cron-secret-$RUN_ID"
 export ATTENDANCE_CRON_SECRET
 
 compose() {
-  docker compose -p "$PROJECT" -f compose.yaml "$@"
+  DB_PASSWORD="ekaramchari_password" MYSQL_ROOT_PASSWORD="$TEST_DB_ROOT_PASSWORD" docker compose -p "$PROJECT" -f compose.yaml "$@"
 }
 
 cleanup() {
@@ -52,8 +52,13 @@ compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ek
 echo "[2a] Checking application/database health endpoint"
 HEALTH_RESPONSE=$(curl -sS -w '\nHTTP_STATUS=%{http_code}' "$BASE_URL/backend/health.php")
 echo "$HEALTH_RESPONSE"
-echo "$HEALTH_RESPONSE" | grep -q '"status":"ok"'
-
+if ! echo "$HEALTH_RESPONSE" | grep -q '"status":"ok"'; then
+  echo "Application database health check failed; collecting container diagnostics."
+  compose ps || true
+  compose logs --no-color app db || true
+  compose exec -T app sh -c 'env | grep -E "^(DB_HOST|DB_NAME|DB_USER)="; php -m | grep -E "PDO|pdo_mysql" || true' || true
+  exit 1
+fi
 echo "[4/11] Seeding temporary employee and admin"
 HASH=$(compose exec -T -e TEST_PASSWORD="$PASSWORD" app php -r 'echo password_hash(getenv("TEST_PASSWORD"), PASSWORD_DEFAULT);')
 ADMIN_HASH=$(compose exec -T -e TEST_PASSWORD="$ADMIN_PASSWORD" app php -r 'echo password_hash(getenv("TEST_PASSWORD"), PASSWORD_DEFAULT);')
