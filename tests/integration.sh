@@ -40,11 +40,6 @@ for _ in $(seq 1 60); do
 done
 curl -fsS "$BASE_URL/frontend/employee-login.html" >/dev/null
 
-echo "[2a] Checking application/database health endpoint"
-HEALTH_RESPONSE=$(curl -sS -w '\nHTTP_STATUS=%{http_code}' "$BASE_URL/backend/health.php")
-echo "$HEALTH_RESPONSE"
-echo "$HEALTH_RESPONSE" | grep -q '"status":"ok"'
-
 echo "[3/11] Waiting for MySQL TCP readiness"
 for _ in $(seq 1 60); do
   if compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari -e "SELECT 1" >/dev/null 2>&1'; then
@@ -53,6 +48,11 @@ for _ in $(seq 1 60); do
   sleep 2
 done
 compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari -e "SELECT 1" >/dev/null'
+
+echo "[2a] Checking application/database health endpoint"
+HEALTH_RESPONSE=$(curl -sS -w '\nHTTP_STATUS=%{http_code}' "$BASE_URL/backend/health.php")
+echo "$HEALTH_RESPONSE"
+echo "$HEALTH_RESPONSE" | grep -q '"status":"ok"'
 
 echo "[4/11] Seeding temporary employee and admin"
 HASH=$(compose exec -T -e TEST_PASSWORD="$PASSWORD" app php -r 'echo password_hash(getenv("TEST_PASSWORD"), PASSWORD_DEFAULT);')
