@@ -40,6 +40,9 @@ for _ in $(seq 1 60); do
 done
 curl -fsS "$BASE_URL/frontend/employee-login.html" >/dev/null
 
+echo "[2a] Checking application/database health endpoint"
+curl -fsS "$BASE_URL/backend/health.php" | grep -q '"status":"ok"'
+
 echo "[3/11] Waiting for MySQL TCP readiness"
 for _ in $(seq 1 60); do
   if compose exec -T db sh -c 'mysql -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD" ekaramchari -e "SELECT 1" >/dev/null 2>&1'; then
