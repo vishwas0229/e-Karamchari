@@ -724,36 +724,15 @@ Open a Pull Request into `main`.
 
 ---
 
-# 📋 Issue Tracker
+# 📋 Issue Tracker & Maintenance Status
 
-The repository audit on 3 October 2026 found no open GitHub issues or pull requests before the current health-check enhancement was started. See the [Application Quality workflow](.github/workflows/application-quality.yml) and [Roadmap](docs/ROADMAP.md) for current checks and future scope.
+The repository audit on **3 October 2026** found no open issues or pull requests before the current health-check enhancement was started. Historical issue links remain in GitHub history and should not be interpreted as an active backlog.
 
-### Existing project issues
+- Automated validation: [Application Quality workflow](.github/workflows/application-quality.yml)
+- Implemented checks and future scope: [Roadmap](docs/ROADMAP.md)
+- Health endpoint work: [Issue #86](https://github.com/vishwas0229/e-Karamchari/issues/86)
 
-- [#1 — Project Roadmap](https://github.com/vishwas0229/e-Karamchari/issues/1)
-- [#2 — Phase 1 Audit & Stabilization](https://github.com/vishwas0229/e-Karamchari/issues/2)
-- [#3 — Project Documentation](https://github.com/vishwas0229/e-Karamchari/issues/3)
-- [#5 — Consolidate Authentication Flow](https://github.com/vishwas0229/e-Karamchari/issues/5)
-- [#6 — CSRF Protection Audit](https://github.com/vishwas0229/e-Karamchari/issues/6)
-- [#7 — Rate Limiting Audit](https://github.com/vishwas0229/e-Karamchari/issues/7)
-
-### Current backlog generated from the repository audit
-
-- [#23 — Database schema compatibility](https://github.com/vishwas0229/e-Karamchari/issues/23)
-- [#24 — 2026 Delhi holiday data](https://github.com/vishwas0229/e-Karamchari/issues/24)
-- [#25 — Holiday templates](https://github.com/vishwas0229/e-Karamchari/issues/25)
-- [#26 — Configurable SESSION_SAMESITE](https://github.com/vishwas0229/e-Karamchari/issues/26)
-- [#27 — CSRF enforcement](https://github.com/vishwas0229/e-Karamchari/issues/27)
-- [#28 — Extended rate limiting](https://github.com/vishwas0229/e-Karamchari/issues/28)
-- [#29 — Holiday validation](https://github.com/vishwas0229/e-Karamchari/issues/29)
-- [#30 — Docker production hardening](https://github.com/vishwas0229/e-Karamchari/issues/30)
-- [#31 — Docker static asset verification](https://github.com/vishwas0229/e-Karamchari/issues/31)
-- Automated integration testing is implemented in [tests/integration.sh](tests/integration.sh).
-- [#33 — Deployment/tunnel documentation](https://github.com/vishwas0229/e-Karamchari/issues/33)
-- [#34 — Complete API documentation](https://github.com/vishwas0229/e-Karamchari/issues/34)
-- [#35 — Database backup/recovery](https://github.com/vishwas0229/e-Karamchari/issues/35)
-- [#36 — CSP hardening](https://github.com/vishwas0229/e-Karamchari/issues/36)
-- [#37 — Responsive/accessibility QA](https://github.com/vishwas0229/e-Karamchari/issues/37)
+When reporting a defect, include the affected route/module, reproducible steps, expected and actual behavior, and sanitized logs. Never include passwords, TOTP/backup codes, session cookies, API tokens, or production data.
 
 ---
 
