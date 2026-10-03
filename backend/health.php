@@ -6,7 +6,6 @@
  * versions, environment values, database names, and exception details.
  */
 
-define('EKARAMCHARI', true);
 require_once __DIR__ . '/config/config.php';
 
 header('Content-Type: application/json; charset=UTF-8');
