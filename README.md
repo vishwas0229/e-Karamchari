@@ -33,7 +33,7 @@ The application is organized into:
 - **Notification Layer** — in-app notifications for important employee/admin actions.
 - **Docker Environment** — reproducible PHP/Apache + MySQL local deployment for development and demonstrations.
 
-> **Implementation note:** The canonical repository schema currently uses the `users` table for employee accounts. Older local databases may use a different table name/schema and should be migrated rather than mixed with the current application code. See [Issue #23](https://github.com/vishwas0229/e-Karamchari/issues/23).
+> **Implementation note:** The canonical repository schema uses the `users` table for employee accounts. Older local databases should be migrated using the [legacy migration guide](database/migrations/002_legacy_employees_migration.md) rather than mixing schemas.
 
 ---
 
@@ -190,6 +190,7 @@ e-Karamchari/
 ├── index.html
 │
 ├── backend/
+│   ├── health.php              # Minimal app + database health endpoint
 │   ├── api/
 │   │   ├── attendance.php
 │   │   ├── auth.php
@@ -399,11 +400,9 @@ Current security-related mechanisms include:
 
 The API security headers now add `base-uri 'self'`, `object-src 'none'`, `frame-ancestors 'none'`, and `form-action 'self'`. The unnecessary `script-src 'unsafe-inline'` directive has been removed. `style-src 'unsafe-inline'` remains temporarily because the public landing page currently contains inline CSS and uses Tailwind's browser Play CDN; Tailwind documents the Play CDN as a development-oriented, browser-runtime approach rather than the recommended production build workflow. Official reference: https://tailwindcss.com/docs/installation/play-cdn
 
-### Security work still tracked
+### Security review status
 
-The security implementation is not considered a substitute for a production security review. Open security hardening work includes:
-
-- CSP hardening — [Issue #36](https://github.com/vishwas0229/e-Karamchari/issues/36)
+The GitHub issue queue was empty at the repository audit on 3 October 2026. That does not replace a formal production security review; review the [security architecture](docs/Security-Architecture.md) and re-open findings if new evidence appears.
 
 ---
 
@@ -544,7 +543,7 @@ See [Issue #30](https://github.com/vishwas0229/e-Karamchari/issues/30) and [Issu
 
 # 🧪 Testing
 
-The project currently relies heavily on manual and static verification. A complete automated integration suite is planned.
+The repository has automated Application Quality CI for PHP/JavaScript syntax, UI source checks, Docker startup, static asset delivery, and a Docker-backed integration suite. Browser/device and assistive-technology checks remain manual; see [Testing Strategy](docs/Testing.md).
 
 ### Basic smoke test
 
@@ -552,9 +551,12 @@ After startup:
 
 ```bash
 docker compose ps
+curl -fsS http://localhost:8080/backend/health.php
 curl -I http://localhost:8080/frontend/css/common.css
 curl -I http://localhost:8080/frontend/css/auth.css
 ```
+
+The health endpoint returns HTTP `200` with a minimal JSON status when Apache/PHP and the database are reachable; it returns HTTP `503` if the database check fails. Docker Compose uses it as the app container health check. It does not expose versions, connection details, or exception messages.
 
 Expected result for static CSS:
 
@@ -572,7 +574,7 @@ Then verify:
 - Login/session flow works.
 - Database records are created correctly.
 
-Automated coverage is tracked in [Issue #32](https://github.com/vishwas0229/e-Karamchari/issues/32).
+Run automated checks with `bash tests/ui-accessibility.sh` and `bash tests/integration.sh`. The GitHub Actions workflow is [application-quality.yml](.github/workflows/application-quality.yml).
 
 ---
 
@@ -722,36 +724,15 @@ Open a Pull Request into `main`.
 
 ---
 
-# 📋 Issue Tracker
+# 📋 Issue Tracker & Maintenance Status
 
-The repository maintains issues for bugs, security hardening, documentation, deployment, testing and future improvements.
+The repository audit on **3 October 2026** found no open issues or pull requests before the current health-check enhancement was started. Historical issue links remain in GitHub history and should not be interpreted as an active backlog.
 
-### Existing project issues
+- Automated validation: [Application Quality workflow](.github/workflows/application-quality.yml)
+- Implemented checks and future scope: [Roadmap](docs/ROADMAP.md)
+- Health endpoint work: [Issue #86](https://github.com/vishwas0229/e-Karamchari/issues/86)
 
-- [#1 — Project Roadmap](https://github.com/vishwas0229/e-Karamchari/issues/1)
-- [#2 — Phase 1 Audit & Stabilization](https://github.com/vishwas0229/e-Karamchari/issues/2)
-- [#3 — Project Documentation](https://github.com/vishwas0229/e-Karamchari/issues/3)
-- [#5 — Consolidate Authentication Flow](https://github.com/vishwas0229/e-Karamchari/issues/5)
-- [#6 — CSRF Protection Audit](https://github.com/vishwas0229/e-Karamchari/issues/6)
-- [#7 — Rate Limiting Audit](https://github.com/vishwas0229/e-Karamchari/issues/7)
-
-### Current backlog generated from the repository audit
-
-- [#23 — Database schema compatibility](https://github.com/vishwas0229/e-Karamchari/issues/23)
-- [#24 — 2026 Delhi holiday data](https://github.com/vishwas0229/e-Karamchari/issues/24)
-- [#25 — Holiday templates](https://github.com/vishwas0229/e-Karamchari/issues/25)
-- [#26 — Configurable SESSION_SAMESITE](https://github.com/vishwas0229/e-Karamchari/issues/26)
-- [#27 — CSRF enforcement](https://github.com/vishwas0229/e-Karamchari/issues/27)
-- [#28 — Extended rate limiting](https://github.com/vishwas0229/e-Karamchari/issues/28)
-- [#29 — Holiday validation](https://github.com/vishwas0229/e-Karamchari/issues/29)
-- [#30 — Docker production hardening](https://github.com/vishwas0229/e-Karamchari/issues/30)
-- [#31 — Docker static asset verification](https://github.com/vishwas0229/e-Karamchari/issues/31)
-- [#32 — Automated integration testing](https://github.com/vishwas0229/e-Karamchari/issues/32)
-- [#33 — Deployment/tunnel documentation](https://github.com/vishwas0229/e-Karamchari/issues/33)
-- [#34 — Complete API documentation](https://github.com/vishwas0229/e-Karamchari/issues/34)
-- [#35 — Database backup/recovery](https://github.com/vishwas0229/e-Karamchari/issues/35)
-- [#36 — CSP hardening](https://github.com/vishwas0229/e-Karamchari/issues/36)
-- [#37 — Responsive/accessibility QA](https://github.com/vishwas0229/e-Karamchari/issues/37)
+When reporting a defect, include the affected route/module, reproducible steps, expected and actual behavior, and sanitized logs. Never include passwords, TOTP/backup codes, session cookies, API tokens, or production data.
 
 ---
 

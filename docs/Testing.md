@@ -11,7 +11,7 @@
 
 ### Integration checks
 
-tests/integration.sh starts an isolated Docker Compose project, waits for the application, seeds a temporary employee, obtains a CSRF token, authenticates, exercises representative employee reads and validates CSRF enforcement on a state-changing leave request.
+`tests/integration.sh` starts an isolated Docker Compose project, waits for the application and MySQL, verifies `/backend/health.php`, seeds temporary employee/admin accounts, obtains CSRF tokens, authenticates, exercises representative employee/admin reads, and validates CSRF enforcement plus attendance/leave regressions.
 
 ### CI
 
@@ -45,6 +45,8 @@ The integration test uses a dedicated Compose project name and cleans its tempor
 
 Current automated functional smoke coverage includes:
 - application HTTP availability
+- database-backed health endpoint (HTTP 200 when healthy; HTTP 503 on database failure)
+- Docker app container health status
 - employee login
 - session check
 - employee profile
