@@ -343,3 +343,4 @@ Stack trace:
 #2 C:\xampp\htdocs\e-Karamchari\backend\api\auth.php(24): handleAdminLogin()
 #3 {main}
   thrown in C:\xampp\htdocs\e-Karamchari\backend\config\database.php on line 36
+[01-Oct-2026 21:36:02 Asia/Kolkata] PHP Warning:  Undefined array key "payment_date" in /var/www/html/backend/api/salary.php on line 254
