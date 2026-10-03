@@ -413,7 +413,7 @@
         }
 
         async function loadEmployees() {
-            const res = await fetch('../../../backend/api/employees.php?action=list&limit=500', { credentials: 'include' });
+            const res = await fetch('../../backend/api/employees.php?action=list&limit=500', { credentials: 'include' });
             const data = await res.json();
             if (data.success) {
                 const sel = document.getElementById('employee_id');
@@ -532,9 +532,12 @@
         }
 
         async function saveEdit(id) {
-            const res = await fetch('../../../backend/api/salary.php?action=update', {
+            const res = await fetch('../../backend/api/salary.php?action=update', {
                 method: 'POST', credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': await API.getCsrfToken()
+                    },
                 body: JSON.stringify({
                     id: id,
                     payment_status: document.getElementById('edit-status').value,
@@ -568,9 +571,12 @@
                 other_deductions: parseFloat(document.getElementById('other_deductions').value) || 0,
                 payment_status: 'Pending'
             };
-            const res = await fetch('../../../backend/api/salary.php?action=generate', {
+            const res = await fetch('../../backend/api/salary.php?action=generate', {
                 method: 'POST', credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': await API.getCsrfToken()
+                    },
                 body: JSON.stringify(body)
             });
             const data = await res.json();

@@ -21,7 +21,7 @@ class Auth {
                 'domain' => '',
                 'secure' => SESSION_SECURE,
                 'httponly' => SESSION_HTTPONLY,
-                'samesite' => 'Lax'  // Lax allows cookies on navigation
+                'samesite' => SESSION_SAMESITE
             ]);
             session_name(SESSION_NAME);
             session_start();
@@ -36,6 +36,26 @@ class Auth {
         }
     }
     
+    /**
+     * Determine whether login-triggered auto-attendance is allowed.
+     *
+     * Employees follow the same 08:00–17:00 working-hour window as
+     * the explicit check-in endpoint. Administrative roles remain
+     * unrestricted here because their portal has separate attendance rules.
+     */
+    public static function shouldAutoMarkAttendance($roleCode, $currentTime, $isSunday, $isHoliday) {
+        if ($isSunday || $isHoliday) {
+            return false;
+        }
+
+        if ($roleCode === 'EMPLOYEE') {
+            $time = strtotime($currentTime);
+            return $time >= strtotime('08:00:00') && $time <= strtotime('17:00:00');
+        }
+
+        return true;
+    }
+
     /**
      * Mark attendance on login (auto check-in)
      */
@@ -60,8 +80,9 @@ class Auth {
             }
             $isHoliday = $holiday ? true : false;
             
-            // Skip attendance on Sunday and holidays
-            if ($isSunday || $isHoliday) {
+            // Respect the same working-day and check-in window used by
+            // the employee attendance endpoint.
+            if (!self::shouldAutoMarkAttendance($roleCode, $currentTime, $isSunday, $isHoliday)) {
                 return false;
             }
             
@@ -102,7 +123,7 @@ class Auth {
     /**
      * Authenticate user with credentials
      */
-    public static function login($identifier, $password, $isAdmin = false) {
+    public static function login($identifier, $password, $isAdmin = false, $createSession = true) {
         $db = Database::getInstance();
         $lockUntil = null;
         
@@ -182,24 +203,43 @@ class Auth {
             'last_login' => date('Y-m-d H:i:s')
         ], 'id = :id', ['id' => $user['id']]);
         
-        // Mark attendance on login (auto check-in)
+        // Credential verification is complete. Callers that need to perform
+        // an additional step (such as 2FA) can defer session creation.
+        unset($user['password_hash']);
+        if (!$createSession) {
+            return [
+                'success' => true,
+                'message' => 'Credentials verified',
+                'user' => $user
+            ];
+        }
+
+        return self::completeLogin($user);
+    }
+
+    /**
+     * Complete a previously verified login by creating the authenticated session.
+     */
+    public static function completeLogin(array $user) {
         self::markAttendance($user['id'], $user['role_code']);
-        
-        // Create session
+
         self::initSession();
+        // Rotate the session identifier at the authentication boundary to prevent session fixation.
+        session_regenerate_id(true);
+        $_SESSION['last_regeneration'] = time();
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['employee_id'] = $user['employee_id'];
         $_SESSION['role_code'] = $user['role_code'];
         $_SESSION['role_name'] = $user['role_name'];
-        $_SESSION['permissions'] = json_decode($user['permissions'], true);
+        $_SESSION['permissions'] = json_decode($user['permissions'] ?? '[]', true);
         $_SESSION['full_name'] = $user['first_name'] . ' ' . $user['last_name'];
         $_SESSION['email'] = $user['email'];
-        $_SESSION['department'] = $user['dept_name'];
-        $_SESSION['designation'] = $user['designation_name'];
+        $_SESSION['department'] = $user['dept_name'] ?? null;
+        $_SESSION['designation'] = $user['designation_name'] ?? null;
         $_SESSION['login_time'] = time();
         $_SESSION['csrf_token'] = generateToken();
-        
-        // Store session in database
+
+        $db = Database::getInstance();
         $sessionToken = generateToken();
         $db->insert('sessions', [
             'user_id' => $user['id'],
@@ -209,12 +249,9 @@ class Auth {
             'expires_at' => date('Y-m-d H:i:s', time() + SESSION_LIFETIME)
         ]);
         $_SESSION['session_token'] = $sessionToken;
-        
+
         logActivity($user['id'], 'LOGIN_SUCCESS', 'AUTH', 'User logged in successfully');
-        
-        // Remove sensitive data
-        unset($user['password_hash']);
-        
+
         return [
             'success' => true,
             'message' => 'Login successful',
@@ -225,8 +262,8 @@ class Auth {
                 'email' => $user['email'],
                 'role' => $user['role_code'],
                 'role_name' => $user['role_name'],
-                'department' => $user['dept_name'],
-                'designation' => $user['designation_name']
+                'department' => $user['dept_name'] ?? null,
+                'designation' => $user['designation_name'] ?? null
             ]
         ];
     }
@@ -258,7 +295,14 @@ class Auth {
         // Verify session in database if token exists
         $db = Database::getInstance();
         $session = $db->fetch(
-            "SELECT * FROM sessions WHERE session_token = :token AND user_id = :user_id AND expires_at > NOW()",
+            "SELECT s.*, u.is_active, u.is_locked
+             FROM sessions s
+             JOIN users u ON s.user_id = u.id
+             WHERE s.session_token = :token
+               AND s.user_id = :user_id
+               AND s.expires_at > NOW()
+               AND u.is_active = 1
+               AND u.is_locked = 0",
             ['token' => $_SESSION['session_token'], 'user_id' => $_SESSION['user_id']]
         );
         

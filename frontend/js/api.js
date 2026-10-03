@@ -45,8 +45,8 @@ const API = {
                 credentials: 'include'
             });
             const data = await response.json();
-            if (data.success && data.data.token) {
-                this.csrfToken = data.data.token;
+            if (data.success && data.data.csrf_token) {
+                this.csrfToken = data.data.csrf_token;
             }
         } catch (e) {
             console.error('Failed to get CSRF token:', e);
@@ -90,6 +90,15 @@ const API = {
             clearTimeout(timeoutId);
             
             const data = await response.json();
+
+            // Successful authentication creates a fresh session CSRF token.
+            // Drop the pre-login token so the next mutation fetches the new one.
+            if (response.ok && data.success &&
+                (endpoint.includes('auth.php?action=login') ||
+                 endpoint.includes('auth.php?action=admin-login') ||
+                 endpoint.includes('two-factor.php?action=verify'))) {
+                this.csrfToken = null;
+            }
             
             // Don't redirect on auth pages (login, register)
             const isAuthPage = window.location.pathname.includes('login') || 
@@ -188,7 +197,7 @@ const API = {
         },
         
         async logout() {
-            return API.get('auth.php?action=logout');
+            return API.post('auth.php?action=logout');
         },
         
         async checkSession() {
@@ -451,7 +460,7 @@ const API = {
         },
         
         async createTestNotification() {
-            return API.get('dashboard.php?action=test-notification');
+            return API.post('dashboard.php?action=test-notification');
         }
     },
     

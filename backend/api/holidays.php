@@ -258,19 +258,33 @@ function generateYearHolidays() {
  * Generate default holidays without templates
  */
 function generateDefaultHolidays($db, $year, $overwrite) {
-    // Default Indian holidays with fixed dates
+    if ($year !== 2026) {
+        errorResponse('No official Delhi holiday schedule is configured for this year. Add year-specific templates before generating holidays.');
+    }
+
+    // GNCTD General Administration Department notification dated 04-12-2025.
+    // Source: https://dkvib.delhi.gov.in/sites/default/files/DKVIB/circulars-orders/govtholidays2026.pdf
+    // 2026 Delhi government general-holiday schedule.
     $defaultHolidays = [
-        ['month' => 1, 'day' => 1, 'name' => 'New Year', 'type' => 'Optional'],
-        ['month' => 1, 'day' => 14, 'name' => 'Makar Sankranti / Pongal', 'type' => 'Regional'],
         ['month' => 1, 'day' => 26, 'name' => 'Republic Day', 'type' => 'National'],
-        ['month' => 2, 'day' => 19, 'name' => 'Chhatrapati Shivaji Maharaj Jayanti', 'type' => 'Regional'],
-        ['month' => 4, 'day' => 14, 'name' => 'Dr. Ambedkar Jayanti', 'type' => 'National'],
-        ['month' => 5, 'day' => 1, 'name' => 'May Day / Labour Day', 'type' => 'National'],
+        ['month' => 3, 'day' => 4, 'name' => 'Holi', 'type' => 'National'],
+        ['month' => 3, 'day' => 21, 'name' => 'Id-ul-Fitr', 'type' => 'National'],
+        ['month' => 3, 'day' => 26, 'name' => 'Ram Navami', 'type' => 'National'],
+        ['month' => 3, 'day' => 31, 'name' => 'Maha Vir Jayanti', 'type' => 'National'],
+        ['month' => 4, 'day' => 3, 'name' => 'Good Friday', 'type' => 'National'],
+        ['month' => 5, 'day' => 1, 'name' => 'Buddha Purnima', 'type' => 'National'],
+        ['month' => 5, 'day' => 27, 'name' => 'Id-ul-Zuha (Bakrid)', 'type' => 'National'],
+        ['month' => 6, 'day' => 26, 'name' => 'Muharram', 'type' => 'National'],
         ['month' => 8, 'day' => 15, 'name' => 'Independence Day', 'type' => 'National'],
-        ['month' => 10, 'day' => 2, 'name' => 'Gandhi Jayanti', 'type' => 'National'],
-        ['month' => 10, 'day' => 31, 'name' => 'Sardar Vallabhbhai Patel Jayanti', 'type' => 'Optional'],
-        ['month' => 11, 'day' => 14, 'name' => 'Children\'s Day', 'type' => 'Optional'],
-        ['month' => 12, 'day' => 25, 'name' => 'Christmas', 'type' => 'National'],
+        ['month' => 8, 'day' => 26, 'name' => 'Milad-un-Nabi / Id-e-Milad', 'type' => 'National'],
+        ['month' => 9, 'day' => 4, 'name' => 'Janmashtami (Vaishnava)', 'type' => 'National'],
+        ['month' => 10, 'day' => 2, 'name' => 'Mahatma Gandhi Birthday', 'type' => 'National'],
+        ['month' => 10, 'day' => 20, 'name' => 'Dussehra', 'type' => 'National'],
+        ['month' => 10, 'day' => 26, 'name' => 'Maharishi Valmiki Birthday', 'type' => 'National'],
+        ['month' => 11, 'day' => 8, 'name' => 'Diwali (Deepavali)', 'type' => 'National'],
+        ['month' => 11, 'day' => 24, 'name' => 'Guru Nanak Birthday', 'type' => 'National'],
+        ['month' => 12, 'day' => 25, 'name' => 'Christmas Day', 'type' => 'National'],
+        ['month' => 9, 'day' => 11, 'name' => 'Special Holiday - BRICS Summit', 'type' => 'Regional'],
     ];
     
     if ($overwrite) {
@@ -324,12 +338,23 @@ function createHoliday() {
         errorResponse('Holiday date and name are required');
     }
     
+    $holidayDate = $input['holiday_date'];
+    $dateObject = DateTime::createFromFormat('Y-m-d', $holidayDate);
+    if (!$dateObject || $dateObject->format('Y-m-d') !== $holidayDate) {
+        errorResponse('Holiday date must be a valid YYYY-MM-DD date');
+    }
+    
+    $holidayType = $input['holiday_type'] ?? 'National';
+    $allowedTypes = ['National', 'Regional', 'Restricted', 'Optional'];
+    if (!in_array($holidayType, $allowedTypes, true)) {
+        errorResponse('Invalid holiday type');
+    }
+    
     $db = Database::getInstance();
     
-    // Check if date already has a holiday
     $exists = $db->fetch(
         "SELECT id, holiday_name FROM holidays WHERE holiday_date = :date",
-        ['date' => $input['holiday_date']]
+        ['date' => $holidayDate]
     );
     
     if ($exists) {
@@ -337,14 +362,14 @@ function createHoliday() {
     }
     
     $id = $db->insert('holidays', [
-        'holiday_date' => $input['holiday_date'],
+        'holiday_date' => $holidayDate,
         'holiday_name' => sanitize($input['holiday_name']),
-        'holiday_type' => $input['holiday_type'] ?? 'National',
+        'holiday_type' => $holidayType,
         'is_active' => 1
     ]);
     
     logActivity($_SESSION['user_id'], 'CREATE_HOLIDAY', 'SETTINGS', 
-               "Created holiday: {$input['holiday_name']} on {$input['holiday_date']}");
+               "Created holiday: {$input['holiday_name']} on {$holidayDate}");
     
     successResponse(['id' => $id], 'Holiday created successfully');
 }
@@ -365,12 +390,50 @@ function updateHoliday() {
     }
     
     $db = Database::getInstance();
+    $existing = $db->fetch("SELECT id FROM holidays WHERE id = :id", ['id' => $id]);
+    if (!$existing) {
+        errorResponse('Holiday not found', 404);
+    }
     
     $updateData = [];
-    if (isset($input['holiday_name'])) $updateData['holiday_name'] = sanitize($input['holiday_name']);
-    if (isset($input['holiday_date'])) $updateData['holiday_date'] = $input['holiday_date'];
-    if (isset($input['holiday_type'])) $updateData['holiday_type'] = $input['holiday_type'];
-    if (isset($input['is_active'])) $updateData['is_active'] = $input['is_active'] ? 1 : 0;
+    
+    if (isset($input['holiday_name'])) {
+        $name = trim((string)$input['holiday_name']);
+        if ($name === '') {
+            errorResponse('Holiday name cannot be empty');
+        }
+        $updateData['holiday_name'] = sanitize($name);
+    }
+    
+    if (isset($input['holiday_date'])) {
+        $holidayDate = $input['holiday_date'];
+        $dateObject = DateTime::createFromFormat('Y-m-d', $holidayDate);
+        if (!$dateObject || $dateObject->format('Y-m-d') !== $holidayDate) {
+            errorResponse('Holiday date must be a valid YYYY-MM-DD date');
+        }
+        
+        $duplicate = $db->fetch(
+            "SELECT id, holiday_name FROM holidays WHERE holiday_date = :date AND id <> :id",
+            ['date' => $holidayDate, 'id' => $id]
+        );
+        if ($duplicate) {
+            errorResponse("A holiday ({$duplicate['holiday_name']}) already exists on this date");
+        }
+        $updateData['holiday_date'] = $holidayDate;
+    }
+    
+    if (isset($input['holiday_type'])) {
+        $holidayType = $input['holiday_type'];
+        $allowedTypes = ['National', 'Regional', 'Restricted', 'Optional'];
+        if (!in_array($holidayType, $allowedTypes, true)) {
+            errorResponse('Invalid holiday type');
+        }
+        $updateData['holiday_type'] = $holidayType;
+    }
+    
+    if (isset($input['is_active'])) {
+        $updateData['is_active'] = $input['is_active'] ? 1 : 0;
+    }
     
     if (empty($updateData)) {
         errorResponse('No data to update');
@@ -401,6 +464,9 @@ function deleteHoliday() {
     $db = Database::getInstance();
     
     $holiday = $db->fetch("SELECT holiday_name FROM holidays WHERE id = :id", ['id' => $id]);
+    if (!$holiday) {
+        errorResponse('Holiday not found', 404);
+    }
     
     $db->delete('holidays', 'id = :id', ['id' => $id]);
     

@@ -76,10 +76,10 @@
                                        required
                                        autocomplete="current-password"
                                        style="padding-right: 50px;">
-                                <span id="toggle-password" 
-                                      style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.85rem; user-select: none; color: #666;">
+                                <button type="button" id="toggle-password" aria-label="Show password" aria-pressed="false"
+                                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.85rem; border: 0; background: transparent; color: #666; padding: 0.5rem;">
                                     Show
-                                </span>
+                                </button>
                             </div>
                             <span class="form-error"></span>
                         </div>
@@ -150,9 +150,13 @@
             if (pwd.type === 'password') {
                 pwd.type = 'text';
                 this.textContent = 'Hide';
+                this.setAttribute('aria-label', 'Hide password');
+                this.setAttribute('aria-pressed', 'true');
             } else {
                 pwd.type = 'password';
                 this.textContent = 'Show';
+                this.setAttribute('aria-label', 'Show password');
+                this.setAttribute('aria-pressed', 'false');
             }
         });
         
@@ -236,7 +240,10 @@
             try {
                 const response = await fetch('../backend/api/two-factor.php?action=verify', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': await API.getCsrfToken()
+                    },
                     credentials: 'include',
                     body: JSON.stringify({
                         user_id: pendingUserId,

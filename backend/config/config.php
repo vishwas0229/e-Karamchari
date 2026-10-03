@@ -35,6 +35,9 @@ define('RATE_LIMIT_AUTH_REQUESTS', 10);
 define('RATE_LIMIT_AUTH_WINDOW', 60);
 define('RATE_LIMIT_REQUESTS', 100); // Max requests per minute
 define('RATE_LIMIT_WINDOW', 60); // 1 minute window
+// Attendance automation configuration.
+define('ATTENDANCE_AUTO_CHECKOUT_TIME', getenv('ATTENDANCE_AUTO_CHECKOUT_TIME') ?: '18:00:00');
+define('ATTENDANCE_CRON_SECRET', getenv('ATTENDANCE_CRON_SECRET') ?: '');
 
 // File Upload Settings
 define('UPLOAD_MAX_SIZE', 5 * 1024 * 1024); // 5MB
@@ -62,7 +65,7 @@ function setSecurityHeaders() {
     // Referrer policy
     header('Referrer-Policy: strict-origin-when-cross-origin');
     // Content Security Policy
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';");
+    header("Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';");
     // Permissions Policy
     header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
 }
@@ -86,35 +89,117 @@ function setCorsHeaders() {
     header('Access-Control-Allow-Headers: Content-Type, Authorization, X-CSRF-Token');
     header('Access-Control-Allow-Credentials: true');
     header('Content-Type: application/json; charset=UTF-8');
+
+    // Enforce the session-bound CSRF token for state-changing API requests.
+    // Authentication bootstrap endpoints are intentionally exempt until a
+    // session token exists; all authenticated mutations must provide X-CSRF-Token.
+    checkRateLimit();
+    enforceSensitiveRateLimit();
+    enforceCsrfForStateChange();
+}
+
+function enforceCsrfForStateChange() {
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
+        return;
+    }
+
+    $script = basename($_SERVER['SCRIPT_FILENAME'] ?? '');
+    $action = $_GET['action'] ?? '';
+
+    // Credential bootstrap must work before an authenticated session exists.
+    if ($script === 'auth.php' && in_array($action, ['login', 'admin-login', 'csrf'], true)) {
+        return;
+    }
+
+    // A valid server-to-server attendance cron request uses its deployment
+    // secret and is the only non-session exception to browser CSRF validation.
+    if ($script === 'attendance.php' && $action === 'auto-mark' && isValidAttendanceCronRequest()) {
+        return;
+    }
+
+    if (!class_exists('Auth') || !Auth::verifyCsrf($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) {
+        errorResponse('Invalid or missing CSRF token', 403);
+    }
 }
 
 // Rate Limiting
-function checkRateLimit($identifier = null) {
+function isValidAttendanceCronRequest() {
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? '');
+    $providedSecret = $_SERVER['HTTP_X_CRON_SECRET'] ?? '';
+
+    return $method === 'POST'
+        && ATTENDANCE_CRON_SECRET !== ''
+        && $providedSecret !== ''
+        && hash_equals(ATTENDANCE_CRON_SECRET, $providedSecret);
+}
+
+function checkRateLimit($identifier = null, $limit = null, $window = null) {
     $identifier = $identifier ?: ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
-    $cacheFile = __DIR__ . '/../logs/rate_limit_' . md5($identifier) . '.json';
-    $requestLimit = (strpos($identifier, 'login:') === 0 || strpos($identifier, 'admin-login:') === 0)
-        ? RATE_LIMIT_AUTH_REQUESTS
-        : RATE_LIMIT_REQUESTS;
-    
+    $requestLimit = $limit ?? (
+        (strpos($identifier, 'login:') === 0 || strpos($identifier, 'admin-login:') === 0)
+            ? RATE_LIMIT_AUTH_REQUESTS
+            : RATE_LIMIT_REQUESTS
+    );
+    $requestWindow = $window ?? RATE_LIMIT_WINDOW;
+
+    $cacheFile = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'ekaramchari_rate_limit_' . md5($identifier) . '.json';
     $now = time();
     $requests = [];
-    
-    if (file_exists($cacheFile)) {
-        $data = json_decode(file_get_contents($cacheFile), true);
-        if ($data) {
-            // Filter requests within the time window
-            $requests = array_filter($data, function($timestamp) use ($now) {
-                return ($now - $timestamp) < RATE_LIMIT_WINDOW;
-            });
-        }
+
+    $handle = fopen($cacheFile, 'c+');
+    if ($handle === false) {
+        // Fail closed for abuse-sensitive controls.
+        errorResponse('Rate limit service unavailable. Please try again later.', 503);
     }
-    
+
+    if (!flock($handle, LOCK_EX)) {
+        fclose($handle);
+        errorResponse('Rate limit service unavailable. Please try again later.', 503);
+    }
+
+    $contents = stream_get_contents($handle);
+    $data = json_decode($contents ?: '[]', true);
+    if (is_array($data)) {
+        $requests = array_values(array_filter($data, function($timestamp) use ($now, $requestWindow) {
+            return is_numeric($timestamp) && ($now - (int)$timestamp) < $requestWindow;
+        }));
+    }
+
     if (count($requests) >= $requestLimit) {
+        flock($handle, LOCK_UN);
+        fclose($handle);
         errorResponse('Too many requests. Please try again later.', 429);
     }
-    
+
     $requests[] = $now;
-    file_put_contents($cacheFile, json_encode(array_values($requests)));
+    ftruncate($handle, 0);
+    rewind($handle);
+    fwrite($handle, json_encode($requests));
+    fflush($handle);
+    flock($handle, LOCK_UN);
+    fclose($handle);
+}
+
+function enforceSensitiveRateLimit() {
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
+        return;
+    }
+
+    $script = basename($_SERVER['SCRIPT_FILENAME'] ?? '');
+    $action = $_GET['action'] ?? '';
+
+    if ($script === 'auth.php' && in_array($action, ['login', 'admin-login'], true)) {
+        return;
+    }
+
+    $identity = $_SESSION['user_id'] ?? ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+    checkRateLimit(
+        'sensitive:' . $identity . ':' . $script . ':' . $action,
+        30,
+        60
+    );
 }
 
 // JSON Response Helper

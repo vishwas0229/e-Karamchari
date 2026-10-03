@@ -331,7 +331,7 @@
         // 2FA Functions
         async function load2FAStatus() {
             try {
-                const response = await fetch('../../../backend/api/two-factor.php?action=status', {
+                const response = await fetch('../../backend/api/two-factor.php?action=status', {
                     credentials: 'include'
                 });
                 const data = await response.json();
@@ -353,7 +353,7 @@
         
         async function loadBackupCodesCount() {
             try {
-                const response = await fetch('../../../backend/api/two-factor.php?action=backup-codes', {
+                const response = await fetch('../../backend/api/two-factor.php?action=backup-codes', {
                     credentials: 'include'
                 });
                 const data = await response.json();
@@ -370,8 +370,9 @@
         async function setup2FA() {
             try {
                 Utils.showLoading();
-                const response = await fetch('../../../backend/api/two-factor.php?action=setup', {
+                const response = await fetch('../../backend/api/two-factor.php?action=setup', {
                     method: 'POST',
+                    headers: { 'X-CSRF-Token': await API.getCsrfToken() },
                     credentials: 'include'
                 });
                 Utils.hideLoading();
@@ -421,9 +422,12 @@
             
             try {
                 Utils.showLoading();
-                const response = await fetch('../../../backend/api/two-factor.php?action=verify-setup', {
+                const response = await fetch('../../backend/api/two-factor.php?action=verify-setup', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': await API.getCsrfToken()
+                    },
                     credentials: 'include',
                     body: JSON.stringify({ code: code })
                 });
@@ -471,9 +475,12 @@
             
             try {
                 Utils.showLoading();
-                const response = await fetch('../../../backend/api/two-factor.php?action=disable', {
+                const response = await fetch('../../backend/api/two-factor.php?action=disable', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': await API.getCsrfToken()
+                    },
                     credentials: 'include',
                     body: JSON.stringify({ password: password })
                 });
@@ -515,9 +522,12 @@
             
             try {
                 Utils.showLoading();
-                const response = await fetch('../../../backend/api/two-factor.php?action=regenerate-backup', {
+                const response = await fetch('../../backend/api/two-factor.php?action=regenerate-backup', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': await API.getCsrfToken()
+                    },
                     credentials: 'include',
                     body: JSON.stringify({ code: code })
                 });

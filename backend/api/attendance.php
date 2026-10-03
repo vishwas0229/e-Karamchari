@@ -60,6 +60,42 @@ switch ($action) {
 }
 
 /**
+ * Get an approved leave covering a specific date for an employee.
+ */
+function validateAttendanceDate($date) {
+    $date = trim((string)$date);
+    $parsed = DateTime::createFromFormat('!Y-m-d', $date);
+    $errors = DateTime::getLastErrors();
+
+    if (
+        !$parsed ||
+        ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0)) ||
+        $parsed->format('Y-m-d') !== $date
+    ) {
+        errorResponse('Attendance date must be a valid YYYY-MM-DD date', 422);
+    }
+
+    return $date;
+}
+
+function getApprovedLeaveForDate($db, $employeeId, $date) {
+    return $db->fetch(
+        "SELECT id, request_number
+         FROM leave_requests
+         WHERE employee_id = :employee_id
+           AND status = 'Approved'
+           AND start_date <= :start_date
+           AND end_date >= :end_date
+         LIMIT 1",
+        [
+            'employee_id' => $employeeId,
+            'start_date' => $date,
+            'end_date' => $date
+        ]
+    );
+}
+
+/**
  * Get attendance records (Admin only)
  * Automatically marks absent/finalizes for past dates
  */
@@ -191,16 +227,27 @@ function autoMarkForDate($db, $date) {
         );
         
         if (!$attendance) {
-            // No check-in between 8 AM - 5 PM = Absent
-            $db->insert('attendance', [
-                'employee_id' => $emp['id'],
-                'attendance_date' => $date,
-                'status' => 'Absent',
-                'remarks' => 'Auto-marked absent (no check-in)'
-            ]);
+            $approvedLeave = getApprovedLeaveForDate($db, $emp['id'], $date);
+
+            if ($approvedLeave) {
+                $db->insert('attendance', [
+                    'employee_id' => $emp['id'],
+                    'attendance_date' => $date,
+                    'status' => 'On Leave',
+                    'remarks' => 'Auto-marked on approved leave (' . $approvedLeave['request_number'] . ')'
+                ]);
+            } else {
+                // No check-in between 8 AM - 5 PM = Absent
+                $db->insert('attendance', [
+                    'employee_id' => $emp['id'],
+                    'attendance_date' => $date,
+                    'status' => 'Absent',
+                    'remarks' => 'Auto-marked absent (no check-in)'
+                ]);
+            }
         } else if ($attendance['check_in_time'] && !$attendance['check_out_time']) {
-            // Checked in but didn't checkout - auto checkout at 17:00 (5 PM)
-            $checkOutTime = '17:00:00';
+            // Checked in but didn't checkout - use the canonical automation time.
+            $checkOutTime = ATTENDANCE_AUTO_CHECKOUT_TIME;
             $checkIn = strtotime($attendance['check_in_time']);
             $checkOut = strtotime($checkOutTime);
             $workHours = round(($checkOut - $checkIn) / 3600, 2);
@@ -297,6 +344,11 @@ function checkIn() {
     );
     if ($holiday) {
         errorResponse("आज {$holiday['holiday_name']} की छुट्टी है। Check-in नहीं हो सकता।");
+    }
+
+    $approvedLeave = getApprovedLeaveForDate($db, $userId, $today);
+    if ($approvedLeave) {
+        errorResponse("You are on approved leave ({$approvedLeave['request_number']}) today. Check-in is not allowed.");
     }
     
     // Time restriction only for employees (8 AM - 5 PM), Admin can check-in anytime
@@ -717,19 +769,24 @@ function adminCheckOut() {
  * Can be called via cron job or manually by admin
  */
 function autoMarkAttendance() {
-    // Allow both admin call and cron job (no auth for cron)
-    $isCron = isset($_GET['cron_key']) && $_GET['cron_key'] === 'your_secret_cron_key_here';
-    
+    // Manual execution requires an authenticated administrator.
+    // Unattended execution requires a deployment-provided X-Cron-Secret header.
+    $isCron = isValidAttendanceCronRequest();
+
     if (!$isCron) {
         Auth::requireAdmin();
     }
-    
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !$isCron) {
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         errorResponse('Method not allowed', 405);
     }
-    
-    $input = $isCron ? [] : json_decode(file_get_contents('php://input'), true);
-    $date = sanitize($input['date'] ?? $_GET['date'] ?? date('Y-m-d', strtotime('-1 day')));
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $date = validateAttendanceDate($input['date'] ?? date('Y-m-d', strtotime('-1 day')));
+
+    if ($date > date('Y-m-d')) {
+        errorResponse('Attendance auto-marking cannot target a future date', 422);
+    }
     
     $db = Database::getInstance();
     
@@ -769,17 +826,28 @@ function autoMarkAttendance() {
         );
         
         if (!$attendance) {
-            // No record - mark as Absent
-            $db->insert('attendance', [
-                'employee_id' => $emp['id'],
-                'attendance_date' => $date,
-                'status' => 'Absent',
-                'remarks' => 'Auto-marked absent (no check-in)'
-            ]);
-            $absentMarked++;
+            $approvedLeave = getApprovedLeaveForDate($db, $emp['id'], $date);
+
+            if ($approvedLeave) {
+                $db->insert('attendance', [
+                    'employee_id' => $emp['id'],
+                    'attendance_date' => $date,
+                    'status' => 'On Leave',
+                    'remarks' => 'Auto-marked on approved leave (' . $approvedLeave['request_number'] . ')'
+                ]);
+            } else {
+                // No record - mark as Absent
+                $db->insert('attendance', [
+                    'employee_id' => $emp['id'],
+                    'attendance_date' => $date,
+                    'status' => 'Absent',
+                    'remarks' => 'Auto-marked absent (no check-in)'
+                ]);
+                $absentMarked++;
+            }
         } else if ($attendance['check_in_time'] && !$attendance['check_out_time']) {
-            // Checked in but didn't checkout - auto checkout at 18:00
-            $checkOutTime = '18:00:00';
+            // Checked in but didn't checkout - use the canonical automation time.
+            $checkOutTime = ATTENDANCE_AUTO_CHECKOUT_TIME;
             $checkIn = strtotime($attendance['check_in_time']);
             $checkOut = strtotime($checkOutTime);
             $workHours = round(($checkOut - $checkIn) / 3600, 2);
@@ -850,9 +918,11 @@ function finalizeDayAttendance() {
     $processed = 0;
     
     foreach ($records as $record) {
-        // Auto checkout at current time or 18:00 if past that
+        // Auto checkout at the current time, capped by the canonical automation time.
         $now = date('H:i:s');
-        $checkOutTime = (strtotime($now) > strtotime('18:00:00')) ? '18:00:00' : $now;
+        $checkOutTime = (strtotime($now) > strtotime(ATTENDANCE_AUTO_CHECKOUT_TIME))
+            ? ATTENDANCE_AUTO_CHECKOUT_TIME
+            : $now;
         
         $checkIn = strtotime($record['check_in_time']);
         $checkOut = strtotime($checkOutTime);
